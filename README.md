@@ -15,7 +15,7 @@ This project is an independent submission developed for **MathWorks Challenge #2
 
 ## Repository Structure
 Please refer to the following core documents for detailed information:
-- [`PROVENANCE.md`](PROVENANCE.md) - Academic integrity and disclosure of prior implementations.
+- [`RELATED_WORK.md`](RELATED_WORK.md) - Academic context and related work.
 - [`METHODOLOGY.md`](METHODOLOGY.md) - Deep dive into the architectural design and algorithms used.
 - [`DATA_SOURCES.md`](DATA_SOURCES.md) - API endpoints, date ranges, and data provenance.
 - [`EVALUATION.md`](EVALUATION.md) - Performance metrics (Sharpe ratio, Max Drawdown, RMSE) and baseline comparisons.
