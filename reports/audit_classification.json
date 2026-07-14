@@ -1,0 +1,390 @@
+[
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\evaluate_pipeline.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\main_legacy.m",
+    "Status": "LEGACY"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\run_all_tests.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\run_end_to_end_integration.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\run_pipeline.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\run_training_test.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\start_sentinel.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\test_backtest.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\test_evaluator.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\test_sentiment.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\train_pipeline.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\dashboard\\KCryptoX8_Dashboard.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\dashboard\\SentinelDashboard.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\forecasting\\EconometricForecast.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\legacy_imports\\AdvancedBinanceIngestor_1h.m",
+    "Status": "LEGACY"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\legacy_imports\\AdvancedBinanceIngestor_5m.m",
+    "Status": "LEGACY"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\legacy_imports\\AdvancedCMCProcessor.m",
+    "Status": "LEGACY"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\legacy_imports\\AdvancedEvaluator.m",
+    "Status": "LEGACY"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\portfolio\\Backtester.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\portfolio\\PortfolioOptimizer.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART1_REFERENCE\\AdaptiveAvgPool1dLayer.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART1_REFERENCE\\AttentionLayer.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART1_REFERENCE\\CNNLSTMModel.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART1_REFERENCE\\StockDataset.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART1_REFERENCE\\merge_data.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART1_REFERENCE\\permuteLayer.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART1_REFERENCE\\sentimental_score.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART1_REFERENCE\\shift_time.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART1_REFERENCE\\train_test.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART2_REFERENCE\\AdaptiveAvgPool1dLayer.m",
+    "Status": "DUPLICATE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART2_REFERENCE\\AttentionLayer.m",
+    "Status": "DUPLICATE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART2_REFERENCE\\CNNLSTMModel.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART2_REFERENCE\\StockDataset.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART2_REFERENCE\\advanced_predict_30m.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART2_REFERENCE\\evaluate_accuracy.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART2_REFERENCE\\fetch_binance_5m.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART2_REFERENCE\\fetch_binance_hourly.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART2_REFERENCE\\live_predict.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART2_REFERENCE\\live_predict_ultimate.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART2_REFERENCE\\merge_data.m",
+    "Status": "DUPLICATE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART2_REFERENCE\\permuteLayer.m",
+    "Status": "DUPLICATE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART2_REFERENCE\\process_cmc_data.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART2_REFERENCE\\sentimental_score.m",
+    "Status": "DUPLICATE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART2_REFERENCE\\shift_time.m",
+    "Status": "DUPLICATE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART2_REFERENCE\\test_all_engines.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART2_REFERENCE\\train_test.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART2_REFERENCE\\ultimate_train.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART2_REFERENCE\\dashboard\\KCryptoX8_Dashboard.m",
+    "Status": "DUPLICATE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART2_REFERENCE\\data_ingestion\\DataIngestion.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART2_REFERENCE\\forecasting\\EconometricForecast.m",
+    "Status": "DUPLICATE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART2_REFERENCE\\portfolio\\Backtester.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART2_REFERENCE\\portfolio\\PortfolioEngine.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART2_REFERENCE\\sentiment_analysis\\LLMFeatureExtractor.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\reference\\PART2_REFERENCE\\sentiment_analysis\\SentimentEngine.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\scripts\\move_files.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\scripts\\run_audit.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\sentiment_analysis\\FinbertAnalyzer.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\sentiment_analysis\\LLMFeatureExtractor.m",
+    "Status": "DUPLICATE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\sentiment_analysis\\RatioRuleAnalyzer.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\sentiment_analysis\\SentimentEngine.m",
+    "Status": "DUPLICATE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\sentiment_analysis\\SentimentFusion.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\sentiment_analysis\\VaderAnalyzer.m",
+    "Status": "UNUSED"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\src\\dashboard\\App.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\src\\dashboard\\HomeTab.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\src\\dashboard\\SentinelDashboard.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\src\\dashboard\\SystemHealthTab.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\src\\data\\FeatureEngineer.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\src\\data\\MarketDataDownloader.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\src\\data\\PipelineDataProcessor.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\src\\feature_engineering\\FeatureFusionEngine.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\src\\forecasting\\ModelFramework.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\src\\indicators\\IndicatorEngine.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\src\\loaders\\PriceDataLoader.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\src\\models\\ModelManager.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\src\\sentiment\\SentimentEngine.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\src\\strategy\\PortfolioSimulator.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\src\\strategy\\RiskEngine.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\src\\utils\\ConfigManager.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\src\\utils\\DataFolderInit.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\src\\utils\\LiveLogger.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\src\\utils\\Logger.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\src\\utils\\PythonWrapper.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\src\\utils\\SetupWizard.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\src\\utils\\SystemHealthCheck.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\src\\utils\\VerificationReport.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\tests\\data\\generate_golden_data.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\tests\\performance\\test_Latency.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\tests\\unit\\test_DataLoader.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\tests\\unit\\test_FeatureFusionEngine.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\tests\\unit\\test_Indicators.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\tests\\unit\\test_RiskEngine.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\tests\\unit\\test_SentimentEngine.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\tests\\validation\\Backtester.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\tests\\validation\\ModelComparer.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\tests\\validation\\MonteCarloSimulator.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\tests\\validation\\PaperTrader.m",
+    "Status": "ACTIVE"
+  },
+  {
+    "File": "d:\\Sentiment Analysis in Cryptocurrency Trading\\tests\\validation\\WalkForwardValidator.m",
+    "Status": "ACTIVE"
+  }
+]

@@ -1,0 +1,433 @@
+========================================================================================================================
+PROJECT EXPLORER REPORT
+========================================================================================================================
+
+Project : BTC-price-prediction-using-sentimental-analysis
+Root    : C:\fun\BTC-price-prediction-using-sentimental-analysis
+Created : 2026-07-14 16:17:51.504796
+
+📁 BTC-price-prediction-using-sentimental-analysis
+│
+├── 📄 AdaptiveAvgPool1dLayer.m
+│   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\AdaptiveAvgPool1dLayer.m
+│   Extension : .m
+│   Size      : 1.79 KB (1,835 bytes)
+│   Modified  : 2026-07-14 16:14:29
+│   Type      : Unknown File Type
+
+│
+├── 📄 AttentionLayer.m
+│   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\AttentionLayer.m
+│   Extension : .m
+│   Size      : 1.01 KB (1,030 bytes)
+│   Modified  : 2026-07-14 16:14:29
+│   Type      : Unknown File Type
+
+│
+├── 📄 BTC-price-prediction-using-sentimental-analysis_Project_Report.txt
+│   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\BTC-price-prediction-using-sentimental-analysis_Project_Report.txt
+│   Extension : .txt
+│   Size      : 0.00 B (0 bytes)
+│   Modified  : 2026-07-14 16:17:51
+│   Type      : Plain Text File
+
+│
+├── 📄 CNNLSTMModel.asv
+│   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\CNNLSTMModel.asv
+│   Extension : .asv
+│   Size      : 2.56 KB (2,618 bytes)
+│   Modified  : 2026-07-14 16:14:29
+│   Type      : Unknown File Type
+
+│
+├── 📄 CNNLSTMModel.m
+│   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\CNNLSTMModel.m
+│   Extension : .m
+│   Size      : 2.56 KB (2,626 bytes)
+│   Modified  : 2026-07-14 16:14:29
+│   Type      : Unknown File Type
+
+│
+├── 📄 LICENSE
+│   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\LICENSE
+│   Extension : (none)
+│   Size      : 1.06 KB (1,087 bytes)
+│   Modified  : 2026-07-14 16:14:29
+│   Type      : Unknown File Type
+
+│
+├── 📄 README.md
+│   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\README.md
+│   Extension : .md
+│   Size      : 3.11 KB (3,180 bytes)
+│   Modified  : 2026-07-14 16:14:29
+│   Type      : Markdown Documentation
+
+│
+├── 📄 StockDataset.m
+│   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\StockDataset.m
+│   Extension : .m
+│   Size      : 2.73 KB (2,799 bytes)
+│   Modified  : 2026-07-14 16:14:29
+│   Type      : Unknown File Type
+
+│
+├── 📄 filtered_merged_sentiment_price1.csv
+│   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\filtered_merged_sentiment_price1.csv
+│   Extension : .csv
+│   Size      : 2.13 MB (2,229,242 bytes)
+│   Modified  : 2026-07-14 16:14:29
+│   Type      : CSV File
+
+│
+├── 📄 merge_data.m
+│   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\merge_data.m
+│   Extension : .m
+│   Size      : 1.29 KB (1,319 bytes)
+│   Modified  : 2026-07-14 16:14:29
+│   Type      : Unknown File Type
+
+│
+├── 📄 permuteLayer.m
+│   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\permuteLayer.m
+│   Extension : .m
+│   Size      : 604.00 B (604 bytes)
+│   Modified  : 2026-07-14 16:14:29
+│   Type      : Unknown File Type
+
+│
+├── 📄 project_explorer.py
+│   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\project_explorer.py
+│   Extension : .py
+│   Size      : 4.02 KB (4,116 bytes)
+│   Modified  : 2026-07-14 16:17:32
+│   Type      : Python Source Code
+
+│
+├── 📄 sentimental_score.m
+│   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\sentimental_score.m
+│   Extension : .m
+│   Size      : 6.15 KB (6,301 bytes)
+│   Modified  : 2026-07-14 16:14:29
+│   Type      : Unknown File Type
+
+│
+├── 📄 shift_time.m
+│   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\shift_time.m
+│   Extension : .m
+│   Size      : 805.00 B (805 bytes)
+│   Modified  : 2026-07-14 16:14:29
+│   Type      : Unknown File Type
+
+│
+├── 📄 tmp.xlsx
+│   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\tmp.xlsx
+│   Extension : .xlsx
+│   Size      : 21.67 KB (22,191 bytes)
+│   Modified  : 2026-07-14 16:14:29
+│   Type      : Excel Workbook
+
+│
+├── 📄 train_test.asv
+│   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\train_test.asv
+│   Extension : .asv
+│   Size      : 2.38 KB (2,440 bytes)
+│   Modified  : 2026-07-14 16:14:29
+│   Type      : Unknown File Type
+
+│
+├── 📄 train_test.m
+│   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\train_test.m
+│   Extension : .m
+│   Size      : 2.36 KB (2,419 bytes)
+│   Modified  : 2026-07-14 16:14:29
+│   Type      : Unknown File Type
+
+│
+├── 📄 vader_lexicon.txt
+│   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\vader_lexicon.txt
+│   Extension : .txt
+│   Size      : 424.13 KB (434,306 bytes)
+│   Modified  : 2026-07-14 16:14:29
+│   Type      : Plain Text File
+
+│   ├── 📁 .git
+│   │
+│   ├── 📄 HEAD
+│   │   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\.git\HEAD
+│   │   Extension : (none)
+│   │   Size      : 21.00 B (21 bytes)
+│   │   Modified  : 2026-07-14 16:14:29
+│   │   Type      : Unknown File Type
+
+│   │
+│   ├── 📄 config
+│   │   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\.git\config
+│   │   Extension : (none)
+│   │   Size      : 368.00 B (368 bytes)
+│   │   Modified  : 2026-07-14 16:14:34
+│   │   Type      : Unknown File Type
+
+│   │
+│   ├── 📄 description
+│   │   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\.git\description
+│   │   Extension : (none)
+│   │   Size      : 73.00 B (73 bytes)
+│   │   Modified  : 2026-07-14 16:14:26
+│   │   Type      : Unknown File Type
+
+│   │
+│   ├── 📄 index
+│   │   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\.git\index
+│   │   Extension : (none)
+│   │   Size      : 1.47 KB (1,505 bytes)
+│   │   Modified  : 2026-07-14 16:14:29
+│   │   Type      : Unknown File Type
+
+│   │
+│   ├── 📄 kilo
+│   │   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\.git\kilo
+│   │   Extension : (none)
+│   │   Size      : 40.00 B (40 bytes)
+│   │   Modified  : 2026-07-14 16:14:44
+│   │   Type      : Unknown File Type
+
+│   │
+│   ├── 📄 packed-refs
+│   │   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\.git\packed-refs
+│   │   Extension : (none)
+│   │   Size      : 112.00 B (112 bytes)
+│   │   Modified  : 2026-07-14 16:14:29
+│   │   Type      : Unknown File Type
+
+│   │   ├── 📁 hooks
+│   │   │
+│   │   ├── 📄 applypatch-msg.sample
+│   │   │   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\.git\hooks\applypatch-msg.sample
+│   │   │   Extension : .sample
+│   │   │   Size      : 478.00 B (478 bytes)
+│   │   │   Modified  : 2026-07-14 16:14:26
+│   │   │   Type      : Unknown File Type
+
+│   │   │
+│   │   ├── 📄 commit-msg.sample
+│   │   │   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\.git\hooks\commit-msg.sample
+│   │   │   Extension : .sample
+│   │   │   Size      : 896.00 B (896 bytes)
+│   │   │   Modified  : 2026-07-14 16:14:26
+│   │   │   Type      : Unknown File Type
+
+│   │   │
+│   │   ├── 📄 fsmonitor-watchman.sample
+│   │   │   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\.git\hooks\fsmonitor-watchman.sample
+│   │   │   Extension : .sample
+│   │   │   Size      : 4.62 KB (4,726 bytes)
+│   │   │   Modified  : 2026-07-14 16:14:26
+│   │   │   Type      : Unknown File Type
+
+│   │   │
+│   │   ├── 📄 post-update.sample
+│   │   │   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\.git\hooks\post-update.sample
+│   │   │   Extension : .sample
+│   │   │   Size      : 189.00 B (189 bytes)
+│   │   │   Modified  : 2026-07-14 16:14:26
+│   │   │   Type      : Unknown File Type
+
+│   │   │
+│   │   ├── 📄 pre-applypatch.sample
+│   │   │   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\.git\hooks\pre-applypatch.sample
+│   │   │   Extension : .sample
+│   │   │   Size      : 424.00 B (424 bytes)
+│   │   │   Modified  : 2026-07-14 16:14:26
+│   │   │   Type      : Unknown File Type
+
+│   │   │
+│   │   ├── 📄 pre-commit.sample
+│   │   │   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\.git\hooks\pre-commit.sample
+│   │   │   Extension : .sample
+│   │   │   Size      : 1.61 KB (1,649 bytes)
+│   │   │   Modified  : 2026-07-14 16:14:26
+│   │   │   Type      : Unknown File Type
+
+│   │   │
+│   │   ├── 📄 pre-merge-commit.sample
+│   │   │   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\.git\hooks\pre-merge-commit.sample
+│   │   │   Extension : .sample
+│   │   │   Size      : 416.00 B (416 bytes)
+│   │   │   Modified  : 2026-07-14 16:14:26
+│   │   │   Type      : Unknown File Type
+
+│   │   │
+│   │   ├── 📄 pre-push.sample
+│   │   │   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\.git\hooks\pre-push.sample
+│   │   │   Extension : .sample
+│   │   │   Size      : 1.34 KB (1,374 bytes)
+│   │   │   Modified  : 2026-07-14 16:14:26
+│   │   │   Type      : Unknown File Type
+
+│   │   │
+│   │   ├── 📄 pre-rebase.sample
+│   │   │   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\.git\hooks\pre-rebase.sample
+│   │   │   Extension : .sample
+│   │   │   Size      : 4.78 KB (4,898 bytes)
+│   │   │   Modified  : 2026-07-14 16:14:26
+│   │   │   Type      : Unknown File Type
+
+│   │   │
+│   │   ├── 📄 pre-receive.sample
+│   │   │   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\.git\hooks\pre-receive.sample
+│   │   │   Extension : .sample
+│   │   │   Size      : 544.00 B (544 bytes)
+│   │   │   Modified  : 2026-07-14 16:14:26
+│   │   │   Type      : Unknown File Type
+
+│   │   │
+│   │   ├── 📄 prepare-commit-msg.sample
+│   │   │   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\.git\hooks\prepare-commit-msg.sample
+│   │   │   Extension : .sample
+│   │   │   Size      : 1.46 KB (1,492 bytes)
+│   │   │   Modified  : 2026-07-14 16:14:26
+│   │   │   Type      : Unknown File Type
+
+│   │   │
+│   │   ├── 📄 push-to-checkout.sample
+│   │   │   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\.git\hooks\push-to-checkout.sample
+│   │   │   Extension : .sample
+│   │   │   Size      : 2.72 KB (2,783 bytes)
+│   │   │   Modified  : 2026-07-14 16:14:26
+│   │   │   Type      : Unknown File Type
+
+│   │   │
+│   │   ├── 📄 sendemail-validate.sample
+│   │   │   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\.git\hooks\sendemail-validate.sample
+│   │   │   Extension : .sample
+│   │   │   Size      : 2.25 KB (2,308 bytes)
+│   │   │   Modified  : 2026-07-14 16:14:26
+│   │   │   Type      : Unknown File Type
+
+│   │   │
+│   │   ├── 📄 update.sample
+│   │   │   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\.git\hooks\update.sample
+│   │   │   Extension : .sample
+│   │   │   Size      : 3.56 KB (3,650 bytes)
+│   │   │   Modified  : 2026-07-14 16:14:26
+│   │   │   Type      : Unknown File Type
+
+│   │   ├── 📁 info
+│   │   │
+│   │   ├── 📄 exclude
+│   │   │   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\.git\info\exclude
+│   │   │   Extension : (none)
+│   │   │   Size      : 240.00 B (240 bytes)
+│   │   │   Modified  : 2026-07-14 16:14:26
+│   │   │   Type      : Unknown File Type
+
+│   │   ├── 📁 logs
+│   │   │
+│   │   ├── 📄 HEAD
+│   │   │   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\.git\logs\HEAD
+│   │   │   Extension : (none)
+│   │   │   Size      : 230.00 B (230 bytes)
+│   │   │   Modified  : 2026-07-14 16:14:29
+│   │   │   Type      : Unknown File Type
+
+│   │   │   ├── 📁 refs
+│   │   │   │   ├── 📁 heads
+│   │   │   │   │
+│   │   │   │   ├── 📄 main
+│   │   │   │   │   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\.git\logs\refs\heads\main
+│   │   │   │   │   Extension : (none)
+│   │   │   │   │   Size      : 230.00 B (230 bytes)
+│   │   │   │   │   Modified  : 2026-07-14 16:14:29
+│   │   │   │   │   Type      : Unknown File Type
+
+│   │   │   │   ├── 📁 remotes
+│   │   │   │   │   ├── 📁 origin
+│   │   │   │   │   │
+│   │   │   │   │   ├── 📄 HEAD
+│   │   │   │   │   │   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\.git\logs\refs\remotes\origin\HEAD
+│   │   │   │   │   │   Extension : (none)
+│   │   │   │   │   │   Size      : 230.00 B (230 bytes)
+│   │   │   │   │   │   Modified  : 2026-07-14 16:14:29
+│   │   │   │   │   │   Type      : Unknown File Type
+
+│   │   ├── 📁 objects
+│   │   │   ├── 📁 info
+│   │   │   ├── 📁 pack
+│   │   │   │
+│   │   │   ├── 📄 pack-5129f8537f9bf1681825d6de2bf0638213b750c6.idx
+│   │   │   │   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\.git\objects\pack\pack-5129f8537f9bf1681825d6de2bf0638213b750c6.idx
+│   │   │   │   Extension : .idx
+│   │   │   │   Size      : 3.07 KB (3,144 bytes)
+│   │   │   │   Modified  : 2026-07-14 16:14:29
+│   │   │   │   Type      : Unknown File Type
+
+│   │   │   │
+│   │   │   ├── 📄 pack-5129f8537f9bf1681825d6de2bf0638213b750c6.pack
+│   │   │   │   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\.git\objects\pack\pack-5129f8537f9bf1681825d6de2bf0638213b750c6.pack
+│   │   │   │   Extension : .pack
+│   │   │   │   Size      : 6.10 MB (6,396,487 bytes)
+│   │   │   │   Modified  : 2026-07-14 16:14:29
+│   │   │   │   Type      : Unknown File Type
+
+│   │   │   │
+│   │   │   ├── 📄 pack-5129f8537f9bf1681825d6de2bf0638213b750c6.rev
+│   │   │   │   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\.git\objects\pack\pack-5129f8537f9bf1681825d6de2bf0638213b750c6.rev
+│   │   │   │   Extension : .rev
+│   │   │   │   Size      : 348.00 B (348 bytes)
+│   │   │   │   Modified  : 2026-07-14 16:14:29
+│   │   │   │   Type      : Unknown File Type
+
+│   │   ├── 📁 refs
+│   │   │   ├── 📁 heads
+│   │   │   │
+│   │   │   ├── 📄 main
+│   │   │   │   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\.git\refs\heads\main
+│   │   │   │   Extension : (none)
+│   │   │   │   Size      : 41.00 B (41 bytes)
+│   │   │   │   Modified  : 2026-07-14 16:14:29
+│   │   │   │   Type      : Unknown File Type
+
+│   │   │   ├── 📁 remotes
+│   │   │   │   ├── 📁 origin
+│   │   │   │   │
+│   │   │   │   ├── 📄 HEAD
+│   │   │   │   │   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\.git\refs\remotes\origin\HEAD
+│   │   │   │   │   Extension : (none)
+│   │   │   │   │   Size      : 30.00 B (30 bytes)
+│   │   │   │   │   Modified  : 2026-07-14 16:14:29
+│   │   │   │   │   Type      : Unknown File Type
+
+│   │   │   ├── 📁 tags
+│   ├── 📁 result_picture
+│   │
+│   ├── 📄 prediction_vs_true.png
+│   │   Full Path : C:\fun\BTC-price-prediction-using-sentimental-analysis\result_picture\prediction_vs_true.png
+│   │   Extension : .png
+│   │   Size      : 41.90 KB (42,904 bytes)
+│   │   Modified  : 2026-07-14 16:14:29
+│   │   Type      : PNG Image
+
+
+========================================================================================================================
+SUMMARY
+========================================================================================================================
+Folders : 18
+Files   : 48
+Size    : 8.76 MB (9,190,748 bytes)
+
+FILE TYPES
+-----------
+(none)          13
+.asv            2
+.csv            1
+.idx            1
+.m              9
+.md             1
+.pack           1
+.png            1
+.py             1
+.rev            1
+.sample         14
+.txt            2
+.xlsx           1

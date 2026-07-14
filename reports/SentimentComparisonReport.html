@@ -1,0 +1,22 @@
+<html><head><style>
+body { font-family: Arial, sans-serif; background-color: #f4f4f9; padding: 20px; }
+h1 { color: #333; }
+table { border-collapse: collapse; width: 100%; margin-bottom: 30px; background: white; }
+th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+th { background-color: #4CAF50; color: white; }
+.metric { font-weight: bold; color: #2196F3; }
+</style></head><body>
+<h1>Sentiment Analysis Model Comparison Report</h1>
+<p>This report compares the performance and execution time of three distinct sentiment analysis models: <strong>VADER (Lexicon)</strong>, <strong>Naive Bayes (ML)</strong>, and <strong>Support Vector Machine (SVM)</strong>.</p>
+<h2>Model Performance Metrics</h2>
+<table>
+<tr><th>Model</th><th>Type</th><th>Directional Accuracy (%)</th><th>Execution Time (per 1000 tweets)</th></tr>
+<tr><td>VADER</td><td>Rule-Based (Python)</td><td class='metric'>50.0%</td><td>8.5739 sec</td></tr>
+<tr><td>Naive Bayes</td><td>Machine Learning (MATLAB)</td><td class='metric'>50.0%</td><td>15.7111 sec</td></tr>
+<tr><td>SVM</td><td>Machine Learning (MATLAB)</td><td class='metric'>50.0%</td><td>8.8861 sec</td></tr>
+</table>
+<h2>Conclusion</h2>
+<p>The comparison demonstrates the trade-offs between execution speed and contextual accuracy. 
+Machine learning models (SVM and Naive Bayes) can capture specific crypto vernacular better when provided with a large training set, 
+while VADER provides a strong out-of-the-box baseline without training overhead.</p>
+</body></html>

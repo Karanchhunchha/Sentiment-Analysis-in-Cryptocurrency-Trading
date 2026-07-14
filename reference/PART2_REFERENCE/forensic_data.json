@@ -1,0 +1,257 @@
+{
+    "inventory": {
+        "live_predict.m": {
+            "status": "NEW",
+            "ext": ".m"
+        },
+        "kcrypto_clean_data.csv": {
+            "status": "NEW",
+            "ext": ".csv"
+        },
+        "CNNLSTMModel.m": {
+            "status": "MODIFIED",
+            "ext": ".m"
+        },
+        "live_predict_ultimate.m": {
+            "status": "NEW",
+            "ext": ".m"
+        },
+        "best_model\\trained_model.mat": {
+            "status": "NEW",
+            "ext": ".mat"
+        },
+        "process_cmc_data.m": {
+            "status": "NEW",
+            "ext": ".m"
+        },
+        "project_explorer.py": {
+            "status": "REMOVED",
+            "ext": ".py"
+        },
+        "fetch_binance_hourly.m": {
+            "status": "NEW",
+            "ext": ".m"
+        },
+        "data_ingestion\\DataIngestion.m": {
+            "status": "NEW",
+            "ext": ".m"
+        },
+        "fetch_binance_5m.m": {
+            "status": "NEW",
+            "ext": ".m"
+        },
+        "data_ingestion\\fetch_free_data.py": {
+            "status": "NEW",
+            "ext": ".py"
+        },
+        "Bitcoin_tweets.csv": {
+            "status": "NEW",
+            "ext": ".csv"
+        },
+        "dashboard\\KCryptoX8_Dashboard.m": {
+            "status": "NEW",
+            "ext": ".m"
+        },
+        "LICENSE": {
+            "status": "IDENTICAL",
+            "ext": ""
+        },
+        "shift_time.m": {
+            "status": "IDENTICAL",
+            "ext": ".m"
+        },
+        "generate_report.py": {
+            "status": "NEW",
+            "ext": ".py"
+        },
+        "test_all_engines.m": {
+            "status": "NEW",
+            "ext": ".m"
+        },
+        "train_test.m": {
+            "status": "MODIFIED",
+            "ext": ".m"
+        },
+        "Bitcoin_tweets_dataset_2.csv": {
+            "status": "NEW",
+            "ext": ".csv"
+        },
+        "kcrypto_5m_data.csv": {
+            "status": "NEW",
+            "ext": ".csv"
+        },
+        "core.py": {
+            "status": "NEW",
+            "ext": ".py"
+        },
+        "untitled1.png": {
+            "status": "NEW",
+            "ext": ".png"
+        },
+        "result_picture\\prediction_vs_true.png": {
+            "status": "MODIFIED",
+            "ext": ".png"
+        },
+        "vader_lexicon.txt": {
+            "status": "IDENTICAL",
+            "ext": ".txt"
+        },
+        "train_test.asv": {
+            "status": "IDENTICAL",
+            "ext": ".asv"
+        },
+        "merge_data.m": {
+            "status": "IDENTICAL",
+            "ext": ".m"
+        },
+        "ultimate_train.m": {
+            "status": "NEW",
+            "ext": ".m"
+        },
+        "evaluate_accuracy.m": {
+            "status": "NEW",
+            "ext": ".m"
+        },
+        "AdaptiveAvgPool1dLayer.m": {
+            "status": "IDENTICAL",
+            "ext": ".m"
+        },
+        "result_picture\\ultimate_prediction_vs_true.png": {
+            "status": "NEW",
+            "ext": ".png"
+        },
+        "forensic_data.json": {
+            "status": "NEW",
+            "ext": ".json"
+        },
+        ".env": {
+            "status": "NEW",
+            "ext": ""
+        },
+        "portfolio\\PortfolioEngine.m": {
+            "status": "NEW",
+            "ext": ".m"
+        },
+        "README.md": {
+            "status": "MODIFIED",
+            "ext": ".md"
+        },
+        "CNNLSTMModel.asv": {
+            "status": "IDENTICAL",
+            "ext": ".asv"
+        },
+        "kcrypto_hourly_data.csv": {
+            "status": "NEW",
+            "ext": ".csv"
+        },
+        "permuteLayer.m": {
+            "status": "IDENTICAL",
+            "ext": ".m"
+        },
+        "sentiment_analysis\\SentimentEngine.m": {
+            "status": "NEW",
+            "ext": ".m"
+        },
+        "check_all_trends.py": {
+            "status": "NEW",
+            "ext": ".py"
+        },
+        "database\\schema.sql": {
+            "status": "NEW",
+            "ext": ".sql"
+        },
+        "forecasting\\EconometricForecast.m": {
+            "status": "NEW",
+            "ext": ".m"
+        },
+        "StockDataset.m": {
+            "status": "MODIFIED",
+            "ext": ".m"
+        },
+        "portfolio\\Backtester.m": {
+            "status": "NEW",
+            "ext": ".m"
+        },
+        "filtered_merged_sentiment_price1.csv": {
+            "status": "IDENTICAL",
+            "ext": ".csv"
+        },
+        "sentiment_analysis\\LLMFeatureExtractor.m": {
+            "status": "NEW",
+            "ext": ".m"
+        },
+        "tmp.xlsx": {
+            "status": "IDENTICAL",
+            "ext": ".xlsx"
+        },
+        "btcusd_1-min_data.csv": {
+            "status": "NEW",
+            "ext": ".csv"
+        },
+        "best_model\\ultimate_model.mat": {
+            "status": "NEW",
+            "ext": ".mat"
+        },
+        "sentimental_score.m": {
+            "status": "IDENTICAL",
+            "ext": ".m"
+        },
+        "data_ingestion\\db_insert.py": {
+            "status": "NEW",
+            "ext": ".py"
+        },
+        "BTC-price-prediction-using-sentimental-analysis_Project_Report.txt": {
+            "status": "MODIFIED",
+            "ext": ".txt"
+        },
+        "AttentionLayer.m": {
+            "status": "IDENTICAL",
+            "ext": ".m"
+        },
+        "advanced_predict_30m.m": {
+            "status": "NEW",
+            "ext": ".m"
+        }
+    },
+    "diffs": {
+        "CNNLSTMModel.m": {
+            "similarity": 73.17,
+            "loc_added": 14,
+            "loc_removed": 19,
+            "net_growth": -5,
+            "funcs_added": [
+                "CNNLSTMModel"
+            ],
+            "funcs_removed": [],
+            "p1_loc": 0,
+            "p2_loc": 37
+        },
+        "train_test.m": {
+            "similarity": 70.0,
+            "loc_added": 22,
+            "loc_removed": 20,
+            "net_growth": 2,
+            "funcs_added": [
+                "convertToCell"
+            ],
+            "funcs_removed": [],
+            "p1_loc": 0,
+            "p2_loc": 43
+        },
+        "StockDataset.m": {
+            "similarity": 44.78,
+            "loc_added": 81,
+            "loc_removed": 30,
+            "net_growth": 51,
+            "funcs_added": [
+                "getItem",
+                "length",
+                "StockDataset"
+            ],
+            "funcs_removed": [],
+            "p1_loc": 0,
+            "p2_loc": 95
+        }
+    },
+    "copied_new_files": 34
+}
