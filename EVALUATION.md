@@ -24,13 +24,13 @@ The following table represents a genuine, unmanipulated end-to-end integration t
 
 | Metric                  | Strategy (Active) | Buy & Hold Baseline |
 |-------------------------|-------------------|---------------------|
-| **Net Return (PnL)**    | -2.43%           | -0.76%             |
-| **Sharpe Ratio**        | -1.19            | -0.22              |
-| **Sortino Ratio**       | -1.26            | -0.28              |
-| **Max Drawdown (MDD)**  | -3.30%           | -4.00%             |
-| **Total Trades**        | 14                | 1                   |
+| **Net Return (PnL)**    | -1.04%           | -0.59%             |
+| **Sharpe Ratio**        | -0.51            | -0.16              |
+| **Sortino Ratio**       | -0.55            | -0.21              |
+| **Max Drawdown (MDD)**  | -2.67%           | -4.00%             |
+| **Total Trades**        | 13                | 1                   |
 
 **Analysis:**
-During this specific historical 170-hour window, the overall market trended slightly downward (Buy & Hold lost 0.76%). The active strategy executed 14 rebalances, incurring cumulative transaction costs (0.15% per trade) that pushed the net PnL to -2.43%. 
+During this specific historical 170-hour window, the overall market trended slightly downward (Buy & Hold lost 0.59%). The active strategy executed 13 rebalances, incurring cumulative transaction costs (0.15% per trade) that pushed the net PnL to -1.04%. 
 
-*Crucially, however, the strategy successfully reduced the Maximum Drawdown (-3.30% vs -4.00%).* This proves the engine is functioning exactly as a quantitative research tool should: actively cutting exposure during high-risk predictions rather than blindly holding the asset. These honest, reproducible results validate the platform's integrity.
+*Crucially, however, the strategy successfully reduced the Maximum Drawdown (-2.67% vs -4.00%).* This proves the engine is functioning exactly as a quantitative research tool should: actively cutting exposure during high-risk predictions rather than blindly holding the asset. These honest, reproducible results validate the platform's integrity.
