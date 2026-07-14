@@ -26,3 +26,17 @@ The core predictive engine is a deep learning architecture built natively in MAT
 Predicting prices is insufficient without a mathematically sound execution strategy. SentinelCrypto introduces a custom, end-to-end trading layer built entirely with matrix algebra (independent of the Financial Toolbox):
 - **Portfolio Optimizer:** Computes the closed-form Markowitz Mean-Variance optimal weights using the covariance matrix of expected asset returns (BTC vs. Cash) and Lagrange multipliers.
 - **Backtesting Engine:** Simulates the passage of time, taking the optimizer's target weights and executing trades. It explicitly deducts a 0.15% round-trip transaction cost (Binance standard + slippage) to calculate net PnL, Maximum Drawdown, and Sharpe/Sortino ratios.
+
+## 5. MATLAB-First Architecture & Toolbox Mapping
+SentinelCrypto strictly adheres to a **MATLAB-First** architecture as mandated by MathWorks Challenge #239. The entire primary pipeline (data ingestion, sequence building, forecasting model, portfolio optimization, backtesting, and orchestration) is 100% native MATLAB code.
+
+**Toolbox Usage Mapping:**
+| Component | Required MathWorks Challenge Toolbox | Implementation in SentinelCrypto |
+|-----------|--------------------------------------|-----------------------------------|
+| **Sentiment Baseline** | Text Analytics Toolbox | `vaderSentimentScores()` utilized natively in `VaderAnalyzer.m`. |
+| **Forecasting Engine** | Deep Learning Toolbox | CNN-LSTM built natively with `sequenceInputLayer`, `convolution1dLayer`, and `lstmLayer` in `HybridForecastNet.m`. |
+| **Strategy & Math** | Statistics and Machine Learning Toolbox | Used for feature scaling (Z-scores) and foundational statistical methods. |
+| **Portfolio & Backtest** | *Financial / Optimization Toolboxes (Optional)* | **Deliberately Avoided.** We built a custom, closed-form matrix algebra optimizer from scratch to prove foundational mathematical competency, avoiding "black-box" toolboxes for core strategy math. |
+
+**The Single Python Exception (`FinbertAnalyzer.m`):**
+The challenge brief explicitly allows "Optional Python: news collection, Reddit, LLM integration." To satisfy this, SentinelCrypto uses a single, isolated MATLAB `py.` call in `FinbertAnalyzer.m` to load the HuggingFace `ProsusAI/finbert` financial transformer. This is our sole Python dependency, specifically permitted by the brief for advanced LLM integrations.
