@@ -11,9 +11,10 @@ Instead of standard static splits (e.g., 90% train, 5% validation, 5% test) whic
 
 ## 2. Multi-Modal Sentiment Fusion
 A key requirement of this challenge is comparing multiple sentiment strategies. `SentimentFusion.m` achieves this by treating sentiment analysis as an ensemble problem:
+- **Ratio-Rule Baseline:** A fundamental frequency-based heuristic (positive vs. negative word counts) explicitly required by the MathWorks Challenge brief.
 - **Lexicon Baseline (VADER):** Fast, rules-based sentiment scoring effective for general retail market panic/euphoria.
 - **Neural Embeddings (FinBERT):** Context-aware NLP model specifically tuned for financial domain text.
-- **Fusion Logic:** The engine dynamically weights the scores based on the FinBERT prediction confidence. High-confidence neural scores dominate the weighted average, while low-confidence edge cases fall back to the VADER heuristic.
+- **Fusion Logic:** The engine dynamically weights the scores based on the FinBERT prediction confidence. High-confidence neural scores dominate the weighted average, while low-confidence edge cases fall back to the VADER heuristic. The Ratio-Rule serves as an additional baseline comparison metric.
 
 ## 3. Hybrid Forecasting Network (`HybridForecastNet.m`)
 The core predictive engine is a deep learning architecture built natively in MATLAB:
