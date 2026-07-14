@@ -1,0 +1,84 @@
+:root { --link-color: #212121; --link-hover-color: #2E74B5; --link-color-dark: #E0E0E0; --link-hover-color-dark: #BB86FC; --navigation-pane-background: #D9D9D9; --navigation-pane-background-dark: #7D7D7D; --border: #e5e7eb; --border-dark: #374151; --theme-icon-background: #e5e7eb; --theme-icon-background-dark: #3a3b3d; --bg-background-color: #FFF; --bg-background-color-dark: #333; --font-color: #212121; --font-color-dark: #D9D9D9; --heading4-font-color: #1656A7; --heading4-font-color-dark: #54B6FF; --code-paragraph-background-color: #F5F5F5; --code-paragraph-background-color-dark: #212121; }
+html[data-theme="Dark"] { --bg-background-color: var(--bg-background-color-dark); --font-color: var(--font-color-dark); --link-color: var(--link-color-dark); --link-hover-color: var(--link-hover-color-dark); --navigation-pane-background: var(--navigation-pane-background-dark); --theme-icon-background: var(--theme-icon-background-dark); --heading4-font-color: var(--heading4-font-color-dark); --code-paragraph-background-color: var(--code-paragraph-background-color-dark); background-color: var(--bg-background-color-dark); color: var(--font-color-dark); --border: var(--border-dark); }
+.NavigationPane { position: fixed; top: 5pt; right: 5pt; z-index: 9999; background: var(--navigation-pane-background); color: var(--font-color); border: 1px solid #BBBBBB; border-radius: 8pt; width: 235pt; max-height: 40pt; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.08); transition: all 0.5s ease; visibility: visible; }
+.NavigationPane.open { transition: all 0.5s ease; height: 50%; max-height: 50%; width: auto; max-width: 50%; }
+.MenuHeader { display: flex; align-items: center; justify-content: flex-end; padding: 2pt 0pt 2pt 0pt; border-bottom: 1px solid #BBBBBB; }
+.menu-toggle { display: inline-flex; align-items: center; gap: 4pt; border: 1px solid var(--border); border-radius: 999px; background: var(--theme-icon-background); color: var(--link-color); font-size: 12pt; cursor: pointer; padding: 6pt; }
+.MenuHeader .ToggleTheme { display: inline-flex; align-items: center; gap: 8pt; margin: 4pt; }
+.MenuHeader .ToggleTheme p { margin: 0; font-size: 12pt; color: var(--link-color); }
+.toggle-btn { display: inline-flex; align-items: center; gap: 4pt; padding: 6pt; border: 1px solid var(--border); border-radius: 999px; background: var(--theme-icon-background); color: var(--font-color); cursor: pointer; font-size: 12pt; user-select: none; }
+.toggle-btn:focus { outline: 3px solid var(--focus); outline-offset: 2px; }
+.NavigationBox { width: 100%; height: 92%; max-height: calc(70vh - 48pt); overflow-x: hidden; overflow-y: scroll; border-width: 0; }
+.NavigationBox ul { font-size: 12pt; line-height: 16pt; padding-bottom: 8pt; }
+.NavigationBox ul p { white-space: pre; word-break: normal; margin: 0; }
+.NavigationBox ul a { color: var(--link-color); text-decoration: none; }
+.NavigationBox ul a:hover { color: var(--link-hover-color); }
+::-webkit-scrollbar-corner { background: #F0F0F0; }
+ul.EventSummaryText { margin: 0pt 0pt 0pt 20pt; list-style-type: circle; padding: 0pt; }
+table.EventTable { width: 100%; margin-bottom: 6pt; table-layout: fixed; }
+table.EventTable td.IndentCell { width: 20pt; }
+table.EventTable td.ContentCell { border-left: 1px solid #D9E2F3; padding-left: 0.08in; padding-right: 0.08in; }
+span.InlineLabel { font-size: 12pt; letter-spacing:0.5pt; font-style: italic; }
+span.InlineText { font-size: 12pt; }
+p.CodeParagraph { font-family: 'Courier New', 'Noto Sans Mono CJK JP', 'Noto Sans Mono CJK KR', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK TC', 'Noto Sans CJK JP', 'Noto Sans CJK KR', 'Noto Sans CJK SC', 'Noto Sans CJK TC', 'Malgun Gothic', Mona, Osaka, 'Hiragino Kaku Gothic Pro', Meiryo, 'Noto Mono, Noto Sans CJK JP, Noto Sans CJK SC, Noto Sans CJK KR'; font-size: 12pt; line-height: 20px; margin-left: 5pt; padding: 2pt 5pt 2pt 5pt;; max-height: 200pt; max-width: 100%; overflow: auto; background-color: var(--code-paragraph-background-color); display: inline-block; white-space: pre; word-break: normal; }
+p.BoldText { font-weight: bold; }
+span.InternalLink { color: var(--link-hover-color); text-decoration: underline; font-style: italic; }
+span.InternalLink:hover { font-weight: bold; }
+p.TwelvePoint { font-size: 12pt; }
+p.ElevenPoint { font-size: 11pt; }
+p.EventsLabel { font-size: 12pt; line-height: 16px; }
+p.BaseFolder { font-size: 12pt; text-decoration: underline; }
+p.BaseFolder a { color: var(--link-color); }
+p.BaseFolder a:hover { color: var(--link-hover-color); }
+p.SpaceAfterTestParentOverviewParts { font-size: 1pt; margin-bottom:6pt; }
+p.CommandWindowText { font-family: 'Courier New', 'Noto Sans Mono CJK JP', 'Noto Sans Mono CJK KR', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK TC', 'Noto Sans CJK JP', 'Noto Sans CJK KR', 'Noto Sans CJK SC', 'Noto Sans CJK TC', 'Malgun Gothic', Mona, Osaka, 'Hiragino Kaku Gothic Pro', Meiryo, 'Noto Mono, Noto Sans CJK JP, Noto Sans CJK SC, Noto Sans CJK KR'; font-size: 12pt; line-height: 20px; border: 1px solid #A6A6A6; padding-top: 1pt; padding-bottom: 1pt; padding-left: 4pt; padding-right: 4pt; max-height:400pt; overflow: auto; white-space: pre; word-break: normal; }
+h1.CoverPageTitle { font-size: 28pt; line-height: 35px; text-align: center; }
+table.CoverPageTable { margin-top: 10pt; width: 100%; table-layout: fixed; }
+table.CoverPageTable p { font-size: 14pt; line-height: 20px; }
+table.CoverPageTable td { padding-left: 6pt; padding-right: 6pt; vertical-align: top; }
+table.CoverPageTable td.CoverPageTableLabel { width: 47%; }
+table.CoverPageTable td.CoverPageTableLabel p { text-align: right; }
+table.CoverPageTable td.CoverPageTableValue { width: 53%; }
+p.TopMargin { margin-top: 20pt; }
+p.DiagnosticLabel { font-size: 12pt; line-height: 20px; letter-spacing:0.5pt; font-style: italic; }
+p.FailureSummaryText { font-size: 14pt; margin-bottom: 8pt; }
+table.FailureSummaryTable { font-size: 12pt; width: 100%; }
+table.FailureSummaryTable td { padding-left: 6pt; padding-right: 6pt; }
+table.FailureSummaryTable a { color: var(--link-color); text-decoration: none; }
+table.FailureSummaryTable a:hover { color: var(--link-hover-color); text-decoration: underline; }
+table.FailureSummaryTable td.FailureSummaryTableIndentColumn { width: 0.2in; }
+table.FailureSummaryTable td.TestNameColumn { border-bottom: 1px solid #D0CECE; }
+table.FailureSummaryTable td.ReasonsColumn { border-bottom: 1px solid #D0CECE; width: 1.6in; }
+table.FailureSummaryTable td.DetailsLinkColumn { text-align: right; width: 0.75in; }
+table.FailureSummaryTable tr.FailureSummaryRow p { margin-top: 3pt; }
+p.FilterSummaryText { font-size: 14pt; margin-bottom: 8pt; }
+table.FilterSummaryTable { font-size: 12pt; width: 100%; }
+table.FilterSummaryTable td { padding-left: 6pt; padding-right: 6pt; }
+table.FilterSummaryTable a { color: var(--link-color); text-decoration: none; }
+table.FilterSummaryTable a:hover { color: var(--link-hover-color); text-decoration: underline; }
+table.FilterSummaryTable td.FilteredSummaryTableIndentColumn { width: 0.2in; }
+table.FilterSummaryTable td.TestNameColumn { border-bottom: 1px solid #D0CECE; }
+table.FilterSummaryTable td.DetailsLinkColumn { text-align: right; width: 0.7in; }
+table.FilterSummaryTable tr.FilterSummaryRow p { margin-top: 3pt; }
+h1.Heading1 { font-size: 20pt; line-height: 29px; letter-spacing: 1pt; border-bottom: 1px solid #ED7D31; margin-left: -6pt; margin-right: -6pt; margin-top: 10pt; margin-bottom: 6pt; padding-left: 4pt; }
+h2.Heading2 { font-size: 17pt; line-height: 25px; letter-spacing: 2pt; font-weight: bold; color: white; background-color: #4471C4; border-left: 8pt solid #4471C4; border-top: 4pt solid #4471C4; border-right: 8pt solid #4471C4; border-bottom: 4pt solid #4471C4; margin-left: -6pt; margin-right: -6pt; margin-top: 10pt; }
+h3.Heading3 { font-size: 15pt; line-height: 22px; letter-spacing: 2pt; color: black; background-color: #D9E2F3; border-left: 8pt solid #D9E2F3; border-top: 4pt solid #D9E2F3; border-right: 8pt solid #D9E2F3; border-bottom: 4pt solid #D9E2F3; margin-left: -6pt; margin-right: -6pt; margin-top: 10pt; }
+h4.Heading4 { font-size: 14pt; line-height: 20px; letter-spacing: 1pt; color: var(--heading4-font-color); border-left: 1px dashed #4471C4; border-top: 1px dashed #4471C4; margin-left: -6pt; margin-right: -6pt; margin-top: 10pt; margin-bottom: 10pt; padding-top: 2pt; padding-left: 6pt; }
+h5.Heading5 { font-size: 12pt; line-height: 18px; font-weight: bold; margin-top: 8pt; margin-bottom: 8pt; }
+p.LeftArtifactImageParagraph { margin-top: 2pt; margin-bottom: 2pt; margin-left: 10pt; }
+p.LeftArtifactImageParagraph img:hover { cursor: pointer; }
+p.SingleCenteredHolePart { text-align: center; }
+p.StackTextParagraph { font-family: Menlo, Monaco, Consolas, 'Courier New', monospace, 'Noto Sans Mono CJK JP', 'Noto Sans Mono CJK KR', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK TC', 'Noto Sans CJK JP', 'Noto Sans CJK KR', 'Noto Sans CJK SC', 'Noto Sans CJK TC', 'Malgun Gothic', Mona, Osaka, 'Hiragino Kaku Gothic Pro', Meiryo, 'Noto Mono, Noto Sans CJK JP, Noto Sans CJK SC, Noto Sans CJK KR'; font-size: 12pt; line-height: 20px; margin-left: 5pt; padding: 2pt 5pt 2pt 5pt; max-height: 100pt; max-width: 100%; display: inline-block; overflow: auto; }
+p.TestDetails { font-size: 12pt; margin-bottom: 12pt; }
+p.OverviewLinkParagraph { font-size: 12pt; text-align: right; }
+table.TestParentBox { margin-top: 3pt; margin-bottom: 6pt; width: 100%; }
+table.TestParentBox td.IndentCell { width:0.2in; }
+table.TestParentBox td.TestParentNameCell { border-left:1px solid #E6E6E6; border-top: 1px solid #E6E6E6; margin-left: 3pt; margin-top: 1pt; }
+table.TestParentBox td.TestParentNameCell p { text-decoration: underline; font-size: 12pt; }
+table.TestParentBox td.TestParentNameCell a { color: var(--link-color); }
+table.TestParentBox td.TestParentNameCell a:hover { color: var(--link-hover-color); }
+table.TestParentBox td.TotalDurationTextCell { width: 1.2in; text-align: right; border-right:1px solid #E6E6E6; border-top: 1px solid #E6E6E6; margin-top: 1pt; margin-right: 3pt; }
+table.TestParentBox td.TotalDurationTextCell p { font-size: 12pt; }
+table.TestParentBox td.ResultsIconsCell { border-left: 1px solid #E6E6E6; border-right: 1px solid #E6E6E6; border-bottom: 1px solid #E6E6E6; margin-left: 3pt; margin-right: 3pt; margin-bottom: 1pt; }
+table.TestParentBox td.ResultsIconsCell p { font-family: Menlo, Monaco, Consolas, 'Courier New', monospace, 'Noto Sans Mono CJK JP', 'Noto Sans Mono CJK KR', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK TC', 'Noto Sans CJK JP', 'Noto Sans CJK KR', 'Noto Sans CJK SC', 'Noto Sans CJK TC', 'Malgun Gothic', Mona, Osaka, 'Hiragino Kaku Gothic Pro', Meiryo, 'Noto Mono, Noto Sans CJK JP, Noto Sans CJK SC, Noto Sans CJK KR'; font-size: 4pt; line-height: 6pt; }
+table.TestParentBox td.ResultsIconsCell img:hover { transform: scale(1.75); transition: transform 0.2s ease; }
