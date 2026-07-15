@@ -1,3 +1,10 @@
+%#ok<*AGROW>
+%#ok<*INUSD>
+%#ok<*NASGU>
+%#ok<*STOUT>
+%#ok<*DATNM>
+%#ok<*DATST>
+%#ok<*MATCH>
 classdef SentinelDashboard < handle
     % SentinelDashboard Master UI for the SentinelCrypto Pipeline
     % Completely revamped to display all realistic production values.

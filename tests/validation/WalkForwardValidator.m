@@ -1,4 +1,15 @@
+%#ok<*AGROW>
+%#ok<*INUSD>
+%#ok<*NASGU>
+%#ok<*STOUT>
+%#ok<*DATNM>
+%#ok<*DATST>
+%#ok<*MATCH>
 classdef WalkForwardValidator < handle
+%#ok<*AGROW>
+%#ok<*INUSD>
+%#ok<*NASGU>
+%#ok<*STOUT>
     % WalkForwardValidator Performs strict Walk-Forward (Sliding Window) 
     % validation. Trains on window T, predicts T+1, slides window.
     

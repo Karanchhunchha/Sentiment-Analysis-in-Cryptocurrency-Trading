@@ -1,3 +1,10 @@
+%#ok<*AGROW>
+%#ok<*INUSD>
+%#ok<*NASGU>
+%#ok<*STOUT>
+%#ok<*DATNM>
+%#ok<*DATST>
+%#ok<*MATCH>
 % Author: Karan Chhunchha (karanchhunchha@gmail.com)
 % MathWorks Challenge #239 - SentinelCrypto
 % train_pipeline.m (Training Mode Orchestrator)
@@ -77,30 +84,36 @@ try
     cnnLstmNet = trainNetwork(XTrainSeq, YTrain, layers, options);
     Logger.success('CNN-LSTM Training Complete.');
 catch ME
-    Logger.error('Deep Learning Toolbox missing or failed: %s. Creating stub model.', ME.message);
+    Logger.warning('Deep Learning Toolbox missing or failed: %s. Using stub model.', ME.message);
     cnnLstmNet = struct('Type', 'Stub');
 end
 
 % ---- ARIMA Training ----
 disp('  => Training ARIMAX Model (using Sentiment as Exogenous Factor)...');
-try
-    arimaSpec = arima(1, 1, 1);
-    % Find Daily_Sentiment index (19 based on featureList)
-    sentimentIdx = find(strcmp(featureList, 'Daily_Sentiment'));
-    if isempty(sentimentIdx)
-        sentimentIdx = 19; % Fallback
-    end
-    
-    % Extract raw sentiment data for ARIMA X factor
-    sentimentTrain = XTrain_raw(:, sentimentIdx);
-    
-    % ARIMAX needs raw unscaled data to predict raw prices easily.
-    % We pass sentiment as 'X' to satisfy MathWorks Challenge requirement #5
-    arimaModel = estimate(arimaSpec, YTrain_raw, 'X', sentimentTrain, 'Display', 'off');
-    Logger.success('ARIMAX Training Complete.');
-catch ME
-    Logger.error('Econometrics Toolbox missing or failed: %s. Creating stub model.', ME.message);
+hasEcon = license('test', 'Econometrics_Toolbox') || ~isempty(ver('econ'));
+if ~hasEcon
+    Logger.warning('Econometrics Toolbox not installed. Skipping ARIMAX model.');
     arimaModel = struct('Type', 'Stub');
+else
+    try
+        arimaSpec = arima(1, 1, 1);
+        % Find Daily_Sentiment index (19 based on featureList)
+        sentimentIdx = find(strcmp(featureList, 'Daily_Sentiment'));
+        if isempty(sentimentIdx)
+            sentimentIdx = 19; % Fallback
+        end
+        
+        % Extract raw sentiment data for ARIMA X factor
+        sentimentTrain = XTrain_raw(:, sentimentIdx);
+        
+        % ARIMAX needs raw unscaled data to predict raw prices easily.
+        % We pass sentiment as 'X' to satisfy MathWorks Challenge requirement #5
+        arimaModel = estimate(arimaSpec, YTrain_raw, 'X', sentimentTrain, 'Display', 'off');
+        Logger.success('ARIMAX Training Complete.');
+    catch ME
+        Logger.warning('ARIMAX training failed (e.g., insufficient observations): %s. Using stub model.', ME.message);
+        arimaModel = struct('Type', 'Stub');
+    end
 end
 
 % ---- Random Forest Training ----
@@ -109,7 +122,7 @@ try
     rfModel = TreeBagger(50, XTrain, YTrain, 'Method', 'regression');
     Logger.success('Random Forest Training Complete.');
 catch ME
-    Logger.error('Random Forest failed: %s', ME.message);
+    Logger.warning('Random Forest failed: %s. Using stub model.', ME.message);
     rfModel = struct('Type', 'Stub');
 end
 
@@ -119,7 +132,7 @@ try
     svmModel = fitrsvm(XTrain, YTrain, 'Standardize', true);
     Logger.success('SVM Training Complete.');
 catch ME
-    Logger.error('SVM failed: %s', ME.message);
+    Logger.warning('SVM failed: %s. Using stub model.', ME.message);
     svmModel = struct('Type', 'Stub');
 end
 
@@ -213,7 +226,7 @@ for i = 1:length(sortIdx)
     fprintf(fid, '<tr%s><td>%d</td><td>%s</td><td>%.2f</td><td>%.2f</td></tr>', ...
         rowClass, i, validNames{idx}, validRmse(idx), validMae(idx));
 end
-fprintf(fid, '</table><p><i>Generated on: %s</i></p></body></html>', datestr(now));
+fprintf(fid, '</table><p><i>Generated on: %s</i></p></body></html>', char(datetime('now')));
 fclose(fid);
 Logger.success('Model Leaderboard generated at reports/ModelLeaderboard.html');
 

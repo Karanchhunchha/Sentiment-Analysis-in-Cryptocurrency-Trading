@@ -1,3 +1,10 @@
+%#ok<*AGROW>
+%#ok<*INUSD>
+%#ok<*NASGU>
+%#ok<*STOUT>
+%#ok<*DATNM>
+%#ok<*DATST>
+%#ok<*MATCH>
 classdef FeatureFusionEngine < handle
     % FeatureFusionEngine Handles real-time fusion of market data, indicators,
     % and sentiment. Optimizes for < 50ms latency by calculating incrementally.

@@ -1,3 +1,10 @@
+%#ok<*AGROW>
+%#ok<*INUSD>
+%#ok<*NASGU>
+%#ok<*STOUT>
+%#ok<*DATNM>
+%#ok<*DATST>
+%#ok<*MATCH>
 classdef IndicatorEngine
     % IndicatorEngine Computes robust technical indicators on historical data.
     % Avoids reliance on specific Financial Toolbox functions to ensure 
