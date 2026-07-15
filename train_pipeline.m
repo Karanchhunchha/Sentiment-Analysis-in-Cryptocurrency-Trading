@@ -82,13 +82,22 @@ catch ME
 end
 
 % ---- ARIMA Training ----
-disp('  => Training ARIMA Model...');
+disp('  => Training ARIMAX Model (using Sentiment as Exogenous Factor)...');
 try
     arimaSpec = arima(1, 1, 1);
-    % ARIMA needs raw unscaled data to predict raw prices easily, but we scaled YTrain.
-    % To keep ARIMA happy and simple, train it on YTrain_raw.
-    arimaModel = estimate(arimaSpec, YTrain_raw, 'Display', 'off');
-    Logger.success('ARIMA Training Complete.');
+    % Find Daily_Sentiment index (19 based on featureList)
+    sentimentIdx = find(strcmp(featureList, 'Daily_Sentiment'));
+    if isempty(sentimentIdx)
+        sentimentIdx = 19; % Fallback
+    end
+    
+    % Extract raw sentiment data for ARIMA X factor
+    sentimentTrain = XTrain_raw(:, sentimentIdx);
+    
+    % ARIMAX needs raw unscaled data to predict raw prices easily.
+    % We pass sentiment as 'X' to satisfy MathWorks Challenge requirement #5
+    arimaModel = estimate(arimaSpec, YTrain_raw, 'X', sentimentTrain, 'Display', 'off');
+    Logger.success('ARIMAX Training Complete.');
 catch ME
     Logger.error('Econometrics Toolbox missing or failed: %s. Creating stub model.', ME.message);
     arimaModel = struct('Type', 'Stub');
@@ -136,11 +145,19 @@ else
     rmseVals(1) = NaN; maeVals(1) = NaN;
 end
 
-% 2. ARIMA (trained on raw data, so predict outputs raw directly)
+% 2. ARIMAX (trained on raw data, so predict outputs raw directly)
 if ~strcmp(class(arimaModel), 'struct')
-    % forecast needs YTrain_raw as presample. 
-    % A simpler approximation for test set is to use forecast
-    [arimaPred, ~] = forecast(arimaModel, length(YTest_raw), 'Y0', YTrain_raw);
+    sentimentIdx = find(strcmp(featureList, 'Daily_Sentiment'));
+    if isempty(sentimentIdx), sentimentIdx = 19; end
+    
+    sentimentTrain = XTrain_raw(:, sentimentIdx);
+    sentimentTest = XTest_raw(:, sentimentIdx);
+    
+    % forecast needs YTrain_raw as presample (Y0).
+    % Since it's ARIMAX, it also needs X presample (X0) and future X values (XF)
+    [arimaPred, ~] = forecast(arimaModel, length(YTest_raw), 'Y0', YTrain_raw, ...
+        'X0', sentimentTrain, 'XF', sentimentTest);
+        
     rmseVals(2) = sqrt(mean((YTest_raw - arimaPred).^2));
     maeVals(2) = mean(abs(YTest_raw - arimaPred));
 else

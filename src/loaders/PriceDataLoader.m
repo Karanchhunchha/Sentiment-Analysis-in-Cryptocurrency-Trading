@@ -43,6 +43,34 @@ classdef PriceDataLoader < handle
             Logger.success('Loaded %d historical candles.', height(obj.Data));
         end
         
+        %% 1.5 Live History Loader (for correct timeframe initialization)
+        function data = fetchRecentHistory(obj, limit)
+            if nargin < 2; limit = 150; end
+            Logger.info('Fetching last %d %s candles from Binance...', limit, obj.Interval);
+            try
+                url = sprintf('https://api.binance.com/api/v3/klines?symbol=%s&interval=%s&limit=%d', obj.Symbol, obj.Interval, limit);
+                options = weboptions('Timeout', 10);
+                response = webread(url, options);
+                
+                if ~isempty(response)
+                    fullTable = table();
+                    for i = 1:length(response)
+                        % response(i) is a cell array of the candle data
+                        candle = obj.parseBinanceResponse({response{i}});
+                        fullTable = [fullTable; candle];
+                    end
+                    obj.Data = fullTable;
+                    data = obj.Data;
+                    Logger.success('Fetched %d live historical candles.', height(obj.Data));
+                else
+                    data = table();
+                end
+            catch ME
+                Logger.error('Failed to fetch recent history: %s', ME.message);
+                data = table();
+            end
+        end
+        
         %% 2. Live Event-Driven Loader
         function startLiveStream(obj, callbackFunc)
             % Starts an asynchronous timer to fetch the latest candle

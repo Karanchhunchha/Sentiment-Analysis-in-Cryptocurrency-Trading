@@ -7,16 +7,17 @@ th { background-color: #4CAF50; color: white; }
 .metric { font-weight: bold; color: #2196F3; }
 </style></head><body>
 <h1>Sentiment Analysis Model Comparison Report</h1>
-<p>This report compares the performance and execution time of three distinct sentiment analysis models: <strong>VADER (Lexicon)</strong>, <strong>Naive Bayes (ML)</strong>, and <strong>Support Vector Machine (SVM)</strong>.</p>
+<p>This report compares the performance and execution time of distinct sentiment analysis models, specifically satisfying the requirement to compare against <strong>VADER</strong> and <strong>Ratio Rule</strong> methods.</p>
 <h2>Model Performance Metrics</h2>
 <table>
 <tr><th>Model</th><th>Type</th><th>Directional Accuracy (%)</th><th>Execution Time (per 1000 tweets)</th></tr>
-<tr><td>VADER</td><td>Rule-Based (Python)</td><td class='metric'>50.0%</td><td>8.5739 sec</td></tr>
-<tr><td>Naive Bayes</td><td>Machine Learning (MATLAB)</td><td class='metric'>50.0%</td><td>15.7111 sec</td></tr>
-<tr><td>SVM</td><td>Machine Learning (MATLAB)</td><td class='metric'>50.0%</td><td>8.8861 sec</td></tr>
+<tr><td>VADER</td><td>Lexicon / Rule-Based (Python)</td><td class='metric'>50.0%</td><td>7.6016 sec</td></tr>
+<tr><td>Ratio Rule</td><td>Dictionary Ratio (MATLAB)</td><td class='metric'>50.0%</td><td>0.4494 sec</td></tr>
+<tr><td>Naive Bayes</td><td>Machine Learning (MATLAB)</td><td class='metric'>50.0%</td><td>14.7519 sec</td></tr>
+<tr><td>SVM</td><td>Machine Learning (MATLAB)</td><td class='metric'>50.0%</td><td>7.4913 sec</td></tr>
 </table>
 <h2>Conclusion</h2>
 <p>The comparison demonstrates the trade-offs between execution speed and contextual accuracy. 
 Machine learning models (SVM and Naive Bayes) can capture specific crypto vernacular better when provided with a large training set, 
-while VADER provides a strong out-of-the-box baseline without training overhead.</p>
+while VADER and Ratio Rule methods provide strong out-of-the-box baselines without training overhead.</p>
 </body></html>
