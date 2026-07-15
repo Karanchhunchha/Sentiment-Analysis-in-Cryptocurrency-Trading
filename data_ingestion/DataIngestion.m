@@ -98,14 +98,12 @@ classdef DataIngestion
                 rowTime = nowTime - hours(height(dataTable) - i);
                 timeStr = datestr(rowTime, 'yyyy-mm-dd HH:MM:SS');
                 
-                query = sprintf(...
-                    "INSERT INTO historical_prices (timestamp, symbol, open_price, high_price, low_price, close_price, volume) " + ...
-                    "VALUES ('%s', '%s', %f, %f, %f, %f, %f) " + ...
-                    "ON CONFLICT (timestamp, symbol) DO NOTHING;", ...
-                    timeStr, 'BTC', dataTable.Open(i), dataTable.High(i), dataTable.Low(i), dataTable.Close(i), dataTable.Volume(i));
+                query = "INSERT INTO historical_prices (timestamp, symbol, open_price, high_price, low_price, close_price, volume) " + ...
+                    "VALUES (?, ?, ?, ?, ?, ?, ?) " + ...
+                    "ON CONFLICT (timestamp, symbol) DO NOTHING;";
                 
                 try
-                    execute(conn, query);
+                    execute(conn, query, {timeStr, 'BTC', dataTable.Open(i), dataTable.High(i), dataTable.Low(i), dataTable.Close(i), dataTable.Volume(i)});
                 catch e
                 end
             end
@@ -125,8 +123,8 @@ classdef DataIngestion
                 error('DB Connection Failed.');
             end
             
-            query = sprintf("SELECT timestamp, open_price as Open, high_price as High, low_price as Low, close_price as Close, volume as Volume FROM historical_prices WHERE symbol = '%s' ORDER BY timestamp ASC;", symbol);
-            priceTable = select(conn, query);
+            query = "SELECT timestamp, open_price as Open, high_price as High, low_price as Low, close_price as Close, volume as Volume FROM historical_prices WHERE symbol = ? ORDER BY timestamp ASC;";
+            priceTable = select(conn, query, {symbol});
             close(conn);
         end
         
