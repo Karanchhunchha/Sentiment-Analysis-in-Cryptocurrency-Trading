@@ -258,6 +258,7 @@ classdef SentimentEngine
             nbScores = zeros(1, numSamples);
             svmScores = zeros(1, numSamples);
             vaderScores = zeros(1, numSamples);
+            ratioScores = zeros(1, numSamples);
             
             % Time Naive Bayes
             tic;
@@ -283,10 +284,18 @@ classdef SentimentEngine
             end
             vaderTime = toc * (1000 / numSamples);
             
+            % Time Ratio Rule
+            tic;
+            for i = 1:numSamples
+                ratioScores(i) = obj.ratioRuleScore(valText(i));
+            end
+            ratioTime = toc * (1000 / numSamples);
+            
             % Calculate basic accuracy metric (Directional Match)
             nbAcc = sum(sign(nbScores) == sign(groundTruth)) / numSamples * 100;
             svmAcc = sum(sign(svmScores) == sign(groundTruth)) / numSamples * 100;
             vaderAcc = sum(sign(vaderScores) == sign(groundTruth)) / numSamples * 100;
+            ratioAcc = sum(sign(ratioScores) == sign(groundTruth)) / numSamples * 100;
             
             % Create HTML Content
             htmlLines = [
@@ -299,18 +308,19 @@ classdef SentimentEngine
                 ".metric { font-weight: bold; color: #2196F3; }"
                 "</style></head><body>"
                 "<h1>Sentiment Analysis Model Comparison Report</h1>"
-                "<p>This report compares the performance and execution time of three distinct sentiment analysis models: <strong>VADER (Lexicon)</strong>, <strong>Naive Bayes (ML)</strong>, and <strong>Support Vector Machine (SVM)</strong>.</p>"
+                "<p>This report compares the performance and execution time of distinct sentiment analysis models, specifically satisfying the requirement to compare against <strong>VADER</strong> and <strong>Ratio Rule</strong> methods.</p>"
                 "<h2>Model Performance Metrics</h2>"
                 "<table>"
                 "<tr><th>Model</th><th>Type</th><th>Directional Accuracy (%)</th><th>Execution Time (per 1000 tweets)</th></tr>"
-                "<tr><td>VADER</td><td>Rule-Based (Python)</td><td class='metric'>" + num2str(vaderAcc, '%.1f') + "%</td><td>" + num2str(vaderTime, '%.4f') + " sec</td></tr>"
+                "<tr><td>VADER</td><td>Lexicon / Rule-Based (Python)</td><td class='metric'>" + num2str(vaderAcc, '%.1f') + "%</td><td>" + num2str(vaderTime, '%.4f') + " sec</td></tr>"
+                "<tr><td>Ratio Rule</td><td>Dictionary Ratio (MATLAB)</td><td class='metric'>" + num2str(ratioAcc, '%.1f') + "%</td><td>" + num2str(ratioTime, '%.4f') + " sec</td></tr>"
                 "<tr><td>Naive Bayes</td><td>Machine Learning (MATLAB)</td><td class='metric'>" + num2str(nbAcc, '%.1f') + "%</td><td>" + num2str(nbTime, '%.4f') + " sec</td></tr>"
                 "<tr><td>SVM</td><td>Machine Learning (MATLAB)</td><td class='metric'>" + num2str(svmAcc, '%.1f') + "%</td><td>" + num2str(svmTime, '%.4f') + " sec</td></tr>"
                 "</table>"
                 "<h2>Conclusion</h2>"
                 "<p>The comparison demonstrates the trade-offs between execution speed and contextual accuracy. "
                 "Machine learning models (SVM and Naive Bayes) can capture specific crypto vernacular better when provided with a large training set, "
-                "while VADER provides a strong out-of-the-box baseline without training overhead.</p>"
+                "while VADER and Ratio Rule methods provide strong out-of-the-box baselines without training overhead.</p>"
                 "</body></html>"
             ];
             html = strjoin(htmlLines, newline);

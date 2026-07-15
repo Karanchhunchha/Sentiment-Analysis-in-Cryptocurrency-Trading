@@ -15,6 +15,8 @@ classdef FeatureEngineer
             df = FeatureEngineer.calcVolatility(df);
             df = FeatureEngineer.calcReturns(df);
             df = FeatureEngineer.calcMarketStructure(df);
+            df = FeatureEngineer.calcOrderBlocks(df);
+            df = FeatureEngineer.calcLiquidityZones(df);
             
             Logger.success('Feature Engineering complete. Added %d new features.', size(df,2)-5);
         end
@@ -120,6 +122,44 @@ classdef FeatureEngineer
             % Local Support/Resistance (Rolling Min/Max over 20 periods)
             df.Support = movmin(df.Low, 20);
             df.Resistance = movmax(df.High, 20);
+            
+            % Advanced Swing Support/Resistance
+            df.Swing_High = df.Resistance;
+            df.Swing_Low = df.Support;
+        end
+        
+        function df = calcOrderBlocks(df)
+            df.Bullish_OB = zeros(height(df), 1);
+            df.Bearish_OB = zeros(height(df), 1);
+            
+            % Order Block Detection: displacement candle > 1.5x ATR
+            for i = 3:height(df)
+                body = abs(df.Close(i) - df.Open(i));
+                if body > 1.5 * df.ATR(i) && df.Close(i) > df.Open(i) && df.Close(i-1) < df.Open(i-1)
+                    df.Bullish_OB(i) = df.Low(i-1);
+                elseif body > 1.5 * df.ATR(i) && df.Close(i) < df.Open(i) && df.Close(i-1) > df.Open(i-1)
+                    df.Bearish_OB(i) = df.High(i-1);
+                end
+            end
+            
+            % Carry forward the last valid Order Block
+            for i = 2:height(df)
+                if df.Bullish_OB(i) == 0
+                    df.Bullish_OB(i) = df.Bullish_OB(i-1);
+                end
+                if df.Bearish_OB(i) == 0
+                    df.Bearish_OB(i) = df.Bearish_OB(i-1);
+                end
+            end
+        end
+        
+        function df = calcLiquidityZones(df)
+            df.Buy_Liquidity = zeros(height(df), 1);
+            df.Sell_Liquidity = zeros(height(df), 1);
+            
+            % Identifying liquidity above recent significant highs and below recent significant lows
+            df.Buy_Liquidity = movmax(df.High, 50); % Macro swing high (liquidity pool)
+            df.Sell_Liquidity = movmin(df.Low, 50); % Macro swing low (liquidity pool)
         end
     end
 end

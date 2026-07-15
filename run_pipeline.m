@@ -43,18 +43,33 @@ liveUpdateCallback = @(newCandle, fullData) processLiveTick(newCandle, fullData,
 
 %% 3. Start Live Data Stream
 disp('-> [4/4] Starting Binance WebSocket/REST Polling...');
-interval = '5m';
+
+% Let the user select the timeframe dynamically
+prompt = 'Select Timeframe (1m, 5m, 15m, 30m, 1h, 4h, 1d) [default 5m]: ';
+interval = input(prompt, 's');
+if isempty(interval)
+    interval = '5m';
+end
+Logger.info('Initializing live stream for %s interval...', interval);
+
 dataLoader = PriceDataLoader('BTCUSDT', interval);
 
 try
-    histData = dataLoader.loadHistoricalCSV('data/market/btc.csv');
-    fusionEngine.initializeHistorical(histData(end-100:end, :));
-catch
+    % Fetch recent live 5m candles to initialize indicators correctly
+    histData = dataLoader.fetchRecentHistory(150); 
+    fusionEngine.initializeHistorical(histData);
+catch ME
+    Logger.warning('Failed to fetch recent history from Binance: %s. Falling back to CSV.', ME.message);
     try
-        histData = dataLoader.loadHistoricalCSV('btc.csv');
+        histData = dataLoader.loadHistoricalCSV('data/market/btc.csv');
         fusionEngine.initializeHistorical(histData(end-100:end, :));
     catch
-        Logger.warning('No historical data found. Starting from scratch.');
+        try
+            histData = dataLoader.loadHistoricalCSV('btc.csv');
+            fusionEngine.initializeHistorical(histData(end-100:end, :));
+        catch
+            Logger.warning('No historical data found. Starting from scratch.');
+        end
     end
 end
 
@@ -86,29 +101,60 @@ function processLiveTick(newCandle, fullData, fusionEngine, models, dashboard)
     probDown = 1 - probUp;
     confidence = abs(probUp - 0.5) * 2;
     
+    % SMC Support/Resistance & Order Blocks (Extracted from Feature Engine)
+    fullData_features = FeatureEngineer.runAll(fullData);
+    
+    support = fullData_features.Sell_Liquidity(end);
+    resistance = fullData_features.Buy_Liquidity(end);
+    
+    % Order block zones (Real dynamic levels)
+    bullishOB = fullData_features.Bullish_OB(end); 
+    bearishOB = fullData_features.Bearish_OB(end);  
+    
+    % Fallback if OBs are not yet established
+    if bullishOB == 0; bullishOB = support; end
+    if bearishOB == 0; bearishOB = resistance; end
+    
     if probUp > 0.55
-        signal = 'BUY'; trend = 'UPTREND';
-        sl = currentPrice - (volatility * 1.5);
-        tp1 = currentPrice + (volatility * 1);
-        tp2 = currentPrice + (volatility * 2);
-        tp3 = currentPrice + (volatility * 3);
+        sl = bullishOB - volatility; % Place SL safely below Bullish Order Block & Liquidity
+        risk = currentPrice - sl;
+        
+        % Strict minimum 1:2 Risk/Reward enforcement
+        tp1 = currentPrice + (risk * 2.0); % 1:2 RR
+        tp2 = currentPrice + (risk * 3.0); % 1:3 RR
+        tp3 = currentPrice + (risk * 4.0);
+        
+        rr = abs(tp1 - currentPrice) / abs(currentPrice - sl);
+        
+        if rr >= 1.95 % Floating point tolerance
+            signal = 'BUY'; trend = 'UPTREND';
+        else
+            signal = 'HOLD'; trend = 'NEUTRAL (RR < 1:2)';
+        end
+        
     elseif probDown > 0.55
-        signal = 'SELL'; trend = 'DOWNTREND';
-        sl = currentPrice + (volatility * 1.5);
-        tp1 = currentPrice - (volatility * 1);
-        tp2 = currentPrice - (volatility * 2);
-        tp3 = currentPrice - (volatility * 3);
+        sl = bearishOB + volatility; % Place SL safely above Bearish Order Block & Liquidity
+        risk = sl - currentPrice;
+        
+        % Strict minimum 1:2 Risk/Reward enforcement
+        tp1 = currentPrice - (risk * 2.0); % 1:2 RR
+        tp2 = currentPrice - (risk * 3.0); % 1:3 RR
+        tp3 = currentPrice - (risk * 4.0);
+        
+        rr = abs(tp1 - currentPrice) / abs(currentPrice - sl);
+        
+        if rr >= 1.95
+            signal = 'SELL'; trend = 'DOWNTREND';
+        else
+            signal = 'HOLD'; trend = 'NEUTRAL (RR < 1:2)';
+        end
+        
     else
         signal = 'HOLD'; trend = 'NEUTRAL';
         sl = currentPrice * 0.98;
         tp1 = currentPrice * 1.02; tp2 = tp1; tp3 = tp1;
+        rr = 0;
     end
-    
-    rr = abs(tp1 - currentPrice) / abs(currentPrice - sl);
-    
-    % Support/Resistance (simplified recent min/max)
-    support = min(fullData.Low(max(1, end-20):end));
-    resistance = max(fullData.High(max(1, end-20):end));
     
     % Times
     genTime = datetime('now');
