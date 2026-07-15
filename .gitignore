@@ -53,3 +53,4 @@ setup_v2.py
 # Environment variables
 .env
 *.env
+configs/.env
