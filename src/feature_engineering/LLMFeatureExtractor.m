@@ -1,3 +1,10 @@
+%#ok<*AGROW>
+%#ok<*INUSD>
+%#ok<*NASGU>
+%#ok<*STOUT>
+%#ok<*DATNM>
+%#ok<*DATST>
+%#ok<*MATCH>
 classdef LLMFeatureExtractor
     % LLMFeatureExtractor: Uses Large Language Models via MATLAB API
     % to retrieve features (e.g. sentiment scores, macro factors) to build time series models.

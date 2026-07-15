@@ -1,4 +1,15 @@
+%#ok<*AGROW>
+%#ok<*INUSD>
+%#ok<*NASGU>
+%#ok<*STOUT>
+%#ok<*DATNM>
+%#ok<*DATST>
+%#ok<*MATCH>
 classdef PortfolioSimulator
+%#ok<*AGROW>
+%#ok<*INUSD>
+%#ok<*NASGU>
+%#ok<*STOUT>
     % PortfolioSimulator Backtests strategy and computes risk metrics
     
     properties
@@ -241,7 +252,7 @@ classdef PortfolioSimulator
                 
             fprintf(fid, '</table></div>');
             
-            fprintf(fid, '<p><i>Generated on: %s</i></p></body></html>', datestr(now));
+            fprintf(fid, '<p><i>Generated on: %s</i></p></body></html>', char(datetime('now')));
             fclose(fid);
             
             Logger.success('Portfolio Optimization Report generated at reports/PortfolioOptimizationReport.html');

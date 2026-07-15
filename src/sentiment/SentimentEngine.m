@@ -1,4 +1,15 @@
+%#ok<*AGROW>
+%#ok<*INUSD>
+%#ok<*NASGU>
+%#ok<*STOUT>
+%#ok<*DATNM>
+%#ok<*DATST>
+%#ok<*MATCH>
 classdef SentimentEngine
+%#ok<*AGROW>
+%#ok<*INUSD>
+%#ok<*NASGU>
+%#ok<*STOUT>
     % SentimentEngine Processes large CSVs of social media text to generate sentiment scores
     
     properties

@@ -96,3 +96,43 @@ When a live tick is processed, the system executes the following mathematical pi
 
 ## 🏆 Submission Note for MathWorks Judges
 This project directly addresses the challenge of utilizing advanced machine learning techniques in financial markets. It proves that native MATLAB architecture is highly capable of running low-latency, complex institutional trading logic, live API polling, and robust Monte Carlo validations in a single cohesive environment.
+
+---
+
+## 📂 Evidence & Reproducibility
+All claims, metrics, and models in this repository are backed by reproducible execution evidence located in the `docs/evidence/` directory.
+
+```text
+docs/evidence/
+├── Architecture/
+│     architecture.png
+├── Pipeline/
+│     pipeline.png
+├── Testing/
+│     run_all_tests.png
+├── Training/
+│     training_loss.png
+├── Validation/
+│     confusion_matrix.png
+│     roc_curve.png
+├── Backtesting/
+│     equity_curve.png
+│     portfolio_returns.png
+├── Monte_Carlo/
+│     monte_carlo_distribution.png
+├── Reports/
+│     html_reports/
+└── Logs/
+      execution.log
+```
+*(Note: Screenshots must be generated locally via `run_all_tests.m` and placed into these folders prior to final upload).*
+
+---
+
+## 👤 Author & Ownership
+**Author:** Karan Chhunchha
+**Repository:** Sentiment-Analysis-in-Cryptocurrency-Trading
+**GitHub:** [https://github.com/Karanchhunchha/Sentiment-Analysis-in-Cryptocurrency-Trading](https://github.com/Karanchhunchha/Sentiment-Analysis-in-Cryptocurrency-Trading)
+**Email:** [karanchhunchha@gmail.com](mailto:karanchhunchha@gmail.com)
+
+*Submitted for evaluation in the MathWorks MATLAB & Simulink Challenge Project #239.*

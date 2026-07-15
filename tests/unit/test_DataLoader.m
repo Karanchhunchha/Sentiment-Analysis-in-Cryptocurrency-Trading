@@ -1,3 +1,10 @@
+%#ok<*AGROW>
+%#ok<*INUSD>
+%#ok<*NASGU>
+%#ok<*STOUT>
+%#ok<*DATNM>
+%#ok<*DATST>
+%#ok<*MATCH>
 classdef test_DataLoader < matlab.unittest.TestCase
     % test_DataLoader Verifies data ingestion and formatting
     

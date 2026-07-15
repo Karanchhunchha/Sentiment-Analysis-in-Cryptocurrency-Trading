@@ -1,3 +1,10 @@
+%#ok<*AGROW>
+%#ok<*INUSD>
+%#ok<*NASGU>
+%#ok<*STOUT>
+%#ok<*DATNM>
+%#ok<*DATST>
+%#ok<*MATCH>
 classdef MonteCarloSimulator < handle
     % MonteCarloSimulator Evaluates strategy robustness by running thousands
     % of randomized simulations based on historical trade distribution.

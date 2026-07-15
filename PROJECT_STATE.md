@@ -1,6 +1,10 @@
 # 📊 SentinelCrypto Project State (PROJECT_STATE.md)
 *Last Updated: 2026-07-15*
 
+**Author:** Karan Chhunchha
+**Contact:** [karanchhunchha@gmail.com](mailto:karanchhunchha@gmail.com)
+**GitHub:** [Karanchhunchha/Sentiment-Analysis-in-Cryptocurrency-Trading](https://github.com/Karanchhunchha/Sentiment-Analysis-in-Cryptocurrency-Trading)
+
 ---
 
 ## 📈 PROJECT STATUS SUMMARY

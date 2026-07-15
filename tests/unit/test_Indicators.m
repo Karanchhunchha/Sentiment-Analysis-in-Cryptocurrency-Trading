@@ -1,3 +1,10 @@
+%#ok<*AGROW>
+%#ok<*INUSD>
+%#ok<*NASGU>
+%#ok<*STOUT>
+%#ok<*DATNM>
+%#ok<*DATST>
+%#ok<*MATCH>
 classdef test_Indicators < matlab.unittest.TestCase
     % test_Indicators Verifies mathematical correctness of technical indicators
     

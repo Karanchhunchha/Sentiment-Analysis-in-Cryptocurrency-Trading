@@ -1,4 +1,15 @@
+%#ok<*AGROW>
+%#ok<*INUSD>
+%#ok<*NASGU>
+%#ok<*STOUT>
+%#ok<*DATNM>
+%#ok<*DATST>
+%#ok<*MATCH>
 classdef Backtester < handle
+%#ok<*AGROW>
+%#ok<*INUSD>
+%#ok<*NASGU>
+%#ok<*STOUT>
     % Backtester Evaluates the profitability and metrics of the AI model
     % over historical data. Simulates strict execution constraints.
     

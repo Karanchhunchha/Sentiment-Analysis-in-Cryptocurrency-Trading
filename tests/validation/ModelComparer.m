@@ -1,4 +1,15 @@
+%#ok<*AGROW>
+%#ok<*INUSD>
+%#ok<*NASGU>
+%#ok<*STOUT>
+%#ok<*DATNM>
+%#ok<*DATST>
+%#ok<*MATCH>
 classdef ModelComparer < handle
+%#ok<*AGROW>
+%#ok<*INUSD>
+%#ok<*NASGU>
+%#ok<*STOUT>
     % ModelComparer Orchestrates the institutional model comparison suite.
     % Evaluates multiple architectures (ARIMA, Random Forest, CNN, LSTM)
     % strictly on the same out-of-sample data to prevent selection bias.
@@ -39,7 +50,8 @@ classdef ModelComparer < handle
             X_test_scaled = PipelineDataProcessor.scaleData(X_test_raw, scaler);
             
             % For direction accuracy
-            actual_dir = sign(diff([Y(splitIdx); y_test(1:end-1)]));
+            prev_prices = [Y(splitIdx); y_test(1:end-1)];
+            actual_dir = sign(y_test - prev_prices);
             
             Logger.info(sprintf('Training set: %d rows, Test set: %d rows', splitIdx, length(y_test)));
             
@@ -55,10 +67,28 @@ classdef ModelComparer < handle
             Logger.info('Evaluating Production Ensemble Model...');
             preds = PipelineDataProcessor.predictEnsemble(models, X_test_scaled, targetScaler);
             
+            y_test = y_test(:);
+            preds = preds(:);
+            
             % Metrics
             rmse = sqrt(mean((y_test - preds).^2));
             mae = mean(abs(y_test - preds));
-            pred_dir = sign(diff([y_train(end); preds(1:end-1)]));
+            
+            % === DIRECTIONAL ACCURACY CORRECTION ===
+            % Old Formula: pred_dir = sign(diff([y_train(end); preds(1:end-1)]))
+            % Why it was incorrect: The old formula checked if the prediction at time t 
+            % was higher than the prediction at t-1 (model momentum), rather than checking 
+            % if the prediction at time t is higher than the actual known price at t-1.
+            % New Formula: sign(preds - [y_train(end); y_test(1:end-1)])
+            % Reference: Standard financial forecasting Directional Accuracy (DA) dictates 
+            % checking if sign(Y_hat_t - Y_{t-1}) == sign(Y_t - Y_{t-1}).
+            
+            % Known previous prices
+            prev_prices = [y_train(end); y_test(1:end-1)];
+            prev_prices = prev_prices(:);
+            actual_dir = actual_dir(:);
+            
+            pred_dir = sign(preds - prev_prices);
             dir_acc = sum(pred_dir == actual_dir) / length(actual_dir) * 100;
             
             obj.addResult('Ensemble (CNN-LSTM)', rmse, mae, dir_acc);
@@ -66,12 +96,19 @@ classdef ModelComparer < handle
         
         function obj = evaluateNaive(obj, y_train, y_test, actual_dir)
             Logger.info('Evaluating Naive Random Walk (Baseline)...');
+            y_test = y_test(:);
+            actual_dir = actual_dir(:);
             % Predicts that tomorrow's price is exactly today's price
-            preds = [y_train(end); y_test(1:end-1)];
+            prev_prices = [y_train(end); y_test(1:end-1)];
+            prev_prices = prev_prices(:);
+            preds = prev_prices;
             
             rmse = sqrt(mean((y_test - preds).^2));
             mae = mean(abs(y_test - preds));
-            pred_dir = sign(diff([y_train(end); preds(1:end-1)]));
+            
+            % For a strict Random Walk, prediction = prev_price, so (preds - prev_prices) = 0.
+            % It predicts zero change, providing no directional edge.
+            pred_dir = sign(preds - prev_prices);
             dir_acc = sum(pred_dir == actual_dir) / length(actual_dir) * 100;
             
             obj.addResult('Naive (Random Walk)', rmse, mae, dir_acc);

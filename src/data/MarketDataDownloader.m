@@ -1,3 +1,10 @@
+%#ok<*AGROW>
+%#ok<*INUSD>
+%#ok<*NASGU>
+%#ok<*STOUT>
+%#ok<*DATNM>
+%#ok<*DATST>
+%#ok<*MATCH>
 classdef MarketDataDownloader
     % MarketDataDownloader Automatically retrieves historical BTC data
     % Uses Binance (Primary) and CoinGecko (Fallback) with incremental updates.

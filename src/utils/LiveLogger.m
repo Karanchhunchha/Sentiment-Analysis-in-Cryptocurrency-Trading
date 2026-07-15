@@ -1,3 +1,10 @@
+%#ok<*AGROW>
+%#ok<*INUSD>
+%#ok<*NASGU>
+%#ok<*STOUT>
+%#ok<*DATNM>
+%#ok<*DATST>
+%#ok<*MATCH>
 classdef LiveLogger < handle
     % LiveLogger Records predictions during live mode and verifies them 
     % automatically when subsequent prices arrive. Append-only, never overwrites.

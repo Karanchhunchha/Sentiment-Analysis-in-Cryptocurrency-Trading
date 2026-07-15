@@ -1,3 +1,10 @@
+%#ok<*AGROW>
+%#ok<*INUSD>
+%#ok<*NASGU>
+%#ok<*STOUT>
+%#ok<*DATNM>
+%#ok<*DATST>
+%#ok<*MATCH>
 classdef test_FeatureFusionEngine < matlab.unittest.TestCase
     % test_FeatureFusionEngine Verifies state tracking and incremental
     % updates inside the FeatureFusionEngine to ensure zero data leakage and

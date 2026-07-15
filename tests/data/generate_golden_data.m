@@ -1,3 +1,10 @@
+%#ok<*AGROW>
+%#ok<*INUSD>
+%#ok<*NASGU>
+%#ok<*STOUT>
+%#ok<*DATNM>
+%#ok<*DATST>
+%#ok<*MATCH>
 % generate_golden_data.m
 % Generates deterministic price data for rigorous mathematical testing.
 % Saves to tests/data/golden_data.csv

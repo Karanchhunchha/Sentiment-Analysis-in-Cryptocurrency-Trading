@@ -1,3 +1,10 @@
+%#ok<*AGROW>
+%#ok<*INUSD>
+%#ok<*NASGU>
+%#ok<*STOUT>
+%#ok<*DATNM>
+%#ok<*DATST>
+%#ok<*MATCH>
 % Author: Karan Chhunchha (karanchhunchha@gmail.com)
 % MathWorks Challenge #239 - SentinelCrypto
 % run_pipeline.m (Event-Driven Live Prediction Loop)

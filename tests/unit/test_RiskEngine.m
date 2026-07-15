@@ -1,3 +1,10 @@
+%#ok<*AGROW>
+%#ok<*INUSD>
+%#ok<*NASGU>
+%#ok<*STOUT>
+%#ok<*DATNM>
+%#ok<*DATST>
+%#ok<*MATCH>
 classdef test_RiskEngine < matlab.unittest.TestCase
     % test_RiskEngine Validates SL/TP generation and trade rejection logic
     

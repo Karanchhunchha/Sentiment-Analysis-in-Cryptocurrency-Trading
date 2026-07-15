@@ -1,3 +1,10 @@
+%#ok<*AGROW>
+%#ok<*INUSD>
+%#ok<*NASGU>
+%#ok<*STOUT>
+%#ok<*DATNM>
+%#ok<*DATST>
+%#ok<*MATCH>
 classdef PriceDataLoader < handle
     % PriceDataLoader Production data loader for SentinelCrypto.
     % Handles batch loading of historical data (e.g., btc.csv) and 
@@ -132,7 +139,12 @@ classdef PriceDataLoader < handle
                     end
                 end
             catch ME
-                Logger.error('Failed to fetch live candle: %s', ME.message);
+                if contains(ME.message, 'Invalid or deleted object') || contains(ME.message, 'Invalid object handle')
+                    Logger.info('Dashboard closed. Stopping live polling.');
+                    obj.stopLiveStream();
+                else
+                    Logger.error('Failed to fetch live candle: %s', ME.message);
+                end
             end
         end
         

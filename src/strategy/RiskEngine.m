@@ -1,3 +1,10 @@
+%#ok<*AGROW>
+%#ok<*INUSD>
+%#ok<*NASGU>
+%#ok<*STOUT>
+%#ok<*DATNM>
+%#ok<*DATST>
+%#ok<*MATCH>
 classdef RiskEngine < handle
     % RiskEngine Computes Stop Loss (SL) and Take Profit (TP) bounds using 
     % Average True Range (ATR) and strictly enforces Risk:Reward > 1.5

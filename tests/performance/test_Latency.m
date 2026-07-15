@@ -1,3 +1,10 @@
+%#ok<*AGROW>
+%#ok<*INUSD>
+%#ok<*NASGU>
+%#ok<*STOUT>
+%#ok<*DATNM>
+%#ok<*DATST>
+%#ok<*MATCH>
 classdef test_Latency < matlab.unittest.TestCase
     % test_Latency Enforces strict performance budgets for the live system.
     % Target: Prediction < 100ms, Dashboard Refresh < 50ms.

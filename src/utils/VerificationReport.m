@@ -1,3 +1,10 @@
+%#ok<*AGROW>
+%#ok<*INUSD>
+%#ok<*NASGU>
+%#ok<*STOUT>
+%#ok<*DATNM>
+%#ok<*DATST>
+%#ok<*MATCH>
 classdef VerificationReport < handle
     % VerificationReport Generates the exhaustive 39-metric institutional
     % HTML report mandated for MathWorks Challenge #239.
@@ -69,7 +76,7 @@ classdef VerificationReport < handle
             fprintf(fid, '</style>\n</head>\n<body>\n');
             
             fprintf(fid, '<h1>SentinelCrypto Verification Report (MathWorks Challenge #239)</h1>\n');
-            fprintf(fid, '<p>Generated on: %s</p>\n', datestr(now));
+            fprintf(fid, '<p>Generated on: %s</p>\n', char(datetime('now')));
             
             fprintf(fid, '<h2>Institutional Readiness Score</h2>\n');
             fprintf(fid, '<p class="score">%.1f%%</p>\n', readiness);
