@@ -44,11 +44,9 @@ classdef ModelFramework
             if ~isempty(conn) && isopen(conn)
                 try
                     hpJson = jsonencode(hyperparams);
-                    query = sprintf(...
-                        "INSERT INTO models (model_id, version, algorithm, dataset_version, rmse, directional_accuracy, hyperparameters) " + ...
-                        "VALUES ('%s', 1, '%s', '%s', %f, %f, '%s');", ...
-                        versionId, modelType, datasetVersion, metrics.rmse, metrics.directional_accuracy, hpJson);
-                    execute(conn, query);
+                    query = "INSERT INTO models (model_id, version, algorithm, dataset_version, rmse, directional_accuracy, hyperparameters) " + ...
+                        "VALUES (?, 1, ?, ?, ?, ?, ?);";
+                    execute(conn, query, {versionId, modelType, datasetVersion, metrics.rmse, metrics.directional_accuracy, hpJson});
                 catch e
                     Logger.error('Failed to log model to database: %s', e.message);
                 end
@@ -63,11 +61,9 @@ classdef ModelFramework
                     featJson = jsonencode(featuresUsed);
                     paramJson = jsonencode(params);
                     
-                    query = sprintf(...
-                        "INSERT INTO experiments (model_id, features_used, parameters, val_rmse, val_mae, notes) " + ...
-                        "VALUES ('%s', '%s', '%s', %f, %f, '%s');", ...
-                        modelId, featJson, paramJson, valRmse, valMae, notes);
-                    execute(conn, query);
+                    query = "INSERT INTO experiments (model_id, features_used, parameters, val_rmse, val_mae, notes) " + ...
+                        "VALUES (?, ?, ?, ?, ?, ?);";
+                    execute(conn, query, {modelId, featJson, paramJson, valRmse, valMae, notes});
                 catch e
                     Logger.error('Failed to log experiment: %s', e.message);
                 end
@@ -95,9 +91,9 @@ classdef ModelFramework
                 % Query DB for best model of this type
                 conn = DataIngestion.getDbConnection();
                 if ~isempty(conn) && isopen(conn)
-                    query = sprintf("SELECT model_id FROM models WHERE algorithm = '%s' AND status = 'ACTIVE' ORDER BY rmse ASC LIMIT 1", currentType);
+                    query = "SELECT model_id FROM models WHERE algorithm = ? AND status = 'ACTIVE' ORDER BY rmse ASC LIMIT 1";
                     try
-                        res = select(conn, query);
+                        res = select(conn, query, {currentType});
                         if height(res) > 0
                             bestId = res.model_id{1};
                             filePath = fullfile(ModelFramework.ModelsDir, [bestId '.mat']);
