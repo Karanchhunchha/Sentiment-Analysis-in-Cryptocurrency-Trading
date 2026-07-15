@@ -44,12 +44,8 @@ liveUpdateCallback = @(newCandle, fullData) processLiveTick(newCandle, fullData,
 %% 3. Start Live Data Stream
 disp('-> [4/4] Starting Binance WebSocket/REST Polling...');
 
-% Let the user select the timeframe dynamically
-prompt = 'Select Timeframe (1m, 5m, 15m, 30m, 1h, 4h, 1d) [default 5m]: ';
-interval = input(prompt, 's');
-if isempty(interval)
-    interval = '5m';
-end
+% Automatically defaulting to 15m for the most accurate SMC setups
+interval = '15m';
 Logger.info('Initializing live stream for %s interval...', interval);
 
 dataLoader = PriceDataLoader('BTCUSDT', interval);
@@ -159,6 +155,19 @@ function processLiveTick(newCandle, fullData, fusionEngine, models, dashboard)
     % Times
     genTime = datetime('now');
     validTime = genTime + minutes(5);
+    
+    % --- SMC TIME-TO-TARGET MATH ---
+    % Since a huge move won't happen in 5 minutes, we divide the target distance 
+    % by the current volatility to get the estimated number of candles.
+    pointsToTarget = abs(currentPrice - tp1);
+    candlesToTarget = ceil(pointsToTarget / volatility);
+    estMinutes = candlesToTarget * 15; % 15-minute timeframe
+    
+    if rr > 0
+        Logger.info('[SMC MATH] Distance to TG: %.2f | Avg Candle Volatility: %.2f | Est. Time to Hit: ~%d Minutes', ...
+            pointsToTarget, volatility, estMinutes);
+    end
+    % -------------------------------
     
     % 4. Log Prediction to CSV
     logPrediction(genTime, currentPrice, ensemblePred, confidence, sl, tp1, signal);
