@@ -45,8 +45,8 @@ liveUpdateCallback = @(newCandle, fullData) processLiveTick(newCandle, fullData,
 %% 3. Start Live Data Stream
 disp('-> [4/4] Starting Binance WebSocket/REST Polling...');
 
-% Automatically defaulting to 15m for the most accurate SMC setups
-interval = '15m';
+% Automatically defaulting to 4h for the macro predictions
+interval = '4h';
 Logger.info('Initializing live stream for %s interval...', interval);
 
 dataLoader = PriceDataLoader('BTCUSDT', interval);

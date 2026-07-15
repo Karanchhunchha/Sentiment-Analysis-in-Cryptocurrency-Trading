@@ -51,9 +51,9 @@ classdef FeatureEngineer
         
         function df = calcMomentum(df)
             % RSI
-            diff = [0; diff(df.Close)];
-            gains = max(diff, 0);
-            losses = -min(diff, 0);
+            priceDiff = [0; diff(df.Close)];
+            gains = max(priceDiff, 0);
+            losses = -min(priceDiff, 0);
             
             avgGain = movmean(gains, 14);
             avgLoss = movmean(losses, 14);
