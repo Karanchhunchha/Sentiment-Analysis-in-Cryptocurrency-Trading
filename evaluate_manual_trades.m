@@ -37,11 +37,11 @@ end
 
 disp(' ');
 
-%% Setup 2: The Long (from Mobile App)
-disp('--- SETUP 2: LONG (Mobile App) ---');
-entry2 = 64638.5;
-sl2 = 64590.5;
-tp2 = 64699.0;
+%% Setup 2: The Long (from User Screenshot)
+disp('--- SETUP 2: LONG (User Screenshot) ---');
+entry2 = 64662.27;
+sl2 = 64321.64;
+tp2 = 65776.94;
 
 risk2 = abs(entry2 - sl2);
 reward2 = abs(tp2 - entry2);
