@@ -1,4 +1,5 @@
-# SentinelCrypto - AI-Powered Institutional Crypto Trading Engine
+# SentinelCrypto (PART-3: Production)
+**Evolution of the KCryptoX8 Architecture (PART-1 & PART-2)**  
 **MathWorks Excellence in Innovation Challenge #239**
 
 ![MATLAB](https://img.shields.io/badge/MATLAB-R2023b+-blue.svg)
