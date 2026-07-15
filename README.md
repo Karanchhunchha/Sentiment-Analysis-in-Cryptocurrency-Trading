@@ -7,6 +7,9 @@
 ![QA Score](https://img.shields.io/badge/QA_Score-91.7%25-orange.svg)
 
 ## 📌 Project Overview
+
+![SentinelCrypto Live Dashboard](docs/images/SENTINELCRYPTO%20LIVE%20.png)
+
 **SentinelCrypto** is an advanced, 100% native MATLAB trading pipeline designed to predict cryptocurrency price movements (BTCUSDT) by combining **Deep Learning Sentiment Analysis** with **Institutional Smart Money Concepts (SMC)**. 
 
 Moving beyond traditional retail indicators (RSI, MACD), this engine identifies high-probability institutional liquidity sweeps, order blocks, and enforces strict mathematical Risk/Reward (R:R) targets. It leverages a **CNN-LSTM Ensemble** model to forecast price vectors and calculates dynamic "Time-to-Target" estimations using real-time market volatility.
