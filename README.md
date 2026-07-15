@@ -100,6 +100,8 @@ When a live tick is processed, the system executes the following mathematical pi
 ## 🏆 Submission Note for MathWorks Judges
 This project directly addresses the challenge of utilizing advanced machine learning techniques in financial markets. It proves that native MATLAB architecture is highly capable of running low-latency, complex institutional trading logic, live API polling, and robust Monte Carlo validations in a single cohesive environment.
 
+**Note on Sentiment Data Source (Project #239 Brief):** While the original project brief specifically suggested utilizing Twitter data for sentiment analysis, access to the Twitter (X) API became heavily restricted and paid in 2023. To ensure the pipeline remains robust, accessible, and fully functional, we pivoted to utilizing the Crypto Fear & Greed Index alongside news sentiment datasets. This alternative provides a highly reliable proxy for market sentiment without requiring expensive API subscriptions, perfectly fulfilling the core objective of sentiment-driven trading.
+
 ---
 
 ## 📂 Evidence & Reproducibility
