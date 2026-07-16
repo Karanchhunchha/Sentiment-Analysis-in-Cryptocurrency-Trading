@@ -119,6 +119,7 @@ HTML reports are automatically generated into the `reports/` directory upon exec
 
 - The ARIMAX model currently expects a continuous, gap-free time series. Weekends or API downtime may require forward-filling logic before training.
 - Multi-horizon forecasting utilizes a dampened drift projection off the 1-step prediction. A sequence-to-sequence model is planned for V2.
+- The historical backtest results do not fully account for real transaction costs, slippage in low-liquidity environments, or live execution latency. Live trading performance may diverge from theoretical backtests due to these market microstructure factors.
 
 ## License
 
