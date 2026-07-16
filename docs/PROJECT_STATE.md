@@ -13,7 +13,7 @@
 * **Current Branch:** `main`
 * **Last Completed Task:** Final Master Engineering Audit & End-to-End Hardcore Verification.
 * **Next Task:** Submit to MathWorks Challenge #239 via the official portal.
-* **Known Bugs / Impediments:** None (Test suite is 100% green, validation score 91.7%, probability of ruin 0.00%).
+* **Known Bugs / Impediments:** None (Test suite is 100% green, validation score 91.7%, 0 ruin events across 10,000 Monte Carlo simulations under $10,000 initial capital and default test parameters).
 
 ---
 
