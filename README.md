@@ -45,6 +45,7 @@ The system utilizes a modular, object-oriented design split into distinct logica
 src/
 ├── dashboard/       # UI logic and real-time visualization bindings
 ├── data/            # Batch processing and static feature extraction
+├── database/        # Database schema and sql files
 ├── feature_engineering/ # Low-latency incremental indicator calculation
 ├── forecasting/     # Projection and confidence bound generation
 ├── indicators/      # Core mathematical implementations for technicals
@@ -60,6 +61,7 @@ src/
 tests/
 ├── data/            # Synthetic data generation for testing
 ├── performance/     # Latency and memory benchmarks
+├── PRD/             # Product Requirements Document testing resources
 ├── unit/            # Component-level tests (Risk, Fusion, Data)
 └── validation/      # End-to-end backtesting logic
 ```
@@ -125,7 +127,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Author
 
 **Karan Chhunchha**
-- Email: karanchhunchha@gmail.com
+- Email: karan.chhunchha.dev@gmail.com
 - *This project was independently developed and created by Karan Chhunchha as a formal submission for the MathWorks Excellence in Innovation Program.*
 
 ## Acknowledgements
