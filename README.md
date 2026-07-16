@@ -125,7 +125,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Author
 
 **Karan Chhunchha**
-- Email: karanchhunchha@gmail.com
+- Email: karan.chhunchha.dev@gmail.com
 - *This project was independently developed and created by Karan Chhunchha as a formal submission for the MathWorks Excellence in Innovation Program.*
 
 ## Acknowledgements
