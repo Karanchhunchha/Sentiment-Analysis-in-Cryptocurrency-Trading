@@ -35,8 +35,8 @@ classdef ConfigManager
                 end
                 tokens = split(line, '=');
                 if numel(tokens) >= 2
-                    key = strtrim(tokens{1});
-                    val = strtrim(join(tokens(2:end), '='));
+                    key = char(strtrim(tokens{1}));
+                    val = char(strtrim(join(tokens(2:end), '=')));
                     env(key) = val;
                 end
             end

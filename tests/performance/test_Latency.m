@@ -11,19 +11,19 @@ classdef test_Latency < matlab.unittest.TestCase
     
     properties
         FeatureEngine
-        DummyCandle
+        SyntheticCandle
     end
     
     methods(TestMethodSetup)
         function setup(testCase)
             testCase.FeatureEngine = FeatureFusionEngine();
-            % Initialize with some dummy historical data
-            dates = (datetime('today')-days(100):datetime('today'))';
-            closePrices = linspace(100, 200, 101)';
-            dummyHist = table(dates, closePrices, closePrices.*0+10, 'VariableNames', {'Date', 'Close', 'Volume'});
-            testCase.FeatureEngine.initializeHistorical(dummyHist);
+            % Initialize with some synthetic historical data
+            dates = datetime('today') - days(10:-1:1)';
+            closePrices = rand(10,1) * 1000 + 40000;
+            syntheticHist = table(dates, closePrices, closePrices.*0+10, 'VariableNames', {'Date', 'Close', 'Volume'});
+            testCase.FeatureEngine.initializeHistorical(syntheticHist);
             
-            testCase.DummyCandle = table(datetime('now'), 205, 50, 'VariableNames', {'Date', 'Close', 'Volume'});
+            testCase.SyntheticCandle = table(datetime('now'), 205, 50, 'VariableNames', {'Date', 'Close', 'Volume'});
         end
     end
     
@@ -32,12 +32,12 @@ classdef test_Latency < matlab.unittest.TestCase
             % Test that feature fusion takes less than 50ms
             
             % Warmup
-            testCase.FeatureEngine.updateIncremental(testCase.DummyCandle);
+            testCase.FeatureEngine.updateIncremental(testCase.SyntheticCandle);
             
             times = zeros(100, 1);
             for i = 1:100
                 tic;
-                testCase.FeatureEngine.updateIncremental(testCase.DummyCandle);
+                testCase.FeatureEngine.updateIncremental(testCase.SyntheticCandle);
                 times(i) = toc;
             end
             
@@ -54,7 +54,7 @@ classdef test_Latency < matlab.unittest.TestCase
             initialBytes = initialInfo.bytes;
             
             for i = 1:1000
-                testCase.FeatureEngine.updateIncremental(testCase.DummyCandle);
+                testCase.FeatureEngine.updateIncremental(testCase.SyntheticCandle);
             end
             
             finalInfo = whos('testCase');

@@ -1,6 +1,6 @@
 # NEW IMPLEMENTATIONS INDEX
-**Source:** PART-2 (`D:\Clone Repo\BTC-price-prediction-using-sentimental-analysis`)
-**Destination:** PART-3 (`D:\Sentiment Analysis in Cryptocurrency Trading`)
+**Source:** PART-2 (`<SOURCE_REPO>`)
+**Destination:** PART-3 (`<DESTINATION_REPO>`)
 
 ## Core Modules Approved for Migration & Improvement
 

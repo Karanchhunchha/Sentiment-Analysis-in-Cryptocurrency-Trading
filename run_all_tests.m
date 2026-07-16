@@ -5,10 +5,12 @@
 %#ok<*DATNM>
 %#ok<*DATST>
 %#ok<*MATCH>
+function testResult = run_all_tests()
 % run_all_tests.m
 % Orchestrates all verification and validation tests for SentinelCrypto.
 
-clc; clear; close all;
+    % Ensure workspace stability for parent calls
+    % clc; clear; close all;
 import matlab.unittest.TestSuite;
 import matlab.unittest.TestRunner;
 import matlab.unittest.plugins.TestReportPlugin;
@@ -151,3 +153,6 @@ fprintf('====================================================\n');
 fprintf('Readiness Score: %.1f%%\n', report.calculateReadiness());
 fprintf('Detailed HTML Report saved to: %s\n', report.ReportFile);
 fprintf('====================================================\n');
+
+testResult = (numFailed == 0);
+end

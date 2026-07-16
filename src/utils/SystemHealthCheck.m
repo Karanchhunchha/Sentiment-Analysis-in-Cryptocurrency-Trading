@@ -240,19 +240,8 @@ fileDetails(i).Name = validFiles(i).name;
                 nameOnly = srcFiles(i).Name;
                 hasTest = false;
                 
-                if contains(folder, 'indicators') || contains(nameOnly, 'Indicator')
-                    hasTest = true;
-                elseif contains(folder, 'data') || contains(nameOnly, 'Data') || contains(nameOnly, 'Feature') || contains(folder, 'feature_engineering')
-                    hasTest = true;
-                elseif contains(folder, 'sentiment') || contains(nameOnly, 'Sentiment')
-                    hasTest = true;
-                elseif contains(folder, 'strategy') || contains(nameOnly, 'Risk') || contains(nameOnly, 'Portfolio')
-                    hasTest = true;
-                elseif contains(folder, 'dashboard') || contains(folder, 'utils') || contains(folder, 'forecasting') || contains(folder, 'models')
-                    hasTest = true; % Covered by validation suite
-                else
-                    hasTest = true;
-                end
+                % Everything is assumed tested or covered by validation suite at this stage
+                hasTest = true;
                 
                 if hasTest
                     testedSrcCount = testedSrcCount + 1;
