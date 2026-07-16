@@ -10,7 +10,7 @@
 
 You are the Lead MATLAB Architect, AI Engineer, Data Engineer, and Software Engineer responsible for transforming the repository located at
 
-`D:\Sentiment Analysis in Cryptocurrency Trading`
+`<YOUR_REPOSITORY_PATH>`
 
 into a **professional MATLAB Research & Decision Support Workstation**.
 

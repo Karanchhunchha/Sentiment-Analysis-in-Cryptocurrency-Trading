@@ -12,22 +12,22 @@ classdef test_FeatureFusionEngine < matlab.unittest.TestCase
     
     properties
         Engine
-        DummyData
+        SyntheticData
     end
     
     methods(TestMethodSetup)
         function createEngine(testCase)
             testCase.Engine = FeatureFusionEngine();
-            % Create dummy historical data
+            % Create synthetic historical data
             dates = (datetime('today')-days(100):datetime('today'))';
             closePrices = linspace(100, 200, 101)';
-            testCase.DummyData = table(dates, closePrices, closePrices.*0+10, 'VariableNames', {'Date', 'Close', 'Volume'});
+            testCase.SyntheticData = table(dates, closePrices, closePrices.*0+10, 'VariableNames', {'Date', 'Close', 'Volume'});
         end
     end
     
     methods(Test)
         function testInitialization(testCase)
-            [~, currentState] = testCase.Engine.initializeHistorical(testCase.DummyData);
+            [~, currentState] = testCase.Engine.initializeHistorical(testCase.SyntheticData);
             
             % Assert state is populated
             testCase.verifyFalse(isempty(testCase.Engine.LastClose));
@@ -41,7 +41,7 @@ classdef test_FeatureFusionEngine < matlab.unittest.TestCase
         end
         
         function testIncrementalUpdate(testCase)
-            testCase.Engine.initializeHistorical(testCase.DummyData);
+            testCase.Engine.initializeHistorical(testCase.SyntheticData);
             
             % Create a live tick
             newCandle = table(datetime('now'), 205, 50, 'VariableNames', {'Date', 'Close', 'Volume'});

@@ -206,7 +206,8 @@ function processLiveTick(newCandle, fullData, fusionEngine, macroEngine, models,
     
     dashboard.updateData(newData);
     
-    elapsed = toc;
+    elapsed = toc(tStart);
+    
     Logger.info('[%s] Processed tick in %.1f ms | Price: $%.2f | Signal: %s', ...
         datestr(genTime, 'HH:MM:SS'), elapsed * 1000, currentPrice, signal);
 end

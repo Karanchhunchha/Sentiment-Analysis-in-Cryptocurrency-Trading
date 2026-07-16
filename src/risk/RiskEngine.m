@@ -1,13 +1,5 @@
-%#ok<*AGROW>
-%#ok<*INUSD>
-%#ok<*NASGU>
-%#ok<*STOUT>
-%#ok<*DATNM>
-%#ok<*DATST>
-%#ok<*MATCH>
 classdef RiskEngine < handle
-    % RiskEngine Computes Stop Loss (SL) and Take Profit (TP) bounds using 
-    % Average True Range (ATR) and strictly enforces Risk:Reward > 1.5
+    % RiskEngine Computes dynamic Risk/Reward, Stop Loss, Take Profit, and ETA
     
     properties
         ATRMultiplierSL
@@ -24,6 +16,51 @@ classdef RiskEngine < handle
             obj.ATRMultiplierSL = slMult;
             obj.ATRMultiplierTP = tpMult;
             obj.MinRiskReward = minRR;
+        end
+        function [tp, sl, rr, etaMinutes] = calculateRiskMetrics(obj, currentPrice, expectedPath, signal, volatility, support, resistance, metrics, timeframeStr)
+            % TP is the peak expected value before confidence decays below threshold
+            threshold = metrics.AdaptiveThreshold;
+            
+            % Currently, confidence metrics are not per-step in this simplified model, 
+            % but let's assume we find the local extremum in the path.
+            
+            if strcmp(signal, 'BUY')
+                sl = currentPrice - (volatility + abs(currentPrice - support) * 0.5); 
+                risk = currentPrice - sl;
+                % Enforce strict Risk:Reward (e.g., 1:3)
+                tp = currentPrice + (risk * obj.MinRiskReward);
+            elseif strcmp(signal, 'SELL')
+                sl = currentPrice + (volatility + abs(currentPrice - resistance) * 0.5);
+                risk = sl - currentPrice;
+                % Enforce strict Risk:Reward
+                tp = currentPrice - (risk * obj.MinRiskReward);
+            else
+                tp = NaN;
+                sl = NaN;
+            end
+            
+            if abs(currentPrice - sl) > 1e-5
+                rr = abs(tp - currentPrice) / abs(currentPrice - sl);
+            else
+                rr = 0;
+            end
+            
+            % Estimate ETA by finding the first index where expectedPath crosses TP
+            etaIdx = find(abs(expectedPath - tp) < 1e-5, 1);
+            if isempty(etaIdx)
+                etaIdx = length(expectedPath);
+            end
+            
+            % Parse timeframe string to minutes (e.g., '15m' -> 15)
+            if endsWith(timeframeStr, 'm')
+                tfMinutes = str2double(strrep(timeframeStr, 'm', ''));
+            elseif endsWith(timeframeStr, 'h')
+                tfMinutes = str2double(strrep(timeframeStr, 'h', '')) * 60;
+            else
+                tfMinutes = 15; % Default
+            end
+            
+            etaMinutes = etaIdx * tfMinutes;
         end
         
         function [validTrade, slPrice, tpPrice] = evaluateTrade(obj, currentPrice, predictedPrice, atrValue)

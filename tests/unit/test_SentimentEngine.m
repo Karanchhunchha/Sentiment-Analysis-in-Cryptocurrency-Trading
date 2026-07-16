@@ -19,7 +19,7 @@ classdef test_SentimentEngine < matlab.unittest.TestCase
     
     methods(TestMethodSetup)
         function createEngine(testCase)
-            % Initialize engine and train Naive Bayes dummy model
+            % Initialize engine and train Naive Bayes synthetic model
             testCase.Engine = SentimentEngine();
         end
     end

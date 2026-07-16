@@ -177,8 +177,8 @@ classdef SentimentEngine
                 obj.SVMClassifier = fitcsvm(X_train, y_train, 'KernelFunction', 'linear', 'Standardize', true);
             catch
                 % Fallback if Text Analytics Toolbox is missing
-                obj.MLClassifier = 'DummyMLModel';
-                obj.SVMClassifier = 'DummyMLModel';
+                obj.MLClassifier = 'SyntheticMLModel';
+                obj.SVMClassifier = 'SyntheticMLModel';
                 obj.Vocabulary = {'bullish', 'bearish', 'buy', 'sell'};
             end
         end
