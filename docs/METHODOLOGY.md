@@ -28,7 +28,7 @@ Predicting prices is insufficient without a mathematically sound execution strat
 - **Backtesting Engine:** Simulates the passage of time, taking the optimizer's target weights and executing trades. It explicitly deducts a 0.15% round-trip transaction cost (Binance standard + slippage) to calculate net PnL, Maximum Drawdown, and Sharpe/Sortino ratios.
 
 ## 5. MATLAB-First Architecture & Toolbox Mapping
-SentinelCrypto strictly adheres to a **MATLAB-First** architecture as mandated by MathWorks Challenge #239. The entire primary pipeline (data ingestion, sequence building, forecasting model, portfolio optimization, backtesting, and orchestration) is 100% native MATLAB code.
+SentinelCrypto strictly adheres to a **MATLAB-First** architecture as mandated by MathWorks Challenge #239. The entire primary pipeline (data ingestion, sequence building, forecasting model, portfolio optimization, backtesting, and orchestration) is 100% native MATLAB code, with Python used only as an optional helper for historical Binance data downloads and external NLP (vaderSentiment).
 
 **Toolbox Usage Mapping:**
 | Component | Required MathWorks Challenge Toolbox | Implementation in SentinelCrypto |
