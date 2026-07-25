@@ -1,11 +1,11 @@
 --- LLM FEATURE EXTRACTOR VERIFICATION LOG ---
-Timestamp: 2026-07-25 16:07:25
+Timestamp: 2026-07-25 16:39:06
 Loading sample tweets from: D:\Sentiment Analysis in Cryptocurrency Trading\data\sample\Bitcoin_tweets_sample.csv
 ✅ Loaded 25 sample tweets.
 Instantiating LLMFeatureExtractor...
 Piping samples to LLM...
 Input Tweet #1: "Blue Ridge Bank shares halted by NYSE after #bitcoin ATM announcement https://t.co/xaaZmaJKiV @MyBlueRidgeBank… https://t.co/sgBxMkP1SI"
-Result Score: 0.0000
+Result Score: -0.3333
 Input Tweet #2: " Today, that's this #Thursday, we will do a " Take 2" with our friend @LeoWandersleb, #Btc #wallet #security expe… https://t.co/go6aDgRml5"
 Result Score: 0.0000
 Input Tweet #3: "Guys evening, I have read this article about BTC and would like to share with you all - https://t.co/QxCZgmuy3B… https://t.co/o6wn7ppkVY"
@@ -13,12 +13,12 @@ Result Score: 0.0000
 Input Tweet #4: "$BTC A big chance in a billion! Price: \4872644.0 (2021/02/11 08:51) #Bitcoin #FX #BTC #crypto"
 Result Score: 0.0000
 Input Tweet #5: "This network is secured by 9 508 nodes as of today. Soon, the biggest bears will recognise: #BTC in too big to fail… https://t.co/1XovDA8rKw"
-Result Score: 0.0000
+Result Score: -0.3333
 Input Tweet #6: " Trade #Crypto on #Binance 
 
  Enjoy #Cashback 10% of the Trading fee
  Sign up link  https://t.co/T4WttWeohc… https://t.co/Fc7dG5oI8W"
-Result Score: 0.0000
+Result Score: 0.3333
 Input Tweet #7: "&lt;'fire' &amp; 'man'&gt;
 #Bitcoin #Crypto #BTC https://t.co/CV9IyODy55"
 Result Score: 0.0000
@@ -27,7 +27,7 @@ Input Tweet #8: " Prices update in $EUR (1 hour):
 $BTC   - 37082.1 €  (-0.51 %)
 $ETH   - 1441.59 €  (+0.21 %)
 $XRP   - 0.42 €    (… https://t.co/y3wlhAv2SX"
-Result Score: 0.0000
+Result Score: 0.3333
 Input Tweet #9: "#BTC #Bitcoin #Ethereum #ETH #Crypto #cryptotrading 
 
 $RSR I know i told you guys the target was $0.060, i know we… https://t.co/bvEtSnhs67"
@@ -35,24 +35,24 @@ Result Score: 0.0000
 Input Tweet #10: ".@Tesla’s #bitcoin investment is revolutionary for #crypto but other firms may not do the same just yet - @JPMorgan… https://t.co/WyKWfh0ELw"
 Result Score: 0.0000
 Input Tweet #11: "Annnd #btc #Bitcoin is headed even higher now... https://t.co/EHAduI087d"
-Result Score: 0.0000
+Result Score: 0.3333
 Input Tweet #12: " Prices update in $USDT (1 hour):
 
 $BTC - 44853.08 $     (-0.48 %)
 $ETH - 1740.0 $       (-0.02 %)
 $XRP - 0.5 $… https://t.co/v5oGvW7kLm"
-Result Score: 0.0000
+Result Score: 0.3333
 Input Tweet #13: "Join our first virtual crypto meetup of 2021 - Crypto Fridays!
 
 There is something for everyone, whether you're an… https://t.co/rPINdw6hCc"
-Result Score: 0.0000
+Result Score: 0.3333
 Input Tweet #14: "#Bitcoin #BTC $BTC $GBTC $RIOT $MARA $ETH $ETHE #AAVE #DeFi $AAVE $COMP $CGLD $GRT #Crypto #cryptocurrency $XLM https://t.co/YiueUQr360"
 Result Score: 0.0000
 Input Tweet #15: "⬆️⬆️ $BTC BUYING PRESSURE ALERT  Price trading around 44843
           https://t.co/iMB1mj8Cs1  #Bitcoin #crypto #BTC"
-Result Score: 0.0000
+Result Score: 0.3333
 Input Tweet #16: "Buy #Bitcoin with 5% LIFETIME cashback on fees on the largest #cryptocurrency exchange with the link below.… https://t.co/Nr2Znh0qOx"
-Result Score: 0.0000
+Result Score: 0.3333
 Input Tweet #17: "@naval #BTC is unconfiscatable 
 
 All roads lead to #Bitcoin"
@@ -83,10 +83,3 @@ Result Score: 0.0000
 Input Tweet #25: "The writing is on the wall, and you are ignoring it. #bitcoin #BTC"
 Result Score: 0.0000
 ✅ LLM Extraction Completed successfully.
-ocalhost:11434/api/generate: Failed to connect to localhost port 11434 after 2363 ms: Could not connect to server
-[2026-07-25 16:08:16] [ERROR] LLM REST API call failed for sample 1: Error connecting to http://localhost:11434/api/generate: Failed to connect to localhost port 11434 after 2342 ms: Could not connect to server
-[2026-07-25 16:08:19] [ERROR] LLM REST API call failed for sample 1: Error connecting to http://localhost:11434/api/generate: Failed to connect to localhost port 11434 after 2373 ms: Could not connect to server
-[2026-07-25 16:08:21] [ERROR] LLM REST API call failed for sample 1: Error connecting to http://localhost:11434/api/generate: Failed to connect to localhost port 11434 after 2360 ms: Could not connect to server
-[2026-07-25 16:08:23] [ERROR] LLM REST API call failed for sample 1: Error connecting to http://localhost:11434/api/generate: Failed to connect to localhost port 11434 after 2351 ms: Could not connect to server
-[2026-07-25 16:08:26] [ERROR] LLM REST API call failed for sample 1: Error connecting to http://localhost:11434/api/generate: Failed to connect to localhost port 11434 after 2385 ms: Could not connect to server
-[2026-07-25 16:08:28] [ERROR] LLM REST API call failed for sample 1: Error connecting to http://localhost:11434/api/generate: Failed to connect to localhost port 11434 after 2366 ms: Could not connect to server

@@ -41,6 +41,13 @@ codegen/
 
 # Quantitative Data / Logs
 *.csv
+!data/market/btc.csv
+!data/market/Real_Bitcoin_Price_History_2015_2026.csv
+!data/sample/*.csv
+!data/sentiment/Bitcoin_tweets.csv
+!data/sentiment/Bitcoin_tweets_dataset_2.csv
+!data/sentiment/historical_daily_sentiment.csv
+!tests/data/golden_data.csv
 logs/
 best_model/
 NO/
