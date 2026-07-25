@@ -1,5 +1,8 @@
 # SentinelCrypto
 
+> [!IMPORTANT]
+> **Backtest/simulation only** — no live capital at risk, uses historical Kaggle tweet data + live Binance price data.
+
 A MATLAB-based, end-to-end cryptocurrency trading system implementing time-series forecasting, sentiment analysis, and risk management. 
 
 ## Project Motivation
@@ -38,6 +41,12 @@ The system utilizes a modular, object-oriented design split into distinct logica
 3. **Inference Layer**: Formats inputs, normalizes via stored scalers, and queries the ensemble for 1-step predictions.
 4. **Forecasting Layer**: Extrapolates the 1-step prediction into a multi-horizon path with mathematically bounded confidence cones.
 5. **Visualization Layer**: Binds the data arrays to MATLAB graphics objects (`uiaxes`) inside a custom dashboard.
+
+### Unified System Layout (100% Native MATLAB-First)
+- **Data Ingestion:** `src/loaders/PriceDataLoader.m` — 100% native MATLAB API integration via `webread` and `weboptions` mapping live Binance history.
+- **Sentiment Layer:** `src/sentiment/SentimentEngine.m` — Deep processing arrays analyzing curated historical datasets.
+- **Modeling Ensemble:** `src/models/VARModel.m` (Vector Autoregression via Econometrics Toolbox) and `train_pipeline.m` (CNN-LSTM deep networks).
+- **Validation Engine:** `run_all_tests.m` and `src/utils/SystemHealthCheck.m` verifying all 18 test units.
 
 ## Repository Structure
 

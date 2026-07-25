@@ -2,7 +2,7 @@
 
 **Author:** Karan Chhunchha (karanchhunchha@gmail.com)
 
-SentinelCrypto explicitly avoids utilizing pre-packaged Kaggle datasets in favor of a live, API-driven data ingestion pipeline to simulate real-world quantitative trading environments.
+SentinelCrypto utilizes pre-packaged Kaggle datasets in combination with historical price data to simulate and validate quantitative trading models in a controlled, offline environment.
 
 ## 1. Market Price Data (Binance API)
 - **Source:** Binance REST API v3
@@ -16,7 +16,7 @@ SentinelCrypto explicitly avoids utilizing pre-packaged Kaggle datasets in favor
 - **Features Extracted:** Global market dominance, 24h volume shifts, and circulating supply metrics.
 
 ## 3. Sentiment Data
-- **Source:** Twitter (X) API & Web Scraped Financial News Aggregators
+- **Source:** Static Historical Kaggle Tweet Datasets
 - **Extraction:** Raw text data filtered by standard crypto cashtags (e.g., $BTC) and keyword heuristics.
 
-*Note: The final dataset output by the `MarketSequenceBuilder` is completely custom-generated on the host machine and carries no file lineage from prior challenge submissions.*
+*Note: The final dataset output by the `MarketSequenceBuilder` is custom-generated on the host machine using these static baselines to simulate performance.*
