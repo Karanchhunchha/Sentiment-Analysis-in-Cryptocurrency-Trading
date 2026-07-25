@@ -4,6 +4,15 @@
 function generate_project_statistics()
     disp('Generating Project Statistics...');
     
+    % Determine the root directory dynamically relative to the script path
+    scriptPath = mfilename('fullpath');
+    [scriptDir, ~, ~] = fileparts(scriptPath);
+    [rootDir, ~, ~] = fileparts(scriptDir);
+    
+    origDir = pwd;
+    cd(rootDir);
+    cleanupDir = onCleanup(@() cd(origDir));
+    
     % Core counts
     mFiles = dir('**/*.m');
     pyFiles = dir('**/*.py');
