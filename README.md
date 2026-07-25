@@ -3,6 +3,16 @@
 > [!IMPORTANT]
 > **Backtest/simulation only** — no live capital at risk, uses historical Kaggle tweet data + live Binance price data.
 
+## Quick Setup: Feature Availability
+
+| Feature | Status | Requires API Key? |
+| :--- | :--- | :--- |
+| **VADER Sentiment (Local)** | Ready | ❌ No |
+| **Price Forecasting** | Ready | ❌ No |
+| **VAR Econometrics** | Ready | ❌ No |
+| **Backtesting Engine** | Ready | ❌ No |
+| **LLM Feature Extraction (Anthropic)** | Optional | ✅ Yes (Set in `configs/.env`) |
+
 A MATLAB-based, end-to-end cryptocurrency trading system implementing time-series forecasting, sentiment analysis, and risk management. 
 
 ## Project Motivation

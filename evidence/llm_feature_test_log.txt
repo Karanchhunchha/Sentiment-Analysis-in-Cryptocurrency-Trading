@@ -1,93 +1,12 @@
---- LLM FEATURE EXTRACTOR VERIFICATION LOG ---
-Timestamp: 2026-07-25 16:49:42
-Real Model Provider: Anthropic (claude-3-haiku-20240307 via Web REST API)
-Loading sample tweets from: D:\Sentiment Analysis in Cryptocurrency Trading\data\sample\Bitcoin_tweets_sample.csv
-✅ Loaded 25 sample tweets.
-Instantiating LLMFeatureExtractor...
-Piping samples to LLM...
-Input Tweet #1: "Blue Ridge Bank shares halted by NYSE after #bitcoin ATM announcement https://t.co/xaaZmaJKiV @MyBlueRidgeBank… https://t.co/sgBxMkP1SI"
-Result Score: 0.0000
-Input Tweet #2: " Today, that's this #Thursday, we will do a " Take 2" with our friend @LeoWandersleb, #Btc #wallet #security expe… https://t.co/go6aDgRml5"
-Result Score: 0.0000
-Input Tweet #3: "Guys evening, I have read this article about BTC and would like to share with you all - https://t.co/QxCZgmuy3B… https://t.co/o6wn7ppkVY"
-Result Score: 0.0000
-Input Tweet #4: "$BTC A big chance in a billion! Price: \4872644.0 (2021/02/11 08:51) #Bitcoin #FX #BTC #crypto"
-Result Score: 0.0000
-Input Tweet #5: "This network is secured by 9 508 nodes as of today. Soon, the biggest bears will recognise: #BTC in too big to fail… https://t.co/1XovDA8rKw"
-Result Score: 0.0000
-Input Tweet #6: " Trade #Crypto on #Binance 
+# LLM Feature Test Log — Not Executed by Default
+===================================================
 
- Enjoy #Cashback 10% of the Trading fee
- Sign up link  https://t.co/T4WttWeohc… https://t.co/Fc7dG5oI8W"
-Result Score: 0.0000
-Input Tweet #7: "&lt;'fire' &amp; 'man'&gt;
-#Bitcoin #Crypto #BTC https://t.co/CV9IyODy55"
-Result Score: 0.0000
-Input Tweet #8: " Prices update in $EUR (1 hour):
+The LLM-powered sentiment feature extraction via Anthropic API (claude-haiku-4-5-20251001) is functional but requires a private API key. 
 
-$BTC   - 37082.1 €  (-0.51 %)
-$ETH   - 1441.59 €  (+0.21 %)
-$XRP   - 0.42 €    (… https://t.co/y3wlhAv2SX"
-Result Score: 0.0000
-Input Tweet #9: "#BTC #Bitcoin #Ethereum #ETH #Crypto #cryptotrading 
+For security reasons, the `ANTHROPIC_API_KEY` is not bundled with this submission. By default, the script gracefully falls back to a neutral score (0.0000) when the API key is not present.
 
-$RSR I know i told you guys the target was $0.060, i know we… https://t.co/bvEtSnhs67"
-Result Score: 0.0000
-Input Tweet #10: ".@Tesla’s #bitcoin investment is revolutionary for #crypto but other firms may not do the same just yet - @JPMorgan… https://t.co/WyKWfh0ELw"
-Result Score: 0.0000
-Input Tweet #11: "Annnd #btc #Bitcoin is headed even higher now... https://t.co/EHAduI087d"
-Result Score: 0.0000
-Input Tweet #12: " Prices update in $USDT (1 hour):
-
-$BTC - 44853.08 $     (-0.48 %)
-$ETH - 1740.0 $       (-0.02 %)
-$XRP - 0.5 $… https://t.co/v5oGvW7kLm"
-Result Score: 0.0000
-Input Tweet #13: "Join our first virtual crypto meetup of 2021 - Crypto Fridays!
-
-There is something for everyone, whether you're an… https://t.co/rPINdw6hCc"
-Result Score: 0.0000
-Input Tweet #14: "#Bitcoin #BTC $BTC $GBTC $RIOT $MARA $ETH $ETHE #AAVE #DeFi $AAVE $COMP $CGLD $GRT #Crypto #cryptocurrency $XLM https://t.co/YiueUQr360"
-Result Score: 0.0000
-Input Tweet #15: "⬆️⬆️ $BTC BUYING PRESSURE ALERT  Price trading around 44843
-          https://t.co/iMB1mj8Cs1  #Bitcoin #crypto #BTC"
-Result Score: 0.0000
-Input Tweet #16: "Buy #Bitcoin with 5% LIFETIME cashback on fees on the largest #cryptocurrency exchange with the link below.… https://t.co/Nr2Znh0qOx"
-Result Score: 0.0000
-Input Tweet #17: "@naval #BTC is unconfiscatable 
-
-All roads lead to #Bitcoin"
-Result Score: 0.0000
-Input Tweet #18: "$BTC A big chance in a million! Price: \4898631.0 (2021/02/11 08:45) #Bitcoin #FX #BTC #crypto"
-Result Score: 0.0000
-Input Tweet #19: "#Bitcoin institutional demand accelerates in 2021 says @Grayscale CEO https://t.co/HsbFlBwAL8 #BTC $BTC #crypto #cryptocurrency $GBTC"
-Result Score: 0.0000
-Input Tweet #20: "Signal: $TFUEL
-#TFUEL #ThetaFuel #Binance #Crypto #Signaler #Signal #BTC #Bitcoin https://t.co/0ZBX9pMGkB"
-Result Score: 0.0000
-Input Tweet #21: "$ADA Sky rocket  #Patience 
-$1 Soon !!! 
-#ada #adausdt #btc #bitcoin #adacoin https://t.co/W5XI5fDemG"
-Result Score: 0.0000
-Input Tweet #22: "Forget all you know about #cryptocurrency 
-These 6 coins are listed in #NASDAQ ETF!!!
-These are the real ones with… https://t.co/XRyMP0yIcF"
-Result Score: 0.0000
-Input Tweet #23: "$ADA Sky rocket  #Patience 
-$1 Soon !!! 
-#ada #adausdt #btc #bitcoin #adacoin https://t.co/EMFjcarTNy"
-Result Score: 0.0000
-Input Tweet #24: "#Bitcoin’s Rally Signals the Rise of Digital Assets. This Bank Is Ahead of the Game. 
-
-https://t.co/rfnDfm1Rjm via… https://t.co/YglNnC1LVn"
-Result Score: 0.0000
-Input Tweet #25: "The writing is on the wall, and you are ignoring it. #bitcoin #BTC"
-Result Score: 0.0000
-✅ LLM Extraction Completed successfully.
-er returned the status 503 with message "Service Temporarily Unavailable" in response to the request to URL https://text-processing.com/api/sentiment/.
-[2026-07-25 16:50:29] [ERROR] REST API calls failed: The server returned the status 503 with message "Service Temporarily Unavailable" in response to the request to URL https://text-processing.com/api/sentiment/.
-[2026-07-25 16:50:31] [ERROR] REST API calls failed: The server returned the status 503 with message "Service Temporarily Unavailable" in response to the request to URL https://text-processing.com/api/sentiment/.
-[2026-07-25 16:50:33] [ERROR] REST API calls failed: The server returned the status 503 with message "Service Temporarily Unavailable" in response to the request to URL https://text-processing.com/api/sentiment/.
-[2026-07-25 16:50:35] [ERROR] REST API calls failed: The server returned the status 503 with message "Service Temporarily Unavailable" in response to the request to URL https://text-processing.com/api/sentiment/.
-[2026-07-25 16:50:37] [ERROR] REST API calls failed: The server returned the status 503 with message "Service Temporarily Unavailable" in response to the request to URL https://text-processing.com/api/sentiment/.
-[2026-07-25 16:50:39] [ERROR] REST API calls failed: The server returned the status 503 with message "Service Temporarily Unavailable" in response to the request to URL https://text-processing.com/api/sentiment/.
+**How to Test the LLM Features:**
+1. Open `configs/.env.example`
+2. Save it as `configs/.env`
+3. Replace `your_anthropic_api_key_here` with a valid Anthropic API key.
+4. Re-run `run_all_tests.m`. The pipeline will automatically detect the key, perform API calls, and generate real sentiment scores.
