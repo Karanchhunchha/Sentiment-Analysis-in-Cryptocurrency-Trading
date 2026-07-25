@@ -29,6 +29,18 @@ end
 fprintf(fidLog, '--- LLM FEATURE EXTRACTOR VERIFICATION LOG ---\n');
 fprintf(fidLog, 'Timestamp: %s\n', datestr(now, 'yyyy-mm-dd HH:MM:SS'));
 
+% Check and log the active model provider for transparency
+apiKey = ConfigManager.getValue('ANTHROPIC_API_KEY');
+if isempty(apiKey) || strcmp(apiKey, 'your_anthropic_api_key_here')
+    apiKey = getenv('ANTHROPIC_API_KEY');
+end
+
+if ~isempty(apiKey) && ~startsWith(apiKey, 'placeholder') && ~strcmp(apiKey, 'your_anthropic_api_key_here')
+    fprintf(fidLog, 'Real Model Provider: Anthropic (claude-3-haiku-20240307 via Web REST API)\n');
+else
+    fprintf(fidLog, 'Real Model Provider: Text-Processing Sentiment Classifier (NLTK Naive Bayes Web REST API Failover)\n');
+end
+
 % 2. Load 25 sample tweets from prepared data
 sampleFile = fullfile(rootDir, 'data', 'sample', 'Bitcoin_tweets_sample.csv');
 disp(['Loading sample tweets from: ', sampleFile]);

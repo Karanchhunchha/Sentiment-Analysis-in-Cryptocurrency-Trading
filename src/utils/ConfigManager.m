@@ -8,26 +8,33 @@
 classdef ConfigManager
     % ConfigManager Reads and manages environment configuration
     
-    properties (Constant)
-        EnvPath = fullfile(pwd, 'configs', '.env');
-    end
-    
     methods (Static)
+        function path = getEnvPath()
+            persistent resolvedPath;
+            if isempty(resolvedPath)
+                [utilsDir, ~, ~] = fileparts(which('ConfigManager'));
+                if isempty(utilsDir)
+                    % Fallback to pwd if not on path
+                    resolvedPath = fullfile(pwd, 'configs', '.env');
+                else
+                    [srcDir, ~, ~] = fileparts(utilsDir);
+                    [rootDir, ~, ~] = fileparts(srcDir);
+                    resolvedPath = fullfile(rootDir, 'configs', '.env');
+                end
+            end
+            path = resolvedPath;
+        end
+        
         function env = getEnv()
             % Reads the .env file into a containers.Map
             env = containers.Map('KeyType', 'char', 'ValueType', 'char');
-            if ~exist(ConfigManager.EnvPath, 'file')
-                examplePath = fullfile(pwd, 'configs', '.env.example');
-                if exist(examplePath, 'file')
-                    copyfile(examplePath, ConfigManager.EnvPath);
-                    warning('No .env found. Auto-created a new one from .env.example at %s. Please configure it.', ConfigManager.EnvPath);
-                else
-                    warning('Config file not found at %s, and no .env.example exists.', ConfigManager.EnvPath);
-                end
+            envPath = ConfigManager.getEnvPath();
+            if ~exist(envPath, 'file')
+                warning('Config file not found at %s.', envPath);
                 return;
             end
             
-            fid = fopen(ConfigManager.EnvPath, 'r');
+            fid = fopen(envPath, 'r');
             while ~feof(fid)
                 line = strtrim(fgetl(fid));
                 if isempty(line) || startsWith(line, '#') || ~contains(line, '=')
