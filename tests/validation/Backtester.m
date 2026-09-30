@@ -52,15 +52,18 @@ classdef Backtester < handle
             X_scaled = PipelineDataProcessor.scaleData(X, scaler);
             
             % Simulate step-by-step
-            for i = 2:numRows-1
+            seqLen = 30;
+            for i = seqLen:numRows-1
                 currPrice = fullData.Close(i);
                 atr = fullData.ATR_14(i);
                 
-                % Use pre-scaled features
-                features_scaled = X_scaled(i, :);
+                % Use pre-scaled features window
+                features_scaled = X_scaled(i-seqLen+1:i, :);
                 
                 % Prediction
-                predPrice = PipelineDataProcessor.predictEnsemble(models, features_scaled, targetScaler);
+                preds = PipelineDataProcessor.predictEnsemble(models, features_scaled, targetScaler);
+                predPrice = preds(end); % Extract the valid prediction for time i
+                
                 obj.Predictions(i) = predPrice;
                 
                 % Risk evaluation

@@ -91,14 +91,28 @@ classdef PipelineDataProcessor
             Y_raw = Y_scaled .* (targetScaler.Max - targetScaler.Min) + targetScaler.Min;
         end
         
-        function X_seq = formatForCNNLSTM(X_scaled)
+        function [X_seq, validIdx] = formatForCNNLSTM(X_scaled, sequenceLength)
             % Single source of truth for sequence formatting
-            X_seq = num2cell(X_scaled', 1)';
+            if nargin < 2
+                sequenceLength = 30;
+            end
+            
+            numSamples = size(X_scaled, 1) - sequenceLength + 1;
+            if numSamples <= 0
+                error('Not enough data for sequence length %d. Rows: %d', sequenceLength, size(X_scaled, 1));
+            end
+            
+            X_seq = cell(numSamples, 1);
+            for i = 1:numSamples
+                X_seq{i} = X_scaled(i:i+sequenceLength-1, :)';
+            end
+            
+            validIdx = sequenceLength:size(X_scaled, 1);
         end
         
         function preds = predictEnsemble(models, X_scaled, targetScaler)
             % Single source of truth for Ensemble Prediction
-            X_seq = PipelineDataProcessor.formatForCNNLSTM(X_scaled);
+            [X_seq, validIdx] = PipelineDataProcessor.formatForCNNLSTM(X_scaled);
             
             cnnPredsScaled = double(predict(models.CNN, X_seq));
             
@@ -113,7 +127,8 @@ classdef PipelineDataProcessor
             % But let's actually just use CNN-LSTM for now to represent the primary model since ARIMA needs Y_train.
             % Wait, the ensembleWeights were [0.6, 0.4]. Let's just output CNN predictions.
             % Or if ARIMA is available, let's just mock it with CNN as the primary Deep Learning driver.
-            preds = cnnPreds;
+            padLen = size(X_scaled, 1) - length(cnnPreds);
+            preds = [nan(padLen, 1); cnnPreds];
         end
         
         function generateDataAuditReport()

@@ -177,8 +177,12 @@ function processLiveTick(newCandle, fullData, fusionEngine, macroEngine, models,
             'BB_Upper', 'BB_Lower', 'VWAP', 'Volatility_20', 'ATR_14', ...
             'Daily_Sentiment', 'Tweet_Volume'};
             
-        % Extract features for current tick
-        featDataRaw = table2array(fullData_features(end, defaultFeatureList));
+        % Extract features for last 30 ticks for temporal context
+        seqLen = 30;
+        if size(fullData_features, 1) < seqLen
+            error('Insufficient historical data for sequence generation');
+        end
+        featDataRaw = table2array(fullData_features(end-seqLen+1:end, defaultFeatureList));
         
         % Load scaler from disk directly since it might not be in arguments
         sc = load(fullfile(pwd, 'models', 'scaler.mat'));
@@ -188,7 +192,7 @@ function processLiveTick(newCandle, fullData, fusionEngine, macroEngine, models,
         
         featScaled = PipelineDataProcessor.scaleData(featDataRaw, scaler);
         
-        % Format for CNN/LSTM (Cell array of Features x 1)
+        % Format for CNN/LSTM (Cell array of Features x 30)
         cnnLstmInput = {featScaled'};
         
         cnnPredScaled = predict(models.CNN, cnnLstmInput);

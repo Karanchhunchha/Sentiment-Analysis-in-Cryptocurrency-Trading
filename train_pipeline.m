@@ -79,9 +79,10 @@ options = trainingOptions('adam', ...
     'Plots', 'none');
 
 % Convert data for sequence input (Features x SequenceLength for each observation)
-XTrainSeq = num2cell(XTrain', 1)'; 
+[XTrainSeq, vTrain] = PipelineDataProcessor.formatForCNNLSTM(XTrain, 30);
+YTrainSeq = YTrain(vTrain);
 try
-    cnnLstmNet = trainNetwork(XTrainSeq, YTrain, layers, options);
+    cnnLstmNet = trainNetwork(XTrainSeq, YTrainSeq, layers, options);
     Logger.success('CNN-LSTM Training Complete.');
 catch ME
     Logger.warning('Deep Learning Toolbox missing or failed: %s. Using stub model.', ME.message);
@@ -138,11 +139,12 @@ maeVals = zeros(4,1);
 
 % 1. CNN-LSTM
 if ~strcmp(class(cnnLstmNet), 'struct')
-    XTestSeq = num2cell(XTest', 1)'; 
+    [XTestSeq, vTest] = PipelineDataProcessor.formatForCNNLSTM(XTest, 30); 
+    YTestSeq = YTest_raw(vTest);
     cnnPred = predict(cnnLstmNet, XTestSeq);
     cnnPredRaw = revScale(cnnPred);
-    rmseVals(1) = sqrt(mean((YTest_raw - cnnPredRaw).^2));
-    maeVals(1) = mean(abs(YTest_raw - cnnPredRaw));
+    rmseVals(1) = sqrt(mean((YTestSeq - cnnPredRaw).^2));
+    maeVals(1) = mean(abs(YTestSeq - cnnPredRaw));
 else
     rmseVals(1) = NaN; maeVals(1) = NaN;
 end

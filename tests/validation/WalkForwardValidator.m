@@ -61,8 +61,15 @@ classdef WalkForwardValidator < handle
                 trainEnd = startIdx + obj.TrainWindowSize - 1;
                 testEnd = trainEnd + obj.StepSize;
                 
-                % Out of sample for this step
-                X_test_raw = X(trainEnd+1:testEnd, :);
+                % Include sequenceLength - 1 historical rows for CNN lookback
+                seqLookback = 29;
+                evalStart = trainEnd + 1 - seqLookback;
+                if evalStart < 1; evalStart = 1; end
+                
+                % Out of sample (plus lookback) for this step
+                X_test_raw = X(evalStart:testEnd, :);
+                
+                % Target is only for the actual test region
                 y_test = Y(trainEnd+1:testEnd);
                 
                 % 3. Apply exact production scaling
@@ -70,6 +77,10 @@ classdef WalkForwardValidator < handle
                 
                 % 4. Predict using Ensemble (CNN-LSTM as primary)
                 preds = PipelineDataProcessor.predictEnsemble(models, X_test_scaled, targetScaler);
+                
+                % Trim the lookback predictions so they match y_test
+                actualTestSize = testEnd - trainEnd;
+                preds = preds(end-actualTestSize+1:end);
                 
                 totalPredictions = [totalPredictions; preds];
                 totalActuals = [totalActuals; y_test];

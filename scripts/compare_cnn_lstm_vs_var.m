@@ -60,13 +60,21 @@ mgr = ModelManager();
 [models, scaler, featureList, targetScaler] = mgr.loadArtifacts();
 
 % Scale features and get predictions
-XTest = X(splitIdx+1:end, :);
+seqLookback = 29;
+evalStart = splitIdx + 1 - seqLookback;
+if evalStart < 1; evalStart = 1; end
+
+XTest = X(evalStart:end, :);
 XTest_scaled = PipelineDataProcessor.scaleData(XTest, scaler);
-XTest_seq = PipelineDataProcessor.formatForCNNLSTM(XTest_scaled);
+[XTest_seq, ~] = PipelineDataProcessor.formatForCNNLSTM(XTest_scaled);
 
 if ~isstruct(models.CNN)
     cnnPredScaled = double(predict(models.CNN, XTest_seq));
     cnnPredPrice = PipelineDataProcessor.unscaleTarget(cnnPredScaled, targetScaler);
+    
+    % Trim to actual test size
+    actualTestSize = length(testPrices);
+    cnnPredPrice = cnnPredPrice(end-actualTestSize+1:end);
 else
     % Fallback if stubbed
     disp('Using CNN-LSTM fallback stub.');
