@@ -74,6 +74,7 @@ classdef ModelFramework
         function [model, fallbackPath] = loadBestModel(modelType)
             % Failover Model Loading
             % If the requested model type fails to load, it attempts fallbacks
+            % (Note: ARIMAX is a supported fallback, but ARIMA is actively trained)
             fallbacks = {'CNNLSTM', 'LSTM', 'ARIMAX', 'ARIMA'};
             
             startIdx = find(strcmp(fallbacks, upper(modelType)));

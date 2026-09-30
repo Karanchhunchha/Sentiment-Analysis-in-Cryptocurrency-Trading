@@ -11,12 +11,12 @@ This checklist confirms the inclusion and functionality of all necessary artifac
 
 ## 2. Core Executables
 - [x] **`verify_submission.m`**: Fully functional, generates HTML reports, and executes unit tests.
-- [x] **`train_pipeline.m`**: Successfully trains CNN-LSTM, ARIMAX, and traditional ML models.
+- [x] **`train_pipeline.m`**: Successfully trains CNN-LSTM, ARIMA, and traditional ML models.
 - [x] **`run_pipeline.m`**: Functions without crashing, connecting live predictions to the dashboard.
 
 ## 3. Toolboxes Verified
 - [x] Deep Learning Toolbox (Used in CNN-LSTM architecture)
-- [x] Econometrics Toolbox (Used in ARIMAX formulation)
+- [x] Econometrics Toolbox (Used in ARIMA formulation)
 - [x] Financial Toolbox (Used for technical indicator extraction)
 - [x] Statistics and Machine Learning Toolbox (Used for standardization scaling)
 

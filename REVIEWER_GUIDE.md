@@ -3,7 +3,7 @@
 This guide is designed to help MathWorks Challenge reviewers evaluate the SentinelCrypto repository efficiently. You can verify the primary deliverables in under 10 minutes.
 
 ## 1. What This Project Is
-SentinelCrypto is an automated cryptocurrency prediction pipeline written in MATLAB. It fulfills MathWorks Project #239 by integrating quantitative time-series modeling (CNN-LSTM), qualitative macroeconomic modeling (ARIMAX on NLP sentiment), dynamic risk filtering, and an interactive MATLAB App for visualization.
+SentinelCrypto is an automated cryptocurrency prediction pipeline written in MATLAB. It fulfills MathWorks Project #239 by integrating quantitative time-series modeling (CNN-LSTM), qualitative macroeconomic modeling (ARIMA), dynamic risk filtering, and an interactive MATLAB App for visualization.
 
 ## 2. Quick Setup & Verification
 

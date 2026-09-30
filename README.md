@@ -28,7 +28,7 @@ This project is a formal submission for MathWorks Project #239. The implementati
 | Challenge Requirement | Repository Implementation |
 | :--- | :--- |
 | **Twitter Sentiment Analysis** | `SentimentEngine.m` extracts and quantifies NLP data into numerical scores. |
-| **Time Series Modeling** | `train_pipeline.m` trains CNN-LSTM and ARIMAX models. `ForecastProjectionEngine.m` handles multi-step horizon generation. |
+| **Time Series Modeling** | `train_pipeline.m` trains CNN-LSTM and ARIMA models. `ForecastProjectionEngine.m` handles multi-step horizon generation. |
 | **Trading Strategy & Backtesting** | `RiskEngine.m` calculates dynamic Stop-Loss and Take-Profit bounds based on ATR. `Backtester.m` validates historical performance. |
 | **Portfolio Analysis** | `PortfolioSimulator.m` provides risk-adjusted equity curve simulation. |
 | **Interactive MATLAB App** | `SentinelDashboard.m` and `PredictionChart.m` render a real-time UI mapping the AI forecasts directly over live OHLC data. |
@@ -38,7 +38,7 @@ This project is a formal submission for MathWorks Project #239. The implementati
 
 - **Live Data Ingestion**: Streams real-time Binance OHLCV data using a robust, non-blocking timer logic (`PriceDataLoader.m`).
 - **Feature Engineering**: Calculates SMA, EMA, MACD, RSI, Bollinger Bands, VWAP, ATR, and SMC blocks dynamically (`FeatureFusionEngine.m`).
-- **Hybrid Inference Ensemble**: Combines CNN-LSTM for non-linear pattern recognition with ARIMAX for exogenous sentiment variables (`ModelManager.m`).
+- **Hybrid Inference Ensemble**: Combines CNN-LSTM for non-linear pattern recognition with ARIMA (`ModelManager.m`).
 - **Dynamic Risk Engine**: Mathematical derivation of trade signals strictly filtered by adaptive Risk/Reward ratios.
 - **Automated Verification**: 1-click test suite that validates the mathematical boundaries of predictions, memory health, and dependency mappings.
 
@@ -97,7 +97,7 @@ tests/
 ### Usage
 
 **1. Train the Models**
-To compile the CNN-LSTM and ARIMAX models from historical data:
+To compile the CNN-LSTM and ARIMA models from historical data:
 ```matlab
 train_pipeline
 ```
@@ -119,7 +119,7 @@ verify_submission
 
 ### Required Toolboxes
 - Deep Learning Toolbox (CNN-LSTM sequences)
-- Econometrics Toolbox (ARIMAX models)
+- Econometrics Toolbox (ARIMA models)
 - Statistics and Machine Learning Toolbox (Random Forest, SVM, Standardizations)
 - Financial Toolbox (Technical indicators via `macd`, `rsindex`, etc.)
 
@@ -136,7 +136,7 @@ HTML reports are automatically generated into the `reports/` directory upon exec
 
 ## Known Limitations
 
-- The ARIMAX model currently expects a continuous, gap-free time series. Weekends or API downtime may require forward-filling logic before training.
+- The ARIMA model currently expects a continuous, gap-free time series. Weekends or API downtime may require forward-filling logic before training.
 - Multi-horizon forecasting utilizes a dampened drift projection off the 1-step prediction. A sequence-to-sequence model is planned for V2.
 - The historical backtest results do not fully account for real transaction costs, slippage in low-liquidity environments, or live execution latency. Live trading performance may diverge from theoretical backtests due to these market microstructure factors.
 

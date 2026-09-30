@@ -5,7 +5,7 @@
 - `SentinelDashboard.m`: Automated end-to-end data fetching, training, and backtesting dashboard entirely in MATLAB.
 - `DataIngestion.m`: MATLAB native PostgreSQL connection via Database Toolbox (replaces Python scripts).
 - `schema.sql`: Official PostgreSQL schema for price, sentiment, and portfolio data.
-- `EconometricForecast.m`: ARIMAX forecasting model using MATLAB Econometrics Toolbox.
+- `EconometricForecast.m`: ARIMA forecasting model using MATLAB Econometrics Toolbox.
 - `SentimentEngine.m`: Naive Bayes classifier & VADER implementation using MATLAB Stats & ML Toolbox.
 - `LLMFeatureExtractor.m`: Multi-provider LLM integration via MATLAB REST APIs.
 - `.env.example`: Configuration template for Database and LLM secrets.

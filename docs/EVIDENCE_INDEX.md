@@ -9,7 +9,7 @@ This document maps the primary deliverables of MathWorks Project #239 to the exa
 - `src/feature_engineering/FeatureFusionEngine.m`: Performs incremental vector updates on live data arrays to prevent recalculation overhead.
 
 ## 2. Machine Learning Inference
-**Claim:** A CNN-LSTM combined with an ARIMAX model forecasts asset prices.
+**Claim:** A CNN-LSTM combined with an ARIMA model forecasts asset prices.
 **Evidence:**
 - `train_pipeline.m`: Constructs `sequenceInputLayer` and `arima` specifications and trains them against historical holdout data.
 - `src/models/ModelManager.m`: Saves the `.mat` artifacts to the disk for rapid access during live execution.

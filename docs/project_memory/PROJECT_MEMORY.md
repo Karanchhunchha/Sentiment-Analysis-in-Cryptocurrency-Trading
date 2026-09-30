@@ -6,7 +6,7 @@
 - **Core Modules Migrated:**
   - `SentinelDashboard.m` (Automated end-to-end data pipeline & dashboard UI).
   - `DataIngestion.m` (Refactored to integrate `BinanceDataFetcher.m` with local PostgreSQL instance).
-  - `EconometricForecast.m` (ARIMAX model via Econometrics Toolbox).
+  - `EconometricForecast.m` (ARIMA model via Econometrics Toolbox).
   - `SentimentEngine.m` (Naive Bayes + VADER fallback via Stats Toolbox).
   - `LLMFeatureExtractor.m` (Robust multi-provider API calls).
   - `schema.sql` (PostgreSQL schemas deployed to `configs/` and root db mapping).

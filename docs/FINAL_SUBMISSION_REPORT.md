@@ -14,7 +14,7 @@ This document officially concludes the development of SentinelCrypto for MathWor
 
 ### 2. Time-Series and NLP Modeling
 - **Implementation:** `train_pipeline.m` and `ModelManager.m`
-- **Details:** The AI ensemble utilizes a Deep Learning Toolbox CNN-LSTM network for non-linear price patterns, merged with an Econometrics Toolbox ARIMAX model that factors in exogenous NLP sentiment data.
+- **Details:** The AI ensemble utilizes a Deep Learning Toolbox CNN-LSTM network for non-linear price patterns, merged with an Econometrics Toolbox ARIMA model.
 
 ### 3. Risk Management and Backtesting
 - **Implementation:** `RiskEngine.m` and `Backtester.m`

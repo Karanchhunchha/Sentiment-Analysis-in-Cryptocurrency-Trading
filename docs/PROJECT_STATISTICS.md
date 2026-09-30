@@ -15,7 +15,7 @@ The following statistics provide an overview of the scale, testing density, and 
 
 ## Artificial Intelligence Models
 - **CNN-LSTM Specifications**: 6 Layers (Sequence Input, Conv1D, ReLU, LSTM, Fully Connected, Regression).
-- **ARIMAX Specifications**: ARIMA(1, 1, 1) configured with 1 exogenous sentiment variable.
+- **ARIMA Specifications**: ARIMA(1, 1, 1) model.
 
 ## Technical Indicator Implementations
 - Simple Moving Average (SMA)
