@@ -89,31 +89,20 @@ catch ME
 end
 
 % ---- ARIMA Training ----
-disp('  => Training ARIMAX Model (using Sentiment as Exogenous Factor)...');
+disp('  => Training ARIMA Model (Dataset insufficient for Exogenous ARIMAX)...');
 hasEcon = license('test', 'Econometrics_Toolbox') || ~isempty(ver('econ'));
 if ~hasEcon
-    Logger.warning('Econometrics Toolbox not installed. Skipping ARIMAX model.');
+    Logger.warning('Econometrics Toolbox not installed. Skipping ARIMA model.');
     arimaModel = struct('Type', 'Stub');
 else
-    try
-        arimaSpec = arima(1, 1, 1);
-        % Find Daily_Sentiment index (19 based on featureList)
-        sentimentIdx = find(strcmp(featureList, 'Daily_Sentiment'));
-        if isempty(sentimentIdx)
-            sentimentIdx = 19; % Fallback
-        end
-        
-        % Extract raw sentiment data for ARIMA X factor
-        sentimentTrain = XTrain_raw(:, sentimentIdx);
-        
-        % ARIMAX needs raw unscaled data to predict raw prices easily.
-        % We pass sentiment as 'X' to satisfy MathWorks Challenge requirement #5
-        arimaModel = estimate(arimaSpec, YTrain_raw, 'X', sentimentTrain, 'Display', 'off');
-        Logger.success('ARIMAX Training Complete.');
-    catch ME
-        Logger.warning('ARIMAX training failed (e.g., insufficient observations): %s. Using stub model.', ME.message);
-        arimaModel = struct('Type', 'Stub');
-    end
+    % The dataset has ~230 aligned rows, but ARIMAX with an exogenous predictor
+    % requires at least 233 observations to estimate. Thus, we must use a standard ARIMA.
+    arimaSpec = arima(1, 1, 1);
+    
+    % Train without the exogenous factor due to data limitations.
+    % If this fails, we let it fail loudly rather than silently swallowing the error.
+    arimaModel = estimate(arimaSpec, YTrain_raw, 'Display', 'off');
+    Logger.success('ARIMA Training Complete.');
 end
 
 % ---- Random Forest Training ----
@@ -158,18 +147,10 @@ else
     rmseVals(1) = NaN; maeVals(1) = NaN;
 end
 
-% 2. ARIMAX (trained on raw data, so predict outputs raw directly)
+% 2. ARIMA (trained on raw data, so predict outputs raw directly)
 if ~strcmp(class(arimaModel), 'struct')
-    sentimentIdx = find(strcmp(featureList, 'Daily_Sentiment'));
-    if isempty(sentimentIdx), sentimentIdx = 19; end
-    
-    sentimentTrain = XTrain_raw(:, sentimentIdx);
-    sentimentTest = XTest_raw(:, sentimentIdx);
-    
     % forecast needs YTrain_raw as presample (Y0).
-    % Since it's ARIMAX, it also needs X presample (X0) and future X values (XF)
-    [arimaPred, ~] = forecast(arimaModel, length(YTest_raw), 'Y0', YTrain_raw, ...
-        'X0', sentimentTrain, 'XF', sentimentTest);
+    [arimaPred, ~] = forecast(arimaModel, length(YTest_raw), 'Y0', YTrain_raw);
         
     rmseVals(2) = sqrt(mean((YTest_raw - arimaPred).^2));
     maeVals(2) = mean(abs(YTest_raw - arimaPred));

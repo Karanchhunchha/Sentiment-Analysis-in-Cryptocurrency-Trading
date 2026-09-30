@@ -32,15 +32,39 @@ classdef PipelineDataProcessor
                 sentimentData = readtable('data/sentiment/historical_daily_sentiment.csv');
             end
             
-            % 3. Merge
+            % 3. Merge and Align on a Continuous Daily Grid
+            % The reviewer identified gaps in the time-series which break autoregressive models.
+            % We create a continuous regular daily grid and synchronize to prevent alignment issues.
             marketData.Date = dateshift(datetime(marketData.Date), 'start', 'day');
             sentimentData.Date = dateshift(datetime(sentimentData.Date), 'start', 'day');
-            fullData = innerjoin(marketData, sentimentData, 'Keys', 'Date');
+            
+            % Convert to timetables for explicit alignment
+            marketTT = table2timetable(marketData, 'RowTimes', 'Date');
+            sentimentTT = table2timetable(sentimentData, 'RowTimes', 'Date');
+            
+            % Synchronize onto a continuous daily grid using forward-fill for missing observations
+            % Forward-fill (previous) is scientifically safe and introduces no future information.
+            fullDataTT = synchronize(marketTT, sentimentTT, 'daily', 'previous');
+            
+            % Convert back to table
+            fullData = timetable2table(fullDataTT);
+            % Rename Time back to Date
+            fullData.Properties.VariableNames{1} = 'Date';
+            
+            % Drop rows where market data is missing before the first available date
+            fullData = rmmissing(fullData, 'DataVariables', 'Close');
+            % Note: sentiment might still have NaNs early on; we replace them with 0 (neutral sentiment)
+            if any(ismissing(fullData.Daily_Sentiment))
+                fullData.Daily_Sentiment(ismissing(fullData.Daily_Sentiment)) = 0;
+            end
+            if any(ismissing(fullData.Tweet_Volume))
+                fullData.Tweet_Volume(ismissing(fullData.Tweet_Volume)) = 0;
+            end
             
             % 4. Technical Indicators
             fullData = IndicatorEngine.calculateAll(fullData);
             
-            % 5. Targets
+            % 5. Targets (shifted closing prices)
             fullData.Target = [fullData.Close(2:end); NaN];
             fullData(end, :) = [];
             

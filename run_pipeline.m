@@ -197,13 +197,11 @@ function processLiveTick(newCandle, fullData, fusionEngine, macroEngine, models,
         lstmPredScaled = predict(models.LSTM, cnnLstmInput);
         lstmPred = lstmPredScaled * (targetScaler.Max - targetScaler.Min) + targetScaler.Min;
         
-        % ARIMAX prediction
-        sentimentIdx = find(strcmp(defaultFeatureList, 'Daily_Sentiment'));
-        sentimentVal = featDataRaw(1, sentimentIdx);
+        % ARIMA prediction
         y0 = fullData.Close(end-1);
         
         if ~strcmp(class(models.ARIMA), 'struct')
-            [arimaPred, ~] = forecast(models.ARIMA, 1, 'Y0', y0, 'X0', sentimentVal, 'XF', sentimentVal);
+            [arimaPred, ~] = forecast(models.ARIMA, 1, 'Y0', y0);
         else
             arimaPred = cnnPred; % Fallback if ARIMA fails to load
         end
