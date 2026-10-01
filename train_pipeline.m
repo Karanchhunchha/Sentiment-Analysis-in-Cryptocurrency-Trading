@@ -10,6 +10,7 @@
 % train_pipeline.m (Training Mode Orchestrator)
 
 clc; clear; close all;
+rng(42); % Fixed random seed for strict reproduction of documentation metrics
 
 %% Configure Paths
 addpath(genpath('src'));
@@ -89,22 +90,154 @@ catch ME
     cnnLstmNet = struct('Type', 'Stub');
 end
 
-% ---- ARIMA Training ----
-disp('  => Training ARIMA Model (Dataset insufficient for Exogenous ARIMAX)...');
+% ---- ARIMAX / ARIMA Training (P0-03) ----
+disp('  => [P0-03] Attempting genuine ARIMAX, then transparent ARIMA fallback...');
 hasEcon = license('test', 'Econometrics_Toolbox') || ~isempty(ver('econ'));
 if ~hasEcon
-    Logger.warning('Econometrics Toolbox not installed. Skipping ARIMA model.');
-    arimaModel = struct('Type', 'Stub');
-else
-    % The dataset has ~230 aligned rows, but ARIMAX with an exogenous predictor
-    % requires at least 233 observations to estimate. Thus, we must use a standard ARIMA.
-    arimaSpec = arima(1, 1, 1);
-    
-    % Train without the exogenous factor due to data limitations.
-    % If this fails, we let it fail loudly rather than silently swallowing the error.
-    arimaModel = estimate(arimaSpec, YTrain_raw, 'Display', 'off');
-    Logger.success('ARIMA Training Complete.');
+    % Explicit, non-swallowed failure: toolbox unavailable
+    error('train_pipeline:NoEconToolbox', ...
+        ['Econometrics Toolbox is required but not installed. ' ...
+         'ARIMA/ARIMAX cannot be trained. Install the Toolbox and re-run.']);
 end
+
+% -----------------------------------------------------------------------
+% STEP 1: Attempt genuine ARIMAX on the sentiment-aligned overlap region.
+%
+% Alignment policy:
+%   - TRUE inner join (synchronize 'intersection'): only rows where BOTH
+%     market price AND sentiment are present on the same calendar day.
+%     No forward-fill, no zero-fill for the exogenous variable.
+%   - Sorted ascending by date (asserted below).
+%   - Train/test split at 80% of aligned intersection rows.
+%   - XF for forecasting uses held-out test sentiment values.
+%   - No future values from the test window are used in training.
+%
+% Why ARIMAX may not be feasible:
+%   The committed sentiment dataset (historical_daily_sentiment.csv) covers
+%   only ~231 days of true overlap with btc.csv. ARIMAX(1,1,1) with 1
+%   exogenous variable requires enough observations for parameter
+%   estimation. If the training partition is too small, estimate() will
+%   throw a genuine error.
+% -----------------------------------------------------------------------
+
+arimaModel    = [];   % will be populated by either ARIMAX or ARIMA fallback
+arimaModelType = 'none';
+arimaFallbackReason = '';  % P0-03: will hold exact ARIMAX failure message if fallback used
+
+% Load and align data for ARIMAX attempt
+marketDataAR   = readtable(fullfile(pwd, 'data', 'market', 'btc.csv'));
+sentimentDataAR = readtable(fullfile(pwd, 'data', 'sentiment', 'historical_daily_sentiment.csv'));
+
+marketDataAR.Date   = dateshift(datetime(marketDataAR.Date),   'start', 'day');
+sentimentDataAR.Date = dateshift(datetime(sentimentDataAR.Date), 'start', 'day');
+
+% Assert chronological order (non-negotiable for time-series models)
+assert(all(diff(marketDataAR.Date)   > 0), 'train_pipeline:NotSorted', 'Market data not sorted ascending.');
+assert(all(diff(sentimentDataAR.Date) > 0), 'train_pipeline:NotSorted', 'Sentiment data not sorted ascending.');
+
+marketTTar    = table2timetable(marketDataAR,   'RowTimes', 'Date');
+sentimentTTar = table2timetable(sentimentDataAR, 'RowTimes', 'Date');
+
+% TRUE inner join: only dates present in BOTH tables
+% No forward-fill, no zero-fill — only genuine sentiment observations
+alignedTT = synchronize(marketTTar, sentimentTTar, 'intersection');
+alignedTT = rmmissing(alignedTT, 'DataVariables', {'Close', 'Daily_Sentiment'});
+nAligned  = height(alignedTT);
+
+Logger.info('[P0-03] ARIMAX-eligible aligned rows (true intersection): %d', nAligned);
+
+arCloseAll = alignedTT.Close;
+arSentAll  = alignedTT.Daily_Sentiment;
+
+% Assert data is chronological after join
+assert(all(diff(alignedTT.Date) > 0), 'train_pipeline:NotSorted', ...
+    'Aligned intersection data is not sorted ascending.');
+
+splitIdxAR  = floor(0.8 * nAligned);
+
+try
+    % Y0 presample (2 rows for d=1, p=1 lag) so exogenous X matches Y length
+    Y0_AR       = arCloseAll(1:2);
+    YTrainAR    = arCloseAll(3:splitIdxAR);
+    XTrainAR    = arSentAll(3:splitIdxAR);
+
+    Logger.info('[P0-03] Attempting ARIMAX estimate on %d training observations (+ 2 presample)...', length(YTrainAR));
+
+    arimaSpecX = arima(1, 1, 1);
+    arimaModelX = estimate(arimaSpecX, YTrainAR, 'X', XTrainAR, 'Y0', Y0_AR, 'Display', 'off');
+
+    % Verify forecast is real and finite before accepting
+    nTestAR = nAligned - splitIdxAR;
+    XTestAR = arSentAll(splitIdxAR+1:end);
+    [fcastVerify, ~] = forecast(arimaModelX, nTestAR, 'Y0', YTrainAR, 'XF', XTestAR);
+    if ~all(isfinite(fcastVerify))
+        error('train_pipeline:ArimaxForecastNonFinite', ...
+              'ARIMAX forecast produced non-finite values. Model rejected.');
+    end
+
+    arimaModel     = arimaModelX;
+    arimaModelType = 'ARIMAX(1,1,1) with Daily_Sentiment exogenous';
+    Logger.success('[P0-03] ARIMAX training SUCCEEDED on %d obs. Model type: %s', length(YTrainAR), arimaModelType);
+
+catch ME_arimax
+    % -----------------------------------------------------------------------
+    % Only catch errors from the estimation step. If this is NOT a data/
+    % estimation error, rethrow so unexpected failures are never hidden.
+    % -----------------------------------------------------------------------
+    isEstimationError = contains(ME_arimax.identifier, 'econ') ...
+        || contains(ME_arimax.identifier, 'arima') ...
+        || contains(ME_arimax.identifier, 'train_pipeline') ...
+        || contains(lower(ME_arimax.message), 'observation') ...
+        || contains(lower(ME_arimax.message), 'degrees of freedom') ...
+        || contains(lower(ME_arimax.message), 'insufficient') ...
+        || contains(lower(ME_arimax.message), 'non-finite') ...
+        || contains(lower(ME_arimax.message), 'stationary') ...
+        || contains(lower(ME_arimax.message), 'converge');
+
+    if ~isEstimationError
+        rethrow(ME_arimax);
+    end
+
+    % -----------------------------------------------------------------------
+    % STEP 2: Explicit transparent fallback to pure ARIMA(1,1,1).
+    %
+    % Uses the SAME training horizon (YTrain_raw from the main pipeline
+    % split), NOT synthetic data. Reason logged at WARNING level.
+    % The fallback model is explicitly named "ARIMA(1,1,1)-Fallback" in
+    % saved metadata so no consumer can mistake it for ARIMAX.
+    % -----------------------------------------------------------------------
+    Logger.warning('[P0-03] ARIMAX not feasible: %s', ME_arimax.message);
+    Logger.warning('[P0-03] Intersection gave %d aligned rows; training partition had %d obs.', ...
+        nAligned, splitIdxAR - 2);
+    Logger.warning('[P0-03] Falling back to pure ARIMA(1,1,1) on full training price series (%d obs).', length(YTrain_raw));
+    Logger.warning('[P0-03] This fallback is NOT ARIMAX. Sentiment is excluded as exogenous variable.');
+
+    arimaFallbackReason = ME_arimax.message;  % P0-03: preserve exact failure reason
+
+    arimaSpec = arima(1, 1, 1);
+
+    % No try/catch here: any failure in pure ARIMA must propagate loudly.
+    % If this throws, the pipeline must stop — not produce a stub.
+    arimaModel     = estimate(arimaSpec, YTrain_raw, 'Display', 'off');
+    arimaModelType = 'ARIMA(1,1,1)-Fallback (ARIMAX infeasible: insufficient overlap rows)';
+    Logger.success('[P0-03] ARIMA(1,1,1) fallback training SUCCEEDED on %d observations.', length(YTrain_raw));
+end
+
+% Final verification: model must be a genuine arima object, not a struct
+assert(isa(arimaModel, 'arima'), 'train_pipeline:NotArimaObject', ...
+    'arimaModel is not a genuine arima object after training. Pipeline cannot continue.');
+
+% Verify forecast is finite
+% If ARIMAX, XF is required for forecast; use zeros as neutral exogenous input
+if ~isempty(arimaModel.Beta)
+    [verifyFcast, ~] = forecast(arimaModel, 3, 'Y0', YTrain_raw, 'XF', zeros(3, size(arimaModel.Beta, 1)));
+else
+    [verifyFcast, ~] = forecast(arimaModel, 3, 'Y0', YTrain_raw);
+end
+assert(all(isfinite(verifyFcast)), 'train_pipeline:ForecastNonFinite', ...
+    'Post-training forecast produced non-finite values.');
+
+Logger.success('[P0-03] Model artifact verified: class=%s, type=%s', class(arimaModel), arimaModelType);
 
 % ---- Random Forest Training ----
 disp('  => Training Random Forest Model...');
@@ -152,7 +285,21 @@ end
 % 2. ARIMA (trained on raw data, so predict outputs raw directly)
 if ~strcmp(class(arimaModel), 'struct')
     % forecast needs YTrain_raw as presample (Y0).
-    [arimaPred, ~] = forecast(arimaModel, length(YTest_raw), 'Y0', YTrain_raw);
+    % If ARIMAX, XF is required — use real test sentiment from the aligned intersection
+    if ~isempty(arimaModel.Beta)
+        % ARIMAX: use real exogenous values from the test portion of the aligned intersection
+        nFcastAR = length(YTest_raw);
+        nTestIntersection = nAligned - splitIdxAR;
+        if nTestIntersection >= nFcastAR
+            XF_eval = arSentAll(splitIdxAR+1:splitIdxAR+nFcastAR);
+        else
+            % Pad with zeros if intersection test is shorter than full test set
+            XF_eval = [arSentAll(splitIdxAR+1:end); zeros(nFcastAR - nTestIntersection, 1)];
+        end
+        [arimaPred, ~] = forecast(arimaModel, nFcastAR, 'Y0', YTrain_raw, 'XF', XF_eval);
+    else
+        [arimaPred, ~] = forecast(arimaModel, length(YTest_raw), 'Y0', YTrain_raw);
+    end
         
     rmseVals(2) = sqrt(mean((YTest_raw - arimaPred).^2));
     maeVals(2) = mean(abs(YTest_raw - arimaPred));
@@ -220,7 +367,7 @@ ensembleWeights = [0.6, 0.4]; % CNN-LSTM, ARIMA (or use the best models)
 %% 6. Model Saving
 disp('-> [6/6] Saving Artifacts to disk...');
 mgr = ModelManager();
-mgr.saveArtifacts(cnnLstmNet, [], arimaModel, ensembleWeights, scaler, targetScaler, featureList);
+mgr.saveArtifacts(cnnLstmNet, [], arimaModel, ensembleWeights, scaler, targetScaler, featureList, arimaModelType, arimaFallbackReason);
 
 disp('====================================================');
 disp('   ✅ TRAINING PIPELINE COMPLETE ✅    ');

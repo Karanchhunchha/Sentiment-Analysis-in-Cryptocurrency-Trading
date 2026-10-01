@@ -135,17 +135,137 @@ classdef test_B03_AlignmentAndModelIntegrity < matlab.unittest.TestCase
         
         function testInsufficientDataBehavior(testCase)
             % Test H: Verify insufficient data produces an explicit failure
-            yAll = (1:184)';
-            xAll = (1:184)';
+            % Use a genuinely tiny dataset (5 obs) — far too few for ARIMA(1,1,1)
+            yTiny = (1:5)';
+            xTiny = (1:5)';
             arimaSpec = arima(1,1,1);
             
-            % Should fail explicitly for ARIMAX since we need more observations for the X regressor
+            % Must fail explicitly — 5 observations cannot estimate 4+ parameters
             try
-                estimate(arimaSpec, yAll, 'X', xAll, 'Display', 'off');
+                estimate(arimaSpec, yTiny, 'X', xTiny, 'Display', 'off');
                 testCase.verifyFail('ARIMAX estimation should have thrown an error on insufficient data');
             catch ME
-                testCase.verifyTrue(contains(lower(ME.message), 'observations') || contains(lower(ME.message), 'degrees of freedom') || contains(lower(ME.message), 'data'), 'Should throw data size error');
+                % Verify the error is data-related, not an unrelated crash
+                msgLower = lower(ME.message);
+                testCase.verifyTrue( ...
+                    contains(msgLower, 'observation') ...
+                    || contains(msgLower, 'degrees of freedom') ...
+                    || contains(msgLower, 'data') ...
+                    || contains(msgLower, 'insufficient') ...
+                    || contains(msgLower, 'presample'), ...
+                    sprintf('Error should be data-related. Got: %s', ME.message));
             end
+        end
+        
+        function testTruthfulMetadata(testCase)
+            % Test I: Verify model_info.json contains truthful, internally consistent metadata
+            infoPath = fullfile(pwd, 'models', 'model_info.json');
+            testCase.verifyTrue(exist(infoPath, 'file') == 2, 'model_info.json must exist');
+            
+            fid = fopen(infoPath, 'r');
+            raw = fread(fid, '*char')';
+            fclose(fid);
+            info = jsondecode(raw);
+            
+            % model_type must exist and be either 'ARIMA' or 'ARIMAX'
+            testCase.verifyTrue(isfield(info, 'model_type'), 'Metadata must have model_type field');
+            testCase.verifyTrue(ismember(info.model_type, {'ARIMA', 'ARIMAX'}), ...
+                'model_type must be "ARIMA" or "ARIMAX"');
+            
+            % arima_model_type must exist and be a non-empty string
+            testCase.verifyTrue(isfield(info, 'arima_model_type'), 'Metadata must have arima_model_type field');
+            testCase.verifyTrue(~isempty(info.arima_model_type), 'arima_model_type must not be empty');
+            
+            % fallback_reason must exist
+            testCase.verifyTrue(isfield(info, 'fallback_reason'), 'Metadata must have fallback_reason field');
+            
+            % Internal consistency: model_type and arima_model_type must agree
+            if strcmp(info.model_type, 'ARIMAX')
+                % ARIMAX succeeded: arima_model_type should start with ARIMAX
+                testCase.verifyTrue(startsWith(info.arima_model_type, 'ARIMAX'), ...
+                    'If model_type is ARIMAX, arima_model_type must start with ARIMAX');
+                % fallback_reason should be empty when ARIMAX succeeded
+                testCase.verifyTrue(isempty(info.fallback_reason), ...
+                    'fallback_reason must be empty when ARIMAX succeeded');
+            else
+                % ARIMA fallback: arima_model_type should contain "Fallback"
+                testCase.verifyTrue(contains(info.arima_model_type, 'Fallback'), ...
+                    'arima_model_type must indicate ARIMA fallback');
+                % fallback_reason must be non-empty to explain why ARIMAX failed
+                testCase.verifyTrue(~isempty(info.fallback_reason), ...
+                    'fallback_reason must not be empty when using ARIMA fallback');
+            end
+        end
+        
+        function testOneStepForecast(testCase)
+            % Test J: Verify the saved model can produce a real, finite one-step forecast
+            modelPath = fullfile(pwd, 'models', 'arima.mat');
+            testCase.verifyTrue(exist(modelPath, 'file') == 2, 'arima.mat must exist');
+            
+            modelData = load(modelPath);
+            mdl = modelData.arimaModel;
+            testCase.verifyClass(mdl, 'arima', 'Loaded model must be arima class');
+            
+            % Load real price data as presample
+            loader = PriceDataLoader('BTCUSDT', '1d');
+            marketData = loader.loadHistoricalCSV('data/market/btc.csv');
+            Y0 = marketData.Close(1:floor(0.8*height(marketData)));
+            
+            % Check if this is an ARIMAX model (has Beta coefficients)
+            isArimax = ~isempty(mdl.Beta);
+            
+            % One-step forecast (ARIMAX requires XF for exogenous future values)
+            if isArimax
+                [yForecast, ~] = forecast(mdl, 1, 'Y0', Y0, 'XF', 0);
+            else
+                [yForecast, ~] = forecast(mdl, 1, 'Y0', Y0);
+            end
+            testCase.verifyTrue(isfinite(yForecast), 'One-step forecast must be finite');
+            testCase.verifyTrue(yForecast > 0, 'BTC price forecast must be positive');
+        end
+        
+        function testReproducibilityFromArtifact(testCase)
+            % Test K: Verify saved artifact can be loaded and used consistently
+            modelPath = fullfile(pwd, 'models', 'arima.mat');
+            testCase.verifyTrue(exist(modelPath, 'file') == 2, 'arima.mat must exist');
+            
+            % Load twice and verify identical
+            data1 = load(modelPath);
+            data2 = load(modelPath);
+            testCase.verifyTrue(isa(data1.arimaModel, 'arima'), 'Load 1: must be arima');
+            testCase.verifyTrue(isa(data2.arimaModel, 'arima'), 'Load 2: must be arima');
+            
+            % Both should produce the same forecast from same presample
+            Y0 = (1:200)';
+            isArimax = ~isempty(data1.arimaModel.Beta);
+            if isArimax
+                XF = zeros(3, 1);  % neutral exogenous for 3 steps
+                [f1, ~] = forecast(data1.arimaModel, 3, 'Y0', Y0, 'XF', XF);
+                [f2, ~] = forecast(data2.arimaModel, 3, 'Y0', Y0, 'XF', XF);
+            else
+                [f1, ~] = forecast(data1.arimaModel, 3, 'Y0', Y0);
+                [f2, ~] = forecast(data2.arimaModel, 3, 'Y0', Y0);
+            end
+            testCase.verifyEqual(f1, f2, 'AbsTol', 1e-10, 'Forecasts from same artifact must be identical');
+        end
+        
+        function testRawDataChronologicalUnique(testCase)
+            % Test L: Verify raw data files are sorted, unique, and chronological
+            marketData = readtable(fullfile(pwd, 'data', 'market', 'btc.csv'));
+            sentimentData = readtable(fullfile(pwd, 'data', 'sentiment', 'historical_daily_sentiment.csv'));
+            
+            marketDates = dateshift(datetime(marketData.Date), 'start', 'day');
+            sentDates = dateshift(datetime(sentimentData.Date), 'start', 'day');
+            
+            % Market dates: sorted ascending
+            testCase.verifyTrue(all(diff(marketDates) > 0), 'Market dates must be strictly ascending');
+            % Market dates: unique
+            testCase.verifyEqual(length(marketDates), length(unique(marketDates)), 'Market dates must be unique');
+            
+            % Sentiment dates: sorted ascending
+            testCase.verifyTrue(all(diff(sentDates) > 0), 'Sentiment dates must be strictly ascending');
+            % Sentiment dates: unique
+            testCase.verifyEqual(length(sentDates), length(unique(sentDates)), 'Sentiment dates must be unique');
         end
     end
 end
