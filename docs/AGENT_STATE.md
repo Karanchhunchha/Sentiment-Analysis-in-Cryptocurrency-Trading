@@ -15,3 +15,4 @@
 - T02: RNG / Reproducibility LOCKED: PASS (commit `b7efd52`; top-level `rng(seed)` control; reproducible pipeline training; Monte Carlo caller-controlled; full regression suite 100% pass)
 - T03: SQL Parameterization LOCKED: PASS (commit `704ee5e`; PortfolioSimulator.logToDatabase parameterized; test_SQLSecurity 1/1 pass; full regression suite 100% pass)
 - T04: Portfolio Optimizer LOCKED: PASS (commit `16d5163`; deterministic fmincon optimization; RNG controlled; constraints verified; full regression suite 100% pass)
+- T05: Readiness / Benchmark Quality Gate LOCKED: PASS (commit `2740369`; decouples infrastructure from model quality; benchmark comparison automated; full regression suite 100% pass)
