@@ -73,10 +73,24 @@ try
     if ~isempty(histData)
         fprintf('Historical Dataset Loaded: %d rows.\n', height(histData));
         
-        % Walk-Forward Validation
-        wf = WalkForwardValidator(histData, 500, 100);
-        wf.runValidation();
-        report.addMetric('Validation', 'Walk_Forward_Completed', true, true);
+        % Walk-Forward Validation (genuine per-fold retraining)
+        try
+            wf = WalkForwardValidator(histData, 500, 100);
+            wfMetrics = wf.runValidation();
+            % Only claim Walk_Forward_Completed when the validator actually
+            % completed, produced valid numeric metrics, and never adopted
+            % a frozen production artifact as a fold model.
+            wfPassed = wf.Completed ...
+                && isfinite(wfMetrics.RMSE) && isfinite(wfMetrics.MAE) ...
+                && isfinite(wfMetrics.DirectionalAccuracy) ...
+                && wfMetrics.DAccScored == wfMetrics.NumPredictions ...
+                && wfMetrics.NumPredictions == wfMetrics.NumFolds * wf.StepSize ...
+                && wfMetrics.ProductionArtifactsUsed == false;
+            report.addMetric('Validation', 'Walk_Forward_Completed', true, wfPassed);
+        catch MEwf
+            fprintf('[WARN] Walk-forward validation crashed: %s\n', MEwf.message);
+            report.addMetric('Validation', 'Walk_Forward_Completed', false, false);
+        end
         
         % Model Comparison
         mc = ModelComparer(histData);

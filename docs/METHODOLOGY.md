@@ -5,9 +5,18 @@
 This document outlines the architectural design and algorithms used in SentinelCrypto to forecast cryptocurrency price movements and execute trading strategies.
 
 ## 1. Data Processing and Sequence Building
-Instead of standard static splits (e.g., 90% train, 5% validation, 5% test) which risk look-ahead bias in time-series, SentinelCrypto implements a **rolling-origin walk-forward cross-validation** architecture via `MarketSequenceBuilder.m`. 
-- Data is partitioned into overlapping windows, ensuring the model only ever learns from historical data relative to the prediction point.
-- Z-score normalization is applied on a per-window basis to prevent data leakage from future price extremes.
+SentinelCrypto uses a chronological data pipeline via `PipelineDataProcessor.m`:
+- Load → synchronize (daily `previous` fill for the prepared dataset) → `IndicatorEngine.calculateAll` → `Target(t) = Close(t+1)` alignment → split → scale → `PipelineDataProcessor.formatForCNNLSTM(X, 30)` (a window ending at row `t` is paired with the target aligned to `t`).
+
+SentinelCrypto evaluates that pipeline via **walk-forward validation** implemented in `WalkForwardValidator.m`:
+- Declared structure: `TrainWindowSize = 500`, `StepSize = 100`, chronological `buildPreparedData()` → `computeFoldBoundaries(numRows, 500, 100)` → 44 folds over 4 943 prepared rows, where each fold's test window immediately follows its own `trainEnd` and no training sequence may cross the fold's training boundary.
+- Scaling is per-fold: the feature scaler and the target scaler for a fold are fitted on that fold's training rows only, then applied to the fold's evaluation rows.
+- The sequence contract is the P0-04 canonical `PipelineDataProcessor.formatForCNNLSTM(X_scaled, 30)`.
+- Directional accuracy for a fold uses the corrected formulation `sign(pred - [Y(trainEnd); y_test(1:end-1)])` vs `sign(y_test - [Y(trainEnd); y_test(1:end-1)])`, exposed as `WalkForwardValidator.computeDirectionalAccuracy(prev, pred, actual)`, and matches the `ModelComparer.m` reference.
+
+**Retention guarantee:** every fold rebuilds its own model inside the fold loop from rows `≤ trainEnd`. No artifact under `models/` is ever loaded as the fold model, the production scaler is never applied, and the per-fold record explicitly declares `ModelSource = 'retrained-inside-fold'` with a `ProductionArtifactUsed = false` invariant on the validator.
+
+**Data-coverage limitation (honest, not an implementation choice).** The committed sentiment dataset `historical_daily_sentiment.csv` covers only 231 days (2021-02-05 → 2023-03-05). The fold's ARIMAX(1,1,1) sub-model is retrained inside the fold only when `MinArimaxObs = 30` genuine (non-forward-filled) sentiment observations are present strictly inside that fold's training window; otherwise the fold is scored on its retrained CNN-LSTM component and the record declares `ARIMAXStatus = 'infeasible'` with the genuine reason. This is fully reported (per-fold table and aggregate "ensemble-subset" metrics) and is a limitation of the dataset, not of the walk-forward protocol.
 
 ## 2. Multi-Modal Sentiment Fusion
 A key requirement of this challenge is comparing multiple sentiment strategies. `SentimentFusion.m` achieves this by treating sentiment analysis as an ensemble problem:

@@ -48,7 +48,7 @@
 | **Backtesting** | ✅ Met | Out-Of-Sample Backtester and Monte Carlo validation |
 | **Interactive App** | ✅ Met | App UI dashboard (`src/dashboard/App.m`) |
 | **Testing Framework** | ✅ Met | Unit, integration, and latency tests (`run_all_tests.m`) |
-| **Validation** | ✅ Met | Walk-Forward cross validation and failover models |
+| **Validation** | ✅ Met | Genuine per-fold walk-forward validation (`WalkForwardValidator(..., 500, 100)`, per-fold retrained `HybridForecastNet`, per-fold min/max scaling, P0-04 `formatForCNNLSTM` contract, corrected DA; ARIMAX sub-model retrained inside the fold only where ≥ 30 genuine sentiment observations are present — an honest data-coverage limitation of the 231-day sentiment dataset) |
 | **Sentiment Analysis** | ✅ Met | Twitter VADER, SVM, and Naive Bayes (`SentimentEngine.m`) |
 | **Portfolio Optimizer** | ✅ Met | Multi-asset MPT optimizer (BTC/ETH/BNB/Cash) |
 
