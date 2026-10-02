@@ -14,3 +14,4 @@
 - T01: Synthetic Data/Fallback LOCKED: PASS (commit `9a35453`; explicit btc.csv fallback; loud failure on total failure; no silent synthetic; 3/3 T01 tests pass)
 - T02: RNG / Reproducibility LOCKED: PASS (commit `b7efd52`; top-level `rng(seed)` control; reproducible pipeline training; Monte Carlo caller-controlled; full regression suite 100% pass)
 - T03: SQL Parameterization LOCKED: PASS (commit `704ee5e`; PortfolioSimulator.logToDatabase parameterized; test_SQLSecurity 1/1 pass; full regression suite 100% pass)
+- T04: Portfolio Optimizer LOCKED: PASS (commit `16d5163`; deterministic fmincon optimization; RNG controlled; constraints verified; full regression suite 100% pass)
