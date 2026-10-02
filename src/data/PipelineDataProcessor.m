@@ -110,27 +110,114 @@ classdef PipelineDataProcessor
             validIdx = sequenceLength:size(X_scaled, 1);
         end
         
-        function preds = predictEnsemble(models, X_scaled, targetScaler)
-            % Real Ensemble Prediction (CNN-LSTM + ARIMA)
+        function preds = predictEnsemble(models, X_scaled, targetScaler, scaler, featureList)
+            % Real Ensemble Prediction (CNN-LSTM + ARIMAX)
+            % Both sub-model outputs are brought to the SAME raw price space
+            % before applying ensemble weights.
+            %
+            % Failure policy: the ARIMAX sub-model is a required component. A
+            % missing model, a stub placeholder, or a failing forecast is a
+            % genuine defect and is surfaced to the caller. It is never silently
+            % replaced by CNN output, which would quietly inflate the CNN
+            % weight and corrupt the ensemble blend.
+            
+            % 0. Preconditions (fail fast, before any expensive inference)
+            if ~isfield(models, 'CNN') || isempty(models.CNN)
+                error('predictEnsemble:CNNMISSING', ...
+                    'predictEnsemble: CNN-LSTM model missing from the model bundle.');
+            end
+            if ~isfield(models, 'ARIMA') || isempty(models.ARIMA)
+                error('predictEnsemble:ARIMAMissing', ...
+                    'predictEnsemble: ARIMAX model missing from the model bundle.');
+            end
+            if isstruct(models.ARIMA)
+                error('predictEnsemble:ARIMAMissing', ...
+                    'predictEnsemble: ARIMAX model is a stub placeholder (struct), not a fitted ARIMAX model.');
+            end
+            if nargin < 5 || isempty(featureList)
+                error('predictEnsemble:MissingFeatureList', ...
+                    'predictEnsemble: Feature list required to align features for ARIMAX.');
+            end
+            if nargin < 4 || isempty(scaler) || ~isstruct(scaler) || ...
+                    ~isfield(scaler, 'Min') || ~isfield(scaler, 'Max')
+                error('predictEnsemble:MissingScaler', ...
+                    'predictEnsemble: scaler with Min/Max is required to un-scale features for ARIMAX.');
+            end
+            closeIdx = find(strcmp(featureList, 'Close'), 1);
+            sentimentIdx = find(strcmp(featureList, 'Daily_Sentiment'), 1);
+            if isempty(closeIdx) || isempty(sentimentIdx)
+                error('predictEnsemble:MissingFeatureColumn', ...
+                    'predictEnsemble: Close or Daily_Sentiment not found in featureList.');
+            end
+            if numel(scaler.Min) ~= size(X_scaled, 2) || numel(scaler.Max) ~= size(X_scaled, 2)
+                error('predictEnsemble:ScalerShapeMismatch', ...
+                    'predictEnsemble: scaler.Min/Max width (%d) does not match feature count (%d).', ...
+                    numel(scaler.Min), size(X_scaled, 2));
+            end
             
             % 1. CNN-LSTM Prediction
-            [X_seq, validIdx] = PipelineDataProcessor.formatForCNNLSTM(X_scaled);
+            [X_seq, ~] = PipelineDataProcessor.formatForCNNLSTM(X_scaled);
             cnnPredsScaled = double(predict(models.CNN, X_seq));
             cnnPreds = PipelineDataProcessor.unscaleTarget(cnnPredsScaled, targetScaler);
             
-            % 2. ARIMA Prediction (if not a Stub)
-            if ~strcmp(class(models.ARIMA), 'struct')
-                % Assuming X_scaled contains the features. ARIMA might need different input.                
-                % ARIMA in this pipeline is typically trained on YTrain_raw.
-                % This ensemble is simplified.
-                arimaPreds = forecast(models.ARIMA, length(cnnPreds), 'Y0', ...
-                    PipelineDataProcessor.unscaleTarget(X_scaled(1:2, 4), targetScaler)); % Using Close as Y0
-            else
-                arimaPreds = cnnPreds; % Fallback
+            % 2. ARIMAX Prediction
+            % ARIMAX model was trained on raw (unscaled) Close as response
+            % with Daily_Sentiment as exogenous input.
+            % Therefore forecast() requires raw-space Y0 and XF.
+            
+            % Un-scale features from X_scaled back to raw space
+            % scaler.Min and scaler.Max are per-feature vectors
+            X_raw = X_scaled .* (scaler.Max - scaler.Min) + scaler.Min;
+            
+            % For ARIMAX, produce one-step-ahead forecasts matching CNN-LSTM output count.
+            % Rolling forecast: for each position t, forecast t+1 using Y0 from t,t-1 and XF at t+1.
+            % This avoids the divergence that occurs when forecasting thousands of steps from a single Y0.
+            
+            arimaPreds = zeros(size(cnnPreds));
+            numSamples = length(cnnPreds);
+            
+            % For each sample, compute 1-step-ahead ARIMAX forecast.
+            % Forecasting errors are deliberately left unguarded so that they
+            % propagate to the caller instead of being masked.
+            for i = 1:numSamples
+                % Y0: last 2 observed Close values before this position
+                y0Idx = size(X_scaled,1) - numSamples + i;
+                y0Idx = max(min(y0Idx, size(X_raw, 1)), 2);
+                y0Raw = X_raw(y0Idx-1:y0Idx, closeIdx);
+                
+                % XF at forecast time (use forward-filled sentiment)
+                xfVal = X_raw(min(y0Idx, size(X_raw,1)), sentimentIdx);
+                
+                % 1-step forecast in raw price space
+                arimaPreds(i) = forecast(models.ARIMA, 1, 'Y0', y0Raw, 'XF', xfVal);
             end
             
-            % 3. Weighted Combination
-            w = models.EnsembleWeights;
+            % Ensure column vector
+            arimaPreds = arimaPreds(:);
+            
+            % 3. Integrity gate: both sub-models must be in the same raw price
+            % space and produce usable numbers. Non-finite output means the
+            % blend is meaningless, so fail loudly instead of blending garbage.
+            if any(~isfinite(cnnPreds))
+                error('predictEnsemble:NonFiniteCNNOutput', ...
+                    'predictEnsemble: CNN-LSTM produced %d non-finite predictions.', sum(~isfinite(cnnPreds)));
+            end
+            if any(~isfinite(arimaPreds))
+                error('predictEnsemble:NonFiniteARIMAXOutput', ...
+                    'predictEnsemble: ARIMAX produced %d non-finite forecasts.', sum(~isfinite(arimaPreds)));
+            end
+            
+            % 4. Weighted Combination (both outputs in same raw price space)
+            if isfield(models, 'EnsembleWeights') && ~isempty(models.EnsembleWeights)
+                w = models.EnsembleWeights;
+                if length(w) < 2
+                    error('predictEnsemble:InvalidEnsembleWeights', ...
+                        'predictEnsemble: EnsembleWeights must have at least 2 elements.');
+                end
+            else
+                w = [0.6, 0.4]; % Default weights
+            end
+            
             padLen = size(X_scaled, 1) - length(cnnPreds);
             preds = [nan(padLen, 1); (w(1) * cnnPreds + w(2) * arimaPreds)];
         end

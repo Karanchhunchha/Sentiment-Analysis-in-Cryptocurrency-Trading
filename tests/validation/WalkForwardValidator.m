@@ -76,7 +76,7 @@ classdef WalkForwardValidator < handle
                 X_test_scaled = PipelineDataProcessor.scaleData(X_test_raw, scaler);
                 
                 % 4. Predict using Ensemble (CNN-LSTM as primary)
-                preds = PipelineDataProcessor.predictEnsemble(models, X_test_scaled, targetScaler);
+                preds = PipelineDataProcessor.predictEnsemble(models, X_test_scaled, targetScaler, scaler, featureList);
                 
                 % Trim the lookback predictions so they match y_test
                 actualTestSize = testEnd - trainEnd;

@@ -61,7 +61,7 @@ classdef Backtester < handle
                 features_scaled = X_scaled(i-seqLen+1:i, :);
                 
                 % Prediction
-                preds = PipelineDataProcessor.predictEnsemble(models, features_scaled, targetScaler);
+                preds = PipelineDataProcessor.predictEnsemble(models, features_scaled, targetScaler, scaler, featureList);
                 predPrice = preds(end); % Extract the valid prediction for time i
                 
                 obj.Predictions(i) = predPrice;
