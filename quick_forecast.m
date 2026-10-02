@@ -16,6 +16,10 @@ fprintf('[1/3] Fetching live 15m candles from Binance...\n');
 loader = PriceDataLoader('BTCUSDT', '15m');
 liveData = loader.fetchRecentHistory(150);
 
+if isempty(liveData)
+    error('Failed to load market data from API and CSV fallback.');
+end
+
 close_prices = liveData.Close;
 high_prices  = liveData.High;
 low_prices   = liveData.Low;
