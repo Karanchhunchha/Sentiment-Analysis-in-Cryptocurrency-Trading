@@ -30,6 +30,7 @@ Executing the `verify_submission.m` script runs the complete unit test suite and
 - **Unit Tests:** Passed (Risk Engine, Data Loaders, Feature Fusion)
 - **Dependency Audit:** Passed (All internal calls resolved)
 - **Mathematical Validation:** Passed (SL/TP bounds conform to dynamic volatility)
+- **Sentiment Analysis Training**: Training optimized on news text corpus (CryptoLin dataset). Note: Performance on Twitter/social media datasets may differ.
 
 ## Regenerating Outputs
 To reproduce the evaluation metrics, run:
