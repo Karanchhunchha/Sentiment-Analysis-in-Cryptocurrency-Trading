@@ -302,34 +302,14 @@ properties
             results.EquityCurve = equityCurve;
             results.TradeLog = allTrades;
 
-            % Sharpe / Sortino on full equity curve (daily, 365-day annualization)
-            if numel(equityCurve) > 1
-                eqDiff = diff(equityCurve);
-                eqLag  = equityCurve(1:end-1);
-                validMask = (eqLag > 0) & (eqDiff ~= 0);
-                returns = eqDiff(validMask) ./ eqLag(validMask);
-                if numel(returns) > 1
-                    dailyRf = 0.02 / 365;
-                    excess = returns - dailyRf;
-                    if std(excess) > 0
-                        results.SharpeRatio = sqrt(365) * mean(excess) / std(excess);
-                    else
-                        results.SharpeRatio = 0;
-                    end
-                    downside = excess(excess < 0);
-                    if numel(downside) > 1 && std(downside) > 0
-                        results.SortinoRatio = sqrt(365) * mean(excess) / std(downside);
-                    else
-                        results.SortinoRatio = 0;
-                    end
-                else
-                    results.SharpeRatio = 0;
-                    results.SortinoRatio = 0;
-                end
-            else
-                results.SharpeRatio = 0;
-                results.SortinoRatio = 0;
-            end
+            % Portfolio risk metrics
+            riskResults = RiskMetricsCalculator.calculateAll(equityCurve);
+            
+            results.SharpeRatio = riskResults.SharpeRatio;
+            results.SortinoRatio = riskResults.SortinoRatio;
+            results.VaR_95 = riskResults.VaR_95;
+            results.CVaR_95 = riskResults.CVaR_95;
+            results.MaxDrawdown = riskResults.MaxDrawdown;
 
             results.DateRange = sprintf('%04d-%04d', year(fullData.Date(1)), year(fullData.Date(end)));
             obj.printReport(results);
@@ -346,6 +326,8 @@ properties
             fprintf('Max Drawdown:    %.2f%%\n', results.MaxDrawdown);
             fprintf('Sharpe Ratio:    %.3f\n', results.SharpeRatio);
             fprintf('Sortino Ratio:   %.3f\n', results.SortinoRatio);
+            fprintf('VaR (95%%):       %.3f%%\n', results.VaR_95 * 100);
+            fprintf('CVaR (95%%):      %.3f%%\n', results.CVaR_95 * 100);
             fprintf('======================================================\n');
         end
     end
