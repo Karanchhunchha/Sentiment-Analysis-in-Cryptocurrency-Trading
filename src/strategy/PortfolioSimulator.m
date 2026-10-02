@@ -115,11 +115,8 @@ classdef PortfolioSimulator
             conn = DataIngestion.getDbConnection();
             if ~isempty(conn) && isopen(conn)
                 try
-                    query = sprintf(...
-                        "INSERT INTO portfolio_performance (strategy_name, model_id, sharpe_ratio, sortino_ratio, max_drawdown, cagr, btc_weight, cash_weight) " + ...
-                        "VALUES ('%s', '%s', %f, %f, %f, %f, %f, %f);", ...
-                        strategyName, modelId, metrics.SharpeRatio, metrics.SortinoRatio, metrics.MaxDrawdown, metrics.CAGR, metrics.FinalBTCWeight, metrics.FinalCashWeight);
-                    execute(conn, query);
+                    query = "INSERT INTO portfolio_performance (strategy_name, model_id, sharpe_ratio, sortino_ratio, max_drawdown, cagr, btc_weight, cash_weight) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+                    execute(conn, query, {strategyName, modelId, metrics.SharpeRatio, metrics.SortinoRatio, metrics.MaxDrawdown, metrics.CAGR, metrics.FinalBTCWeight, metrics.FinalCashWeight});
                 catch e
                     Logger.error('Failed to log portfolio metrics: %s', e.message);
                 end
