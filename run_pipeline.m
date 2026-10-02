@@ -57,7 +57,7 @@ targetRR = 3.0;
 riskEngine = RiskEngine(1.5, 2.5, targetRR);
 
 %% 2. Define Live Event Callback
-liveUpdateCallback = @(newCandle, fullData) processLiveTick(newCandle, fullData, fusionEngine, macroEngine, models, dashboard, predictionVisualizer, forecastEngine, validator, riskEngine);
+liveUpdateCallback = @(newCandle, fullData) processLiveTick(newCandle, fullData, fusionEngine, macroEngine, models, featureList, dashboard, predictionVisualizer, forecastEngine, validator, riskEngine);
 
 %% 3. Start Live Data Stream
 disp('-> [4/4] Starting Binance WebSocket/REST Polling...');
@@ -132,7 +132,7 @@ disp('Live system running. Dashboard will update automatically.');
 disp('====================================================');
 
 %% Callback Function (Executes in < 100ms)
-function processLiveTick(newCandle, fullData, fusionEngine, macroEngine, models, dashboard, predictionVisualizer, forecastEngine, validator, riskEngine)
+function processLiveTick(newCandle, fullData, fusionEngine, macroEngine, models, featureList, dashboard, predictionVisualizer, forecastEngine, validator, riskEngine)
     tStart = tic;
     
     % --- Persistent State for Rolling Accuracy ---
@@ -169,22 +169,22 @@ function processLiveTick(newCandle, fullData, fusionEngine, macroEngine, models,
             error('Models are mocked or not loaded.');
         end
         
-        % Check if featureList is available from loaded metadata
-        % It is loaded as a global or from modelManager, but in run_pipeline it's passed as 'models' ?
-        % Wait, featureList is available if we load it. Let's just use the default from train_pipeline.m:
-        defaultFeatureList = {'Open', 'High', 'Low', 'Close', 'Volume', 'SMA_20', 'SMA_50', ...
-            'EMA_20', 'EMA_50', 'MACD_Line', 'MACD_Signal', 'MACD_Hist', 'RSI_14', ...
-            'BB_Upper', 'BB_Lower', 'VWAP', 'Volatility_20', 'ATR_14', ...
-            'Daily_Sentiment', 'Tweet_Volume'};
-            
-        % Extract features for last 30 ticks for temporal context
+        % Use canonical feature list from loaded metadata or default from training
+        featureListLive = featureList;
+        if isempty(featureListLive)
+            featureListLive = {'Open', 'High', 'Low', 'Close', 'Volume', 'SMA_20', 'SMA_50', ...
+                'EMA_20', 'EMA_50', 'MACD_Line', 'MACD_Signal', 'MACD_Hist', 'RSI_14', ...
+                'BB_Upper', 'BB_Lower', 'VWAP', 'Volatility_20', 'ATR_14', ...
+                'Daily_Sentiment', 'Tweet_Volume'};
+        end
+        
         seqLen = 30;
         if size(fullData_features, 1) < seqLen
             error('Insufficient historical data for sequence generation');
         end
-        featDataRaw = table2array(fullData_features(end-seqLen+1:end, defaultFeatureList));
+        featDataRaw = table2array(fullData_features(end-seqLen+1:end, featureListLive));
         
-        % Load scaler from disk directly since it might not be in arguments
+        % Load scaler from disk directly if needed
         sc = load(fullfile(pwd, 'models', 'scaler.mat'));
         ts = load(fullfile(pwd, 'models', 'targetScaler.mat'));
         scaler = sc.scaler;
@@ -192,32 +192,23 @@ function processLiveTick(newCandle, fullData, fusionEngine, macroEngine, models,
         
         featScaled = PipelineDataProcessor.scaleData(featDataRaw, scaler);
         
-        % Format for CNN/LSTM (Cell array of Features x 30)
-        cnnLstmInput = {featScaled'};
+        % B4: Use corrected B5 interface; canonical P0-04 sequence path inside
+        ensemblePredRaw = PipelineDataProcessor.predictEnsemble( ...
+            models, featScaled, targetScaler, scaler, featureListLive);
         
-        cnnPredScaled = predict(models.CNN, cnnLstmInput);
-        cnnPred = cnnPredScaled * (targetScaler.Max - targetScaler.Min) + targetScaler.Min;
-        
-        lstmPredScaled = predict(models.LSTM, cnnLstmInput);
-        lstmPred = lstmPredScaled * (targetScaler.Max - targetScaler.Min) + targetScaler.Min;
-        
-        % ARIMA prediction
-        y0 = fullData.Close(end-1);
-        
-        if ~strcmp(class(models.ARIMA), 'struct')
-            [arimaPred, ~] = forecast(models.ARIMA, 1, 'Y0', y0);
-        else
-            arimaPred = cnnPred; % Fallback if ARIMA fails to load
+        % predictEnsemble returns one output per input row, NaN-padded for the
+        % rows that lack a full sequence. Live inference needs the prediction
+        % for the most recent row only, so reduce the column to a scalar.
+        ensemblePred = ensemblePredRaw(find(isfinite(ensemblePredRaw), 1, 'last'));
+        if isempty(ensemblePred)
+            error('run_pipeline:NoValidPrediction', ...
+                'Ensemble produced no finite prediction for the live window.');
         end
-        
-        % Ensemble
-        ensemblePred = (cnnPred * models.EnsembleWeights(1)) + ...
-                       (lstmPred * models.EnsembleWeights(2)) + ...
-                       (arimaPred * models.EnsembleWeights(3));
+        ensemblePred = ensemblePred(1);
     catch ME
-        % If models are missing/fail, gracefully fallback to NaN prediction
+        % B4: Surface inference failure (do not silently mask to NaN/WAIT here)
         Logger.error('Inference failed: %s', ME.message);
-        ensemblePred = NaN;
+        rethrow(ME);
     end
     
     
