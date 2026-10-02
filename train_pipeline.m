@@ -9,8 +9,10 @@
 % MathWorks Challenge #239 - SentinelCrypto
 % train_pipeline.m (Training Mode Orchestrator)
 
-clc; clear; close all;
-rng(42); % Fixed random seed for strict reproduction of documentation metrics
+function train_pipeline(seed)
+if nargin < 1, seed = 42; end
+clc; close all;
+rng(seed); 
 
 %% Configure Paths
 addpath(genpath('src'));
@@ -242,7 +244,7 @@ Logger.success('[P0-03] Model artifact verified: class=%s, type=%s', class(arima
 % ---- Random Forest Training ----
 disp('  => Training Random Forest Model...');
 try
-    rfModel = TreeBagger(50, XTrain, YTrain, 'Method', 'regression');
+    rfModel = TreeBagger(50, XTrain, YTrain, 'Method', 'regression', 'OOBPredictorImportance', 'on', 'Options', statset('UseParallel', true, 'UseSubstreams', true, 'Streams', RandStream('mlfg6331_64', 'Seed', seed)));
     Logger.success('Random Forest Training Complete.');
 catch ME
     Logger.warning('Random Forest failed: %s. Using stub model.', ME.message);
@@ -252,7 +254,7 @@ end
 % ---- SVM Training ----
 disp('  => Training SVM Model...');
 try
-    svmModel = fitrsvm(XTrain, YTrain, 'Standardize', true);
+    svmModel = fitrsvm(XTrain, YTrain, 'Standardize', true, 'KernelFunction', 'gaussian', 'KernelScale', 'auto', 'RNGSeed', seed);
     Logger.success('SVM Training Complete.');
 catch ME
     Logger.warning('SVM failed: %s. Using stub model.', ME.message);
@@ -367,7 +369,7 @@ ensembleWeights = [0.6, 0.4]; % CNN-LSTM, ARIMA (or use the best models)
 %% 6. Model Saving
 disp('-> [6/6] Saving Artifacts to disk...');
 mgr = ModelManager();
-mgr.saveArtifacts(cnnLstmNet, [], arimaModel, ensembleWeights, scaler, targetScaler, featureList, arimaModelType, arimaFallbackReason);
+mgr.saveArtifacts(cnnLstmNet, cnnLstmNet, arimaModel, ensembleWeights, scaler, targetScaler, featureList);
 
 disp('====================================================');
 disp('   ✅ TRAINING PIPELINE COMPLETE ✅    ');

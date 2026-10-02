@@ -3,6 +3,7 @@
 % Read-only verification (no retraining or model modification).
 
 clc; clear; close all;
+rng(42); % Fixed for reproducibility
 
 addpath(genpath('src'));
 addpath(genpath('tests'));
@@ -40,7 +41,7 @@ try
     
     % Monte Carlo to get Probability of Ruin
     mcs = MonteCarloSimulator(btResults.WinRate / 100, 0.05, -0.02, 10000);
-    mcResults = mcs.runSimulations(10000, 252);
+    mcResults = mcs.runSimulations(10000, 252, 42);
 
     actual_win_rate = btResults.WinRate;
     actual_total_return = btResults.ReturnPct;
