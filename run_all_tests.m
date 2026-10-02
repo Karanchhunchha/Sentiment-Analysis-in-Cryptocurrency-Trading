@@ -95,7 +95,28 @@ try
         % Model Comparison
         mc = ModelComparer(histData);
         mc.runComparison(0.8);
+        
+        % Benchmark Model vs Naive
+        res = mc.Results;
+        ensemble = res(strcmp(res.Model, 'Ensemble (CNN-LSTM)'), :);
+        naive = res(strcmp(res.Model, 'Naive (Random Walk)'), :);
+        
+        % Extract values
+        eRMSE = ensemble.RMSE;
+        nRMSE = naive.RMSE;
+        
+        % Quality Gate: PASS if Ensemble RMSE < Naive RMSE
+        if eRMSE < nRMSE
+            report.setModelQualityGate('PASS');
+        else
+            report.setModelQualityGate('FAIL - REQUIRES_MODEL_IMPROVEMENT');
+        end
+        
         report.addMetric('Validation', 'Model_Comparison_Completed', true, true);
+        report.addMetric('Benchmark', 'Ensemble_RMSE', eRMSE, eRMSE < nRMSE);
+        report.addMetric('Benchmark', 'Naive_Baseline_RMSE', nRMSE, true);
+        
+        report.setInfrastructureReady(true);
         
         % Backtesting
         % Backtester now loads the real CNN-LSTM + ARIMA ensemble internally!
