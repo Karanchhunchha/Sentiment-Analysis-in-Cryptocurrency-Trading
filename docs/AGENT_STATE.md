@@ -13,3 +13,4 @@
 - Monte Carlo LOCKED: PASS (commit `2c7ee07`; empirical bootstrap from trade P&L; 100% regression pass)
 - T01: Synthetic Data/Fallback LOCKED: PASS (commit `9a35453`; explicit btc.csv fallback; loud failure on total failure; no silent synthetic; 3/3 T01 tests pass)
 - T02: RNG / Reproducibility LOCKED: PASS (commit `b7efd52`; top-level `rng(seed)` control; reproducible pipeline training; Monte Carlo caller-controlled; full regression suite 100% pass)
+- T03: SQL Parameterization LOCKED: PASS (commit `704ee5e`; PortfolioSimulator.logToDatabase parameterized; test_SQLSecurity 1/1 pass; full regression suite 100% pass)
