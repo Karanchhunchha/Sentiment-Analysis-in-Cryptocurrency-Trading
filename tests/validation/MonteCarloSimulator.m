@@ -88,6 +88,68 @@ classdef MonteCarloSimulator < handle
             obj.printReport(results, numSimulations);
         end
         
+        function results = runEmpirical(obj, tradeLog, numSimulations, rngSeed)
+            if nargin < 3 || isempty(numSimulations); numSimulations = 10000; end
+            if nargin < 4; rngSeed = 42; end
+            
+            % Validate tradeLog
+            if ~isstruct(tradeLog) || ~isfield(tradeLog, 'NetPnL') || ~isfield(tradeLog, 'EquityBefore') || isempty(tradeLog.NetPnL)
+                error('TradeLog must be a struct with NetPnL and EquityBefore and cannot be empty.');
+            end
+            
+            % Seed
+            rng(rngSeed);
+            
+            % Derive returns
+            returns = tradeLog.NetPnL ./ tradeLog.EquityBefore;
+            numTrades = numel(returns);
+            
+            % Bootstrap simulations
+            sampledReturns = randsample(returns, numTrades * numSimulations, true);
+            sampledReturnsMatrix = reshape(sampledReturns, [numTrades, numSimulations]);
+            
+            % Calculate cumulative equity curves
+            growthMatrix = 1 + sampledReturnsMatrix;
+            equityCurves = obj.InitialCapital * cumprod(growthMatrix, 1);
+            
+            finalEquities = zeros(numSimulations, 1);
+            maxDrawdowns = zeros(numSimulations, 1);
+            ruinCount = 0;
+            ruinThreshold = obj.InitialCapital * 0.5;
+            
+            for i = 1:numSimulations
+                curve = equityCurves(:, i);
+                finalEquities(i) = curve(end);
+                
+                % Drawdown
+                peaks = cummax(curve);
+                drawdowns = (peaks - curve) ./ peaks;
+                maxDrawdowns(i) = max(drawdowns);
+                
+                % Ruin check
+                if any(curve <= ruinThreshold)
+                    ruinCount = ruinCount + 1;
+                end
+            end
+            
+            % Results
+            sortedEquities = sort(finalEquities);
+            p5 = sortedEquities(round(numSimulations * 0.05));
+            p95 = sortedEquities(round(numSimulations * 0.95));
+            medianEquity = median(sortedEquities);
+            
+            results = struct();
+            results.MedianFinalEquity = medianEquity;
+            results.Percentile_5th = p5;
+            results.Percentile_95th = p95;
+            results.ProbabilityOfRuin = (ruinCount / numSimulations) * 100;
+            results.ExpectedMaxDrawdown = median(maxDrawdowns) * 100;
+            results.WorstCaseDrawdown = max(maxDrawdowns) * 100;
+            results.ExpectedAnnualReturn = ((medianEquity - obj.InitialCapital) / obj.InitialCapital) * 100;
+            
+            obj.printReport(results, numSimulations);
+        end
+        
         function printReport(~, results, iterations)
             fprintf('\n======================================================\n');
             fprintf('        MONTE CARLO ROBUSTNESS REPORT (%d runs)       \n', iterations);
