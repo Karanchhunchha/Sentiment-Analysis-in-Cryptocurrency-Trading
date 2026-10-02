@@ -11,3 +11,4 @@
 - B08 LOCKED: PASS (commit `bbcc6ea`; forensic audit 0 failures; 17/17 B08 tests pass; full regression suite 100% pass)
 - Risk Metrics LOCKED: PASS (commit `717d1b2`; annualization=365; VaR/CVaR=empirical 95% strategy-equity; Monte Carlo=trade-P&L bootstrap; test_RiskMetrics 2/2 pass; full regression suite 100% pass)
 - Monte Carlo LOCKED: PASS (commit `2c7ee07`; empirical bootstrap from trade P&L; 100% regression pass)
+- T01: Synthetic Data/Fallback LOCKED: PASS (commit `9a35453`; explicit btc.csv fallback; loud failure on total failure; no silent synthetic; 3/3 T01 tests pass)
