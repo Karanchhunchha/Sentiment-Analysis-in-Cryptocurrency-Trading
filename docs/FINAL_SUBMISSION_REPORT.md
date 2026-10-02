@@ -38,3 +38,7 @@ To reproduce the evaluation metrics, run:
 train_pipeline
 ```
 This will train the models from scratch and generate a new `reports/ModelLeaderboard.html` assessing RMSE and MAE against the holdout dataset.
+
+### Sentiment Classifier Ground Truth
+Training data integrated from CryptoLin: Human-annotated cryptocurrency text (not tweets).
+

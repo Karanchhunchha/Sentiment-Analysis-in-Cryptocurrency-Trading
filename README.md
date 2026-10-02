@@ -155,3 +155,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 - MathWorks Excellence in Innovation Program (Project #239)
 - Open source cryptocurrency data provided by Binance Public API.
+
+### Sentiment Classifier Ground Truth
+Training data integrated from CryptoLin: Human-annotated cryptocurrency text (not tweets).
+
