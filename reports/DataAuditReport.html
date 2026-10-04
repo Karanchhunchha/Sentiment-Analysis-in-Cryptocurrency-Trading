@@ -14,32 +14,32 @@ th { background-color: #2196F3; color: white; }
 <table><tr><th>Audit Metric</th><th>Result</th><th>Status</th></tr>
 <tr><td>Missing Values</td><td>0 missing elements</td><td class='pass'>PASS</td></tr>
 <tr><td>Duplicate Rows</td><td>0 duplicate rows</td><td class='pass'>PASS</td></tr>
-<tr><td>Timestamp Alignment</td><td>411 missing days in sequence</td><td class='pass'>PASS</td></tr>
-<tr><td>Data Leakage (Target == Close)</td><td>0 overlapping values</td><td class='pass'>PASS</td></tr>
-<tr><td>Tweet Alignment (Avg Volume)</td><td>24236.3 tweets/day</td><td class='pass'>PASS</td></tr>
+<tr><td>Timestamp Alignment</td><td>0 missing days in sequence</td><td class='pass'>PASS</td></tr>
+<tr><td>Data Leakage (Target == Close)</td><td>350 overlapping values</td><td class='warn'>WARN</td></tr>
+<tr><td>Tweet Alignment (Avg Volume)</td><td>4329.0 tweets/day</td><td class='pass'>PASS</td></tr>
 </table>
 <h2>Feature Scaling Statistics (Raw)</h2>
 <table><tr><th>Feature</th><th>Min</th><th>Max</th><th>Mean</th><th>Std Dev</th></tr>
-<tr><td>Open</td><td>15883.2000</td><td>66002.2000</td><td>34803.4750</td><td>13686.8078</td></tr>
-<tr><td>High</td><td>16291.2000</td><td>66930.4000</td><td>35584.2272</td><td>14019.7766</td></tr>
-<tr><td>Low</td><td>15599.0000</td><td>64180.5000</td><td>33953.8878</td><td>13366.6641</td></tr>
-<tr><td>Close</td><td>15787.3000</td><td>65992.8000</td><td>34784.5111</td><td>13669.8439</td></tr>
-<tr><td>Volume</td><td>7714767174.0000</td><td>118992465607.0000</td><td>31697297804.4389</td><td>14002166430.9106</td></tr>
-<tr><td>Daily_Sentiment</td><td>-0.0873</td><td>0.3707</td><td>0.1233</td><td>0.0651</td></tr>
-<tr><td>Tweet_Volume</td><td>83.0000</td><td>71805.0000</td><td>24236.2778</td><td>14219.7660</td></tr>
-<tr><td>SMA_20</td><td>17141.9950</td><td>60133.4950</td><td>34744.0301</td><td>13050.8588</td></tr>
-<tr><td>SMA_50</td><td>18920.3704</td><td>51006.7800</td><td>34620.4802</td><td>11925.7742</td></tr>
-<tr><td>EMA_20</td><td>17401.4564</td><td>58098.6419</td><td>35600.6461</td><td>12255.7640</td></tr>
-<tr><td>EMA_50</td><td>20105.9943</td><td>52285.7800</td><td>37493.8855</td><td>10032.0080</td></tr>
-<tr><td>MACD_Line</td><td>-4467.2841</td><td>5442.1903</td><td>-850.3504</td><td>2442.7567</td></tr>
-<tr><td>MACD_Signal</td><td>-4411.5797</td><td>4756.8211</td><td>-964.0523</td><td>2300.6255</td></tr>
-<tr><td>MACD_Hist</td><td>-2407.5126</td><td>1794.7077</td><td>113.7019</td><td>842.9468</td></tr>
-<tr><td>RSI_14</td><td>12.7097</td><td>91.4467</td><td>48.3281</td><td>20.7353</td></tr>
-<tr><td>BB_Upper</td><td>19374.2977</td><td>71948.9111</td><td>41914.2525</td><td>16294.0603</td></tr>
-<tr><td>BB_Lower</td><td>12401.0897</td><td>52068.9656</td><td>27573.8077</td><td>10624.7740</td></tr>
-<tr><td>VWAP</td><td>39187.5154</td><td>48764.9936</td><td>45307.8162</td><td>2932.9256</td></tr>
-<tr><td>Volatility_20</td><td>0.0235</td><td>0.1023</td><td>0.0603</td><td>0.0223</td></tr>
-<tr><td>ATR_14</td><td>500.3727</td><td>4419.7461</td><td>2135.1873</td><td>976.3112</td></tr>
-<tr><td>Target</td><td>15787.3000</td><td>65992.8000</td><td>34729.6356</td><td>13699.6141</td></tr>
+<tr><td>Open</td><td>0.1000</td><td>73079.4000</td><td>10852.1030</td><td>15821.6099</td></tr>
+<tr><td>High</td><td>0.1000</td><td>73750.1000</td><td>11107.2611</td><td>16201.1444</td></tr>
+<tr><td>Low</td><td>0.0000</td><td>71334.1000</td><td>10581.4016</td><td>15410.8556</td></tr>
+<tr><td>Close</td><td>0.1000</td><td>73083.5000</td><td>10864.8910</td><td>15839.1978</td></tr>
+<tr><td>Volume</td><td>170.0000</td><td>350967941479.0000</td><td>11887166140.4509</td><td>17881792032.7589</td></tr>
+<tr><td>Daily_Sentiment</td><td>-0.0873</td><td>0.3726</td><td>0.0241</td><td>0.0510</td></tr>
+<tr><td>Tweet_Volume</td><td>0.0000</td><td>71805.0000</td><td>4329.0318</td><td>10780.0224</td></tr>
+<tr><td>SMA_20</td><td>0.1000</td><td>67053.3550</td><td>10733.0837</td><td>15589.8823</td></tr>
+<tr><td>SMA_50</td><td>0.1000</td><td>60801.7680</td><td>10560.0245</td><td>15300.4256</td></tr>
+<tr><td>EMA_20</td><td>0.1000</td><td>65834.9234</td><td>10738.3624</td><td>15577.7682</td></tr>
+<tr><td>EMA_50</td><td>0.1000</td><td>59149.8111</td><td>10575.0127</td><td>15258.6373</td></tr>
+<tr><td>MACD_Line</td><td>-5053.2784</td><td>5509.1023</td><td>86.5229</td><td>854.6789</td></tr>
+<tr><td>MACD_Signal</td><td>-4439.0002</td><td>5086.5772</td><td>82.7924</td><td>806.1955</td></tr>
+<tr><td>MACD_Hist</td><td>-1694.5204</td><td>1305.3127</td><td>3.7305</td><td>226.1648</td></tr>
+<tr><td>RSI_14</td><td>0.0000</td><td>100.0000</td><td>53.8973</td><td>20.2557</td></tr>
+<tr><td>BB_Upper</td><td>0.1000</td><td>77350.1531</td><td>12040.5032</td><td>17513.9630</td></tr>
+<tr><td>BB_Lower</td><td>-25.4315</td><td>59822.7501</td><td>9425.6641</td><td>13770.6727</td></tr>
+<tr><td>VWAP</td><td>0.0931</td><td>28423.1017</td><td>8174.3558</td><td>10310.6483</td></tr>
+<tr><td>Volatility_20</td><td>0.0000</td><td>0.8412</td><td>0.0455</td><td>0.0617</td></tr>
+<tr><td>ATR_14</td><td>0.0006</td><td>5930.4109</td><td>521.2167</td><td>867.0271</td></tr>
+<tr><td>Target</td><td>0.1000</td><td>73083.5000</td><td>10877.4163</td><td>15855.0761</td></tr>
 </table>
 </body></html>
