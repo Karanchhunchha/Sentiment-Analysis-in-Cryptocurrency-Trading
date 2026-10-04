@@ -40,7 +40,7 @@ This project is a formal submission for MathWorks Project #239. The implementati
 - **Feature Engineering**: Calculates SMA, EMA, MACD, RSI, Bollinger Bands, VWAP, ATR, and SMC blocks dynamically (`FeatureFusionEngine.m`).
 - **Hybrid Inference Ensemble**: Combines CNN-LSTM for non-linear pattern recognition with ARIMA (`ModelManager.m`).
 - **Dynamic Risk Engine**: Mathematical derivation of trade signals strictly filtered by adaptive Risk/Reward ratios.
-- **Automated Verification**: 1-click test suite that validates the mathematical boundaries of predictions, memory health, and dependency mappings.
+- **Automated Verification**: 1-click test suite that validates the mathematical boundaries of predictions, memory health, and dependency mappings. Engineering readiness and test coverage are distinguished from model predictive quality (see Known Limitations).
 
 ## Architecture
 
@@ -139,6 +139,7 @@ HTML reports are automatically generated into the `reports/` directory upon exec
 - The ARIMA model currently expects a continuous, gap-free time series. Weekends or API downtime may require forward-filling logic before training.
 - Multi-horizon forecasting utilizes a dampened drift projection off the 1-step prediction. A sequence-to-sequence model is planned for V2.
 - The historical backtest results do not fully account for real transaction costs, slippage in low-liquidity environments, or live execution latency. Live trading performance may diverge from theoretical backtests due to these market microstructure factors.
+- **Model Quality**: As demonstrated by forensic evaluation (P0-09–P0-10B), the current ensemble does not outperform the naive prev-close baseline on this dataset. Walk-forward OOS RMSE ≈ 7,484 and reconstructed delta-target ≈ 1,858 remain above naive RMSE ≈ 1,140. Directional accuracy is near coin-flip. This is a research limitation, not an implementation defect.
 - **Disclaimer**: The Sentiment Analysis components (`SentimentEngine.m`, `SentimentClassifier.m`) are trained on News text data (CryptoLin dataset) and should not be confused with performance on social media (Twitter) data.
 
 ## License

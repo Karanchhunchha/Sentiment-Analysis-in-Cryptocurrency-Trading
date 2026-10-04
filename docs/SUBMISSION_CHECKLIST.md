@@ -33,4 +33,5 @@ This checklist confirms the inclusion and functionality of all necessary artifac
 - [x] `test_ProjectionValidator.m` passes.
 
 ## Completion Status
-**READY FOR SUBMISSION.**
+**READY FOR SUBMISSION.** (Engineering integration and test coverage complete; predictive model quality remains a documented research limitation as evidenced by P0-09–P0-10B.)
+
