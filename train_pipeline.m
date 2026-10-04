@@ -370,8 +370,11 @@ ensembleWeights = [0.6, 0.4]; % CNN-LSTM, ARIMA (or use the best models)
 %% 6. Model Saving
 disp('-> [6/6] Saving Artifacts to disk...');
 mgr = ModelManager();
+isArimax = contains(arimaModelType, 'ARIMAX');
+modelTypeShort = 'ARIMA';
+if isArimax, modelTypeShort = 'ARIMAX'; end
 mgr.saveArtifacts(cnnLstmNet, cnnLstmNet, arimaModel, ensembleWeights, scaler, targetScaler, featureList, ...
-    'sequenceLength', 30, 'modelType', arimaModelType, 'arimaModelType', arimaModelType, 'fallbackReason', arimaFallbackReason, ...
+    'sequenceLength', 30, 'modelType', modelTypeShort, 'arimaModelType', arimaModelType, 'fallbackReason', arimaFallbackReason, ...
     'dataset', 'data/market/btc.csv + data/sentiment/historical_daily_sentiment.csv');
 
 disp('====================================================');

@@ -60,9 +60,8 @@ classdef ModelManager
             if ~isempty(p.Results.arimaModelType)
                 info.arima_model_type = char(p.Results.arimaModelType);
             end
-            if ~isempty(p.Results.fallbackReason)
-                info.fallback_reason = char(p.Results.fallbackReason);
-            end
+            % Always emit fallback_reason (empty string when no fallback) so metadata is machine-verifiable
+            info.fallback_reason = char(p.Results.fallbackReason);
             
             jsonStr = jsonencode(info, 'PrettyPrint', true);
             fid = fopen(fullfile(obj.ModelDir, 'model_info.json'), 'w');

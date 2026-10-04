@@ -1,11 +1,12 @@
 {
-  "trained_on": "2026-10-01 21:20:16",
-  "dataset": "BTC_Historical_15m (v2.4.1)",
-  "features": 20,
-  "version": "v1.0.0",
-  "git_commit": "cd6e3e8",
+  "trained_on": "2026-10-04 22:19:07",
+  "git_commit": "a912b39e6bfb48de120b4548cc9aff06d3603471",
   "matlab_version": "26.2.0.3386108 (R2026b)",
-  "arima_model_type": "ARIMAX(1,1,1) with Daily_Sentiment exogenous",
+  "dataset": "data/market/btc.csv + data/sentiment/historical_daily_sentiment.csv",
+  "features": 20,
+  "sequence_length": 30,
+  "version": "v1.0.0",
   "model_type": "ARIMAX",
+  "arima_model_type": "ARIMAX(1,1,1) with Daily_Sentiment exogenous",
   "fallback_reason": ""
 }
