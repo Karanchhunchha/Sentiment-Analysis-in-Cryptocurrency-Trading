@@ -1,10 +1,3 @@
-%#ok<*AGROW>
-%#ok<*INUSD>
-%#ok<*NASGU>
-%#ok<*STOUT>
-%#ok<*DATNM>
-%#ok<*DATST>
-%#ok<*MATCH>
 classdef PriceDataLoader < handle
     % PriceDataLoader Production data loader for SentinelCrypto.
     % Handles batch loading of historical data (e.g., btc.csv) and 

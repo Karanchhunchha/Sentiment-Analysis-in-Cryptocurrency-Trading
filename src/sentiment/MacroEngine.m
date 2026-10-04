@@ -1,10 +1,3 @@
-%#ok<*AGROW>
-%#ok<*INUSD>
-%#ok<*NASGU>
-%#ok<*STOUT>
-%#ok<*DATNM>
-%#ok<*DATST>
-%#ok<*MATCH>
 classdef MacroEngine
     % MacroEngine fetches live breaking news from the Alpha Vantage API
     % to determine fundamental macroeconomic sentiment (Bearish/Bullish) and
