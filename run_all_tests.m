@@ -128,12 +128,22 @@ try
         report.addMetric('Backtest', 'Win_Rate', btResults.WinRate, btResults.WinRate > 40);
         report.addMetric('Backtest', 'Max_Drawdown', btResults.MaxDrawdown, btResults.MaxDrawdown < 40);
         
-        % Monte Carlo
-        mcs = MonteCarloSimulator(btResults.WinRate / 100, 0.05, -0.02, 10000);
-        mcResults = mcs.runSimulations(10000, 252);
-        
-        report.addMetric('Robustness', 'Probability_Of_Ruin', mcResults.ProbabilityOfRuin, mcResults.ProbabilityOfRuin < 5);
-        report.addMetric('Robustness', 'Expected_Return', mcResults.ExpectedAnnualReturn, mcResults.ExpectedAnnualReturn > 0);
+        % Monte Carlo (empirical bootstrap on real per-trade P&L)
+        if ~isempty(btResults.TradeLog) && (height(btResults.TradeLog) > 0)
+            mcs = MonteCarloSimulator(0, 0, 0, 10000);
+            try
+                mcResults = mcs.runEmpirical(btResults.TradeLog, 10000, 42);
+                report.addMetric('Robustness', 'Probability_Of_Ruin', mcResults.ProbabilityOfRuin, mcResults.ProbabilityOfRuin < 5);
+                report.addMetric('Robustness', 'Expected_Return', mcResults.ExpectedAnnualReturn, true);
+                report.addMetric('Robustness', 'MonteCarlo_Empirical_Run', true, true);
+            catch ME_mce
+                fprintf('[WARN] Empirical Monte Carlo failed: %s\n', ME_mce.message);
+                report.addMetric('Robustness', 'MonteCarlo_Empirical_Run', false, false);
+            end
+        else
+            fprintf('[WARN] Monte Carlo skipped: no trade history available.\n');
+            report.addMetric('Robustness', 'MonteCarlo_Empirical_Run', false, false);
+        end
         
         % 4.5 Generate Level 2, 3, and 5 reports
         fprintf('\nGenerating Level-Specific Verification Reports...\n');

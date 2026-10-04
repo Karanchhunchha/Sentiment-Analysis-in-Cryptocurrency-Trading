@@ -39,9 +39,12 @@ try
     bt = Backtester([], re, histData);
     btResults = bt.run();
     
-    % Monte Carlo to get Probability of Ruin
-    mcs = MonteCarloSimulator(btResults.WinRate / 100, 0.05, -0.02, 10000);
-    mcResults = mcs.runSimulations(10000, 252, 42);
+    % Monte Carlo to get Probability of Ruin (empirical bootstrap on real per-trade P&L)
+    mcs = MonteCarloSimulator(0, 0, 0, 10000);
+    if isempty(btResults.TradeLog) || height(btResults.TradeLog) == 0
+        error('verify_results:EmpiricalMCEmpty','Cannot bootstrap Monte Carlo from empty TradeLog.');
+    end
+    mcResults = mcs.runEmpirical(btResults.TradeLog, 10000, 42);
 
     actual_win_rate = btResults.WinRate;
     actual_total_return = btResults.ReturnPct;

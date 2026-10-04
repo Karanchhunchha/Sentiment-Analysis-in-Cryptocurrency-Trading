@@ -258,8 +258,7 @@ classdef PipelineDataProcessor
             missingDays = numel(expectedDates) - numel(dates);
             timeStatus = "PASS";
             timeClass = "pass";
-            % Suppressed missing days warning for sparse inner-joined sentiment data
-            if missingDays > 5000
+            if missingDays > 0
                 timeStatus = "WARN";
                 timeClass = "warn";
             end

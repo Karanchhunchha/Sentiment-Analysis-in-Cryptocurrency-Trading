@@ -20,9 +20,16 @@ function test_MonteCarloBootstrap()
     res2 = mc.runEmpirical(tradeLog, 100, 123);
     assert(isequal(res1, res2), 'Results should be reproducible');
     
-    % Test logic with actual NetPnL
-    % With fixed seed 123, results should be consistent
     assert(res1.MedianFinalEquity > initialCapital, 'Median result should be above initial');
-    
+
+    tbl = table(tradeLog.NetPnL, tradeLog.EquityBefore, 'VariableNames', {'NetPnL','EquityBefore'});
+    rt = mc.runEmpirical(tbl, 100, 123);
+    assert(isequal(rt.MedianFinalEquity, res1.MedianFinalEquity), 'Struct and table TradeLog must give same result');
+
+    tradeLog2.NetPnL = [500; 400; 300; 200];
+    tradeLog2.EquityBefore = [10000; 10500; 11000; 11500];
+    res3 = mc.runEmpirical(tradeLog2, 100, 123);
+    assert(res3.MedianFinalEquity ~= res1.MedianFinalEquity, 'Bootstrap must depend on input trade returns');
+
     fprintf('test_MonteCarloBootstrap passed successfully!\n');
 end

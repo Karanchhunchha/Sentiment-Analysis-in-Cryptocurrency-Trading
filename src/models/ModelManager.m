@@ -16,7 +16,7 @@ classdef ModelManager
         end
         
         %% Save Model & Metadata (Training Mode)
-        function saveArtifacts(obj, cnnModel, lstmModel, arimaModel, ensembleWeights, scaler, targetScaler, featureList)
+        function saveArtifacts(obj, cnnModel, lstmModel, arimaModel, ensembleWeights, scaler, targetScaler, featureList, varargin)
             Logger.info('Saving trained artifacts to models/ directory...');
             
             % Save MATLAB artifacts (.mat)
@@ -27,18 +27,42 @@ classdef ModelManager
             save(fullfile(obj.ModelDir, 'targetScaler.mat'), 'targetScaler');
             save(fullfile(obj.ModelDir, 'feature_list.mat'), 'featureList');
             
+            % Optional metadata kwargs
+            p = inputParser;
+            addParameter(p, 'sequenceLength', 30);
+            addParameter(p, 'modelType', '');
+            addParameter(p, 'arimaModelType', '');
+            addParameter(p, 'fallbackReason', '');
+            addParameter(p, 'dataset', '');
+            parse(p, varargin{:});
+
             % Get Git Commit Hash dynamically (fails gracefully if not git repo)
-            [gitStatus, gitHash] = system('git rev-parse --short HEAD');
+            [gitStatus, gitHash] = system('git rev-parse HEAD 2>nul');
             if gitStatus ~= 0, gitHash = 'unknown'; end
             
             % Generate and save model_info.json
             info = struct();
-            info.trained_on = datestr(now, 'yyyy-mm-dd HH:MM:SS');
-            info.dataset = 'BTC_Historical_15m (v2.4.1)';
-            info.features = length(featureList);
-            info.version = 'v1.0.0';
+            info.trained_on = char(datetime('now', 'Format', 'yyyy-MM-dd HH:mm:ss'));
             info.git_commit = strtrim(gitHash);
             info.matlab_version = version;
+
+            if ~isempty(p.Results.dataset)
+                info.dataset = p.Results.dataset;
+            else
+                info.dataset = 'BTC_Daily_1d (btc.csv)';
+            end
+            info.features = length(featureList);
+            info.sequence_length = double(p.Results.sequenceLength);
+            info.version = 'v1.0.0';
+            if ~isempty(p.Results.modelType)
+                info.model_type = char(p.Results.modelType);
+            end
+            if ~isempty(p.Results.arimaModelType)
+                info.arima_model_type = char(p.Results.arimaModelType);
+            end
+            if ~isempty(p.Results.fallbackReason)
+                info.fallback_reason = char(p.Results.fallbackReason);
+            end
             
             jsonStr = jsonencode(info, 'PrettyPrint', true);
             fid = fopen(fullfile(obj.ModelDir, 'model_info.json'), 'w');

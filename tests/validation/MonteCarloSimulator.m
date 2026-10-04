@@ -91,10 +91,23 @@ classdef MonteCarloSimulator < handle
         function results = runEmpirical(obj, tradeLog, numSimulations, rngSeed)
             if nargin < 3 || isempty(numSimulations); numSimulations = 10000; end
             if nargin < 4; rngSeed = 42; end
-            
-            % Validate tradeLog
-            if ~isstruct(tradeLog) || ~isfield(tradeLog, 'NetPnL') || ~isfield(tradeLog, 'EquityBefore') || isempty(tradeLog.NetPnL)
-                error('TradeLog must be a struct with NetPnL and EquityBefore and cannot be empty.');
+
+            if istable(tradeLog)
+                if ~ismember('NetPnL', tradeLog.Properties.VariableNames) || ~ismember('EquityBefore', tradeLog.Properties.VariableNames) || height(tradeLog) == 0
+                    error('MonteCarloSimulator:EmptyTradeLog','TradeLog table must contain NetPnL and EquityBefore and cannot be empty.');
+                end
+                pn = [tradeLog.NetPnL];
+                eb = [tradeLog.EquityBefore];
+                if isempty(pn)
+                    error('MonteCarloSimulator:EmptyTradeLog','TradeLog must contain NetPnL and EquityBefore and cannot be empty.');
+                end
+                tradeLog = struct('NetPnL', pn(:), 'EquityBefore', eb(:));
+            elseif isstruct(tradeLog)
+                if ~isfield(tradeLog, 'NetPnL') || ~isfield(tradeLog, 'EquityBefore') || isempty(tradeLog.NetPnL)
+                    error('MonteCarloSimulator:EmptyTradeLog','TradeLog must be a struct/table with NetPnL and EquityBefore and cannot be empty.');
+                end
+            else
+                error('MonteCarloSimulator:BadTradeLog','TradeLog must be a table or struct with NetPnL and EquityBefore.');
             end
             
             % Seed

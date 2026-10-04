@@ -7,7 +7,7 @@ SentinelCrypto is an automated cryptocurrency prediction pipeline written in MAT
 
 ## 2. Quick Setup & Verification
 
-**Prerequisites:** MATLAB R2023b+ with Deep Learning, Econometrics, Statistics, and Financial toolboxes.
+**Prerequisites:** MATLAB R2026b with Deep Learning Toolbox, Econometrics Toolbox, and Statistics and Machine Learning Toolbox. Financial Toolbox is not required (indicators use base MATLAB `movmean`/`movstd`).
 
 1. **Open MATLAB** and set your Current Folder to the repository root.
 2. **Run Initialization:**

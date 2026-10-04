@@ -168,24 +168,25 @@ classdef PortfolioSimulator
             x0 = [0.25 0.25 0.25 0.25];
             options = optimoptions('fmincon', 'Display', 'off', 'Algorithm', 'sqp');
 
-            % Maximize Sharpe Ratio (Minimize negative Sharpe)
-            objFunc = @(w) -(w * meanR' * 252) / (sqrt(w * covR * w') * sqrt(252));
+            % Maximize Sharpe Ratio (Minimize negative Sharpe) — 365 days/year for crypto.
+            N = 365;
+            objFunc = @(w) -(w * meanR' * N) / (sqrt(w * covR * w') * sqrt(N));
             bestWeights = fmincon(objFunc, x0, [], [], Aeq, beq, lb, ub, [], options);
             maxSharpe = -objFunc(bestWeights);
-            bestRet = bestWeights * meanR' * 252;
-            bestVol = sqrt(bestWeights * covR * bestWeights') * sqrt(252);
+            bestRet = bestWeights * meanR' * N;
+            bestVol = sqrt(bestWeights * covR * bestWeights') * sqrt(N);
             
             % Minimize Variance
             varFunc = @(w) w * covR * w';
             minVolWeights = fmincon(varFunc, x0, [], [], Aeq, beq, lb, ub, [], options);
-            minVol = sqrt(minVolWeights * covR * minVolWeights') * sqrt(252);
-            minVolRet = minVolWeights * meanR' * 252;
+            minVol = sqrt(minVolWeights * covR * minVolWeights') * sqrt(N);
+            minVolRet = minVolWeights * meanR' * N;
             
             % Maximize Return
-            retFunc = @(w) -(w * meanR' * 252);
+            retFunc = @(w) -(w * meanR' * N);
             maxRetWeights = fmincon(retFunc, x0, [], [], Aeq, beq, lb, ub, [], options);
             maxRet = -retFunc(maxRetWeights);
-            maxRetVol = sqrt(maxRetWeights * covR * maxRetWeights') * sqrt(252);
+            maxRetVol = sqrt(maxRetWeights * covR * maxRetWeights') * sqrt(N);
             maxRetSharpe = maxRet / maxRetVol;
             
             % 4. Generate HTML Report

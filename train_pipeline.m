@@ -27,8 +27,9 @@ disp('====================================================');
 %% 1 & 2. Data Ingestion & Feature Engineering
 disp('-> [1-3/6] Loading Data, Sentiment, and Engineering Features...');
 [fullData, X, Y] = PipelineDataProcessor.prepareData();
-featureList = fullData.Properties.VariableNames(1:end-1); % Assuming Target is last
-% Wait, PipelineDataProcessor uses a fixed featureList by default.
+featureList = fullData.Properties.VariableNames(1:end-1);
+% PipelineDataProcessor uses a fixed default featureList; the explicit list below
+% is kept so the pipeline's expected 20-feature set is transparent to the reviewer.
 featureList = {'Open', 'High', 'Low', 'Close', 'Volume', 'SMA_20', 'SMA_50', ...
     'EMA_20', 'EMA_50', 'MACD_Line', 'MACD_Signal', 'MACD_Hist', 'RSI_14', ...
     'BB_Upper', 'BB_Lower', 'VWAP', 'Volatility_20', 'ATR_14', ...
@@ -369,7 +370,9 @@ ensembleWeights = [0.6, 0.4]; % CNN-LSTM, ARIMA (or use the best models)
 %% 6. Model Saving
 disp('-> [6/6] Saving Artifacts to disk...');
 mgr = ModelManager();
-mgr.saveArtifacts(cnnLstmNet, cnnLstmNet, arimaModel, ensembleWeights, scaler, targetScaler, featureList);
+mgr.saveArtifacts(cnnLstmNet, cnnLstmNet, arimaModel, ensembleWeights, scaler, targetScaler, featureList, ...
+    'sequenceLength', 30, 'modelType', arimaModelType, 'arimaModelType', arimaModelType, 'fallbackReason', arimaFallbackReason, ...
+    'dataset', 'data/market/btc.csv + data/sentiment/historical_daily_sentiment.csv');
 
 disp('====================================================');
 disp('   ✅ TRAINING PIPELINE COMPLETE ✅    ');

@@ -140,7 +140,7 @@ HTML reports are automatically generated into the `reports/` directory upon exec
 - Multi-horizon forecasting utilizes a dampened drift projection off the 1-step prediction. A sequence-to-sequence model is planned for V2.
 - The historical backtest results do not fully account for real transaction costs, slippage in low-liquidity environments, or live execution latency. Live trading performance may diverge from theoretical backtests due to these market microstructure factors.
 - **Model Quality**: As demonstrated by forensic evaluation (P0-09–P0-10B), the current ensemble does not outperform the naive prev-close baseline on this dataset. Walk-forward OOS RMSE ≈ 7,484 and reconstructed delta-target ≈ 1,858 remain above naive RMSE ≈ 1,140. Directional accuracy is near coin-flip. This is a research limitation, not an implementation defect.
-- **Disclaimer**: The Sentiment Analysis components (`SentimentEngine.m`, `SentimentClassifier.m`) are trained on News text data (CryptoLin dataset) and should not be confused with performance on social media (Twitter) data.
+- **Disclaimer**: The Sentiment Analysis components (`SentimentEngine.m`, `SentimentClassifier.m`) are trained on a 20-headline demonstration subset of the 2,683-record CryptoLin News dataset; tweet data (`data/sentiment/Bitcoin_tweets.csv`, 40k rows) is unlabeled and not used for supervised sentiment training. Performance should not be confused with social-media Twitter results. The protected reference dataset `CryptoLin_IE.csv` (2,683 records, `final_manual_labelling` ∈ {1,-1}) is archived in `re solution prompt's/` — do not modify that folder.
 
 ## License
 
