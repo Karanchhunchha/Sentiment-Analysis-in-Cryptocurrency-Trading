@@ -273,7 +273,7 @@ rmseVals = zeros(4,1);
 maeVals = zeros(4,1);
 
 % 1. CNN-LSTM
-if ~strcmp(class(cnnLstmNet), 'struct')
+if ~isstruct(cnnLstmNet)
     [XTestSeq, vTest] = PipelineDataProcessor.formatForCNNLSTM(XTest, 30); 
     YTestSeq = YTest_raw(vTest);
     cnnPred = predict(cnnLstmNet, XTestSeq);
@@ -285,7 +285,7 @@ else
 end
 
 % 2. ARIMA (trained on raw data, so predict outputs raw directly)
-if ~strcmp(class(arimaModel), 'struct')
+if ~isstruct(arimaModel)
     % forecast needs YTrain_raw as presample (Y0).
     % If ARIMAX, XF is required — use real test sentiment from the aligned intersection
     if ~isempty(arimaModel.Beta)
@@ -310,7 +310,7 @@ else
 end
 
 % 3. Random Forest
-if ~strcmp(class(rfModel), 'struct')
+if ~isstruct(rfModel)
     rfPred = predict(rfModel, XTest);
     rfPredRaw = revScale(rfPred);
     rmseVals(3) = sqrt(mean((YTest_raw - rfPredRaw).^2));
@@ -320,7 +320,7 @@ else
 end
 
 % 4. SVM
-if ~strcmp(class(svmModel), 'struct')
+if ~isstruct(svmModel)
     svmPred = predict(svmModel, XTest);
     svmPredRaw = revScale(svmPred);
     rmseVals(4) = sqrt(mean((YTest_raw - svmPredRaw).^2));

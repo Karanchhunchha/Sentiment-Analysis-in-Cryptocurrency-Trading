@@ -22,10 +22,10 @@ classdef SentimentEngine
         end
         
         function obj = SentimentEngine()
-            % Define the local dataset paths the user provided
+            % Default tweet datasets (historical); may be absent, handled gracefully in processHistoricalTweets
             obj.TweetFiles = {
-                fullfile(pwd, 'Bitcoin_tweets.csv'), ...
-                fullfile(pwd, 'Bitcoin_tweets_dataset_2.csv')
+                fullfile(pwd, 'data', 'sentiment', 'Bitcoin_tweets.csv'), ...
+                fullfile(pwd, 'data', 'sentiment', 'Bitcoin_tweets_dataset_2.csv')
             };
             
             % Initialize SentimentClassifier

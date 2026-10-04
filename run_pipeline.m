@@ -88,40 +88,28 @@ try
 
 catch ME
     Logger.warning('Failed to fetch recent history from Binance: %s. Falling back to CSV.', ME.message);
-    try
-        histData = dataLoader.loadHistoricalCSV('data/market/btc.csv');
-        fusionEngine.initializeHistorical(histData(end-150:end, :));
-        
-        full_hist = FeatureEngineer.runAll(histData(end-150:end, :));
-        
-        % Strict subsetting
-        visCols = {'Date', 'Open', 'High', 'Low', 'Close', 'Volume'};
-        if ismember('SMA20', full_hist.Properties.VariableNames); visCols{end+1} = 'SMA20'; end
-        if ismember('SMA50', full_hist.Properties.VariableNames); visCols{end+1} = 'SMA50'; end
-        if ismember('EMA20', full_hist.Properties.VariableNames); visCols{end+1} = 'EMA20'; end
-        if ismember('EMA50', full_hist.Properties.VariableNames); visCols{end+1} = 'EMA50'; end
-        vis_hist = full_hist(:, visCols);
-        
-        predictionVisualizer.initializeData(vis_hist);
-    catch
+    histFiles = {'data/market/btc.csv', 'btc.csv'};
+    loaded = false;
+    for k = 1:numel(histFiles)
         try
-            histData = dataLoader.loadHistoricalCSV('btc.csv');
-            fusionEngine.initializeHistorical(histData(end-150:end, :));
-            
-            full_hist = FeatureEngineer.runAll(histData(end-150:end, :));
-            
-            % Strict subsetting
+            h = dataLoader.loadHistoricalCSV(histFiles{k});
+            histData = h(end-150:end, :);
+            fh = FeatureEngineer.runAll(histData);
             visCols = {'Date', 'Open', 'High', 'Low', 'Close', 'Volume'};
-            if ismember('SMA20', full_hist.Properties.VariableNames); visCols{end+1} = 'SMA20'; end
-            if ismember('SMA50', full_hist.Properties.VariableNames); visCols{end+1} = 'SMA50'; end
-            if ismember('EMA20', full_hist.Properties.VariableNames); visCols{end+1} = 'EMA20'; end
-            if ismember('EMA50', full_hist.Properties.VariableNames); visCols{end+1} = 'EMA50'; end
-            vis_hist = full_hist(:, visCols);
-            
+            if ismember('SMA20', fh.Properties.VariableNames); visCols{end+1} = 'SMA20'; end
+            if ismember('SMA50', fh.Properties.VariableNames); visCols{end+1} = 'SMA50'; end
+            if ismember('EMA20', fh.Properties.VariableNames); visCols{end+1} = 'EMA20'; end
+            if ismember('EMA50', fh.Properties.VariableNames); visCols{end+1} = 'EMA50'; end
+            vis_hist = fh(:, visCols);
             predictionVisualizer.initializeData(vis_hist);
+            fusionEngine.initializeHistorical(histData);
+            loaded = true;
+            break;
         catch
-            Logger.warning('No historical data found. Starting from scratch.');
         end
+    end
+    if ~loaded
+        Logger.warning('No historical data found. Starting from scratch.');
     end
 end
 
@@ -165,7 +153,7 @@ function processLiveTick(newCandle, fullData, fusionEngine, macroEngine, models,
     
     % 2. Fast Prediction (Using real loaded models)
     try
-        if ~isfield(models, 'CNN') || strcmp(class(models.CNN), 'struct')
+        if ~isfield(models, 'CNN') || isstruct(models.CNN)
             error('Models are mocked or not loaded.');
         end
         
@@ -336,17 +324,4 @@ function processLiveTick(newCandle, fullData, fusionEngine, macroEngine, models,
     end
 end
 
-function logPrediction(ts, price, pred, conf, sl, tp, signal)
-    logFile = fullfile('logs', 'prediction_log.csv');
-    writeHeader = ~exist(logFile, 'file');
-    
-    fid = fopen(logFile, 'a');
-    if fid ~= -1
-        if writeHeader
-            fprintf(fid, 'Timestamp,Price,Prediction,Confidence,SL,TP,Signal\n');
-        end
-        fprintf(fid, '%s,%.2f,%.2f,%.4f,%.2f,%.2f,%s\n', ...
-            datestr(ts, 'yyyy-mm-dd HH:MM:SS'), price, pred, conf, sl, tp, signal);
-        fclose(fid);
-    end
-end
+% logPrediction intentionally retained: CSV prediction audit trail (caller: live pipeline future integration point). Currently unused — no call in active code path.

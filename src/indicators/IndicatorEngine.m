@@ -49,8 +49,9 @@ classdef IndicatorEngine
                       abs(lowP - [closeP(1); closeP(1:end-1)])], [], 2);
             data.ATR_14 = IndicatorEngine.calcEMA(tr, 14);
             
-            % Drop initial NaN rows due to lookback periods
-            data(1:50, :) = [];
+            % Drop initial rows for warm-up: longest indicator is SMA_50 -> 50 bars
+            warmUp = 50;
+            data(1:warmUp, :) = [];
             
             Logger.success('Indicators calculated successfully. Added 14 features.');
         end

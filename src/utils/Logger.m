@@ -48,7 +48,7 @@ classdef Logger
         end
         
         function warning(message, varargin)
-            Logger.log('WARN', message, varargin{:});
+            Logger.warn(message, varargin{:});
         end
         
         function success(message, varargin)

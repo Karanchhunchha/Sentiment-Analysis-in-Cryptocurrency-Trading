@@ -82,8 +82,8 @@ classdef FeatureEngineer
         function df = calcVolatility(df)
             % True Range and ATR
             tr1 = df.High - df.Low;
-            tr2 = abs(df.High - [0; df.Close(1:end-1)]);
-            tr3 = abs(df.Low - [0; df.Close(1:end-1)]);
+            tr2 = abs(df.High - [df.High(1); df.Close(1:end-1)]);
+            tr3 = abs(df.Low - [df.Low(1); df.Close(1:end-1)]);
             
             trueRange = max([tr1, tr2, tr3], [], 2);
             df.ATR = movmean(trueRange, [13 0]);
