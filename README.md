@@ -121,7 +121,7 @@ verify_submission
 - Deep Learning Toolbox (CNN-LSTM sequences)
 - Econometrics Toolbox (ARIMA models)
 - Statistics and Machine Learning Toolbox (Random Forest, SVM, Standardizations)
-- Financial Toolbox (Technical indicators via `macd`, `rsindex`, etc.)
+- Technical indicators implemented with base MATLAB (`movmean`/`movstd`) and custom EMA/RSI — no Financial Toolbox dependency
 
 ### Datasets
 - **Historical Data**: Supplied via `generate_sample_data.m` or pulled historically from `BinanceDataFetcher.m`.

@@ -17,8 +17,8 @@ This checklist confirms the inclusion and functionality of all necessary artifac
 ## 3. Toolboxes Verified
 - [x] Deep Learning Toolbox (Used in CNN-LSTM architecture)
 - [x] Econometrics Toolbox (Used in ARIMA formulation)
-- [x] Financial Toolbox (Used for technical indicator extraction)
 - [x] Statistics and Machine Learning Toolbox (Used for standardization scaling)
+- [x] Base MATLAB + custom indicator code (SMA/EMA/MACD/RSI/Bollinger/ATR via `movmean`/`movstd` and custom functions; no Financial Toolbox dependency)
 
 ## 4. Repository Integrity
 - [x] No missing files or broken references in `.m` scripts.
