@@ -57,7 +57,7 @@ targetRR = 3.0;
 riskEngine = RiskEngine(1.5, 2.5, targetRR);
 
 %% 2. Define Live Event Callback
-liveUpdateCallback = @(newCandle, fullData) processLiveTick(newCandle, fullData, fusionEngine, macroEngine, models, dashboard, predictionVisualizer, forecastEngine, validator, riskEngine);
+liveUpdateCallback = @(newCandle, fullData) processLiveTick(newCandle, fullData, fusionEngine, macroEngine, models, featureList, dashboard, predictionVisualizer, forecastEngine, validator, riskEngine);
 
 %% 3. Start Live Data Stream
 disp('-> [4/4] Starting Binance WebSocket/REST Polling...');
@@ -88,40 +88,28 @@ try
 
 catch ME
     Logger.warning('Failed to fetch recent history from Binance: %s. Falling back to CSV.', ME.message);
-    try
-        histData = dataLoader.loadHistoricalCSV('data/market/btc.csv');
-        fusionEngine.initializeHistorical(histData(end-150:end, :));
-        
-        full_hist = FeatureEngineer.runAll(histData(end-150:end, :));
-        
-        % Strict subsetting
-        visCols = {'Date', 'Open', 'High', 'Low', 'Close', 'Volume'};
-        if ismember('SMA20', full_hist.Properties.VariableNames); visCols{end+1} = 'SMA20'; end
-        if ismember('SMA50', full_hist.Properties.VariableNames); visCols{end+1} = 'SMA50'; end
-        if ismember('EMA20', full_hist.Properties.VariableNames); visCols{end+1} = 'EMA20'; end
-        if ismember('EMA50', full_hist.Properties.VariableNames); visCols{end+1} = 'EMA50'; end
-        vis_hist = full_hist(:, visCols);
-        
-        predictionVisualizer.initializeData(vis_hist);
-    catch
+    histFiles = {'data/market/btc.csv', 'btc.csv'};
+    loaded = false;
+    for k = 1:numel(histFiles)
         try
-            histData = dataLoader.loadHistoricalCSV('btc.csv');
-            fusionEngine.initializeHistorical(histData(end-150:end, :));
-            
-            full_hist = FeatureEngineer.runAll(histData(end-150:end, :));
-            
-            % Strict subsetting
+            h = dataLoader.loadHistoricalCSV(histFiles{k});
+            histData = h(end-150:end, :);
+            fh = FeatureEngineer.runAll(histData);
             visCols = {'Date', 'Open', 'High', 'Low', 'Close', 'Volume'};
-            if ismember('SMA20', full_hist.Properties.VariableNames); visCols{end+1} = 'SMA20'; end
-            if ismember('SMA50', full_hist.Properties.VariableNames); visCols{end+1} = 'SMA50'; end
-            if ismember('EMA20', full_hist.Properties.VariableNames); visCols{end+1} = 'EMA20'; end
-            if ismember('EMA50', full_hist.Properties.VariableNames); visCols{end+1} = 'EMA50'; end
-            vis_hist = full_hist(:, visCols);
-            
+            if ismember('SMA20', fh.Properties.VariableNames); visCols{end+1} = 'SMA20'; end
+            if ismember('SMA50', fh.Properties.VariableNames); visCols{end+1} = 'SMA50'; end
+            if ismember('EMA20', fh.Properties.VariableNames); visCols{end+1} = 'EMA20'; end
+            if ismember('EMA50', fh.Properties.VariableNames); visCols{end+1} = 'EMA50'; end
+            vis_hist = fh(:, visCols);
             predictionVisualizer.initializeData(vis_hist);
+            fusionEngine.initializeHistorical(histData);
+            loaded = true;
+            break;
         catch
-            Logger.warning('No historical data found. Starting from scratch.');
         end
+    end
+    if ~loaded
+        Logger.warning('No historical data found. Starting from scratch.');
     end
 end
 
@@ -132,7 +120,7 @@ disp('Live system running. Dashboard will update automatically.');
 disp('====================================================');
 
 %% Callback Function (Executes in < 100ms)
-function processLiveTick(newCandle, fullData, fusionEngine, macroEngine, models, dashboard, predictionVisualizer, forecastEngine, validator, riskEngine)
+function processLiveTick(newCandle, fullData, fusionEngine, macroEngine, models, featureList, dashboard, predictionVisualizer, forecastEngine, validator, riskEngine)
     tStart = tic;
     
     % --- Persistent State for Rolling Accuracy ---
@@ -165,22 +153,26 @@ function processLiveTick(newCandle, fullData, fusionEngine, macroEngine, models,
     
     % 2. Fast Prediction (Using real loaded models)
     try
-        if ~isfield(models, 'CNN') || strcmp(class(models.CNN), 'struct')
+        if ~isfield(models, 'CNN') || isstruct(models.CNN)
             error('Models are mocked or not loaded.');
         end
         
-        % Check if featureList is available from loaded metadata
-        % It is loaded as a global or from modelManager, but in run_pipeline it's passed as 'models' ?
-        % Wait, featureList is available if we load it. Let's just use the default from train_pipeline.m:
-        defaultFeatureList = {'Open', 'High', 'Low', 'Close', 'Volume', 'SMA_20', 'SMA_50', ...
-            'EMA_20', 'EMA_50', 'MACD_Line', 'MACD_Signal', 'MACD_Hist', 'RSI_14', ...
-            'BB_Upper', 'BB_Lower', 'VWAP', 'Volatility_20', 'ATR_14', ...
-            'Daily_Sentiment', 'Tweet_Volume'};
-            
-        % Extract features for current tick
-        featDataRaw = table2array(fullData_features(end, defaultFeatureList));
+        % Use canonical feature list from loaded metadata or default from training
+        featureListLive = featureList;
+        if isempty(featureListLive)
+            featureListLive = {'Open', 'High', 'Low', 'Close', 'Volume', 'SMA_20', 'SMA_50', ...
+                'EMA_20', 'EMA_50', 'MACD_Line', 'MACD_Signal', 'MACD_Hist', 'RSI_14', ...
+                'BB_Upper', 'BB_Lower', 'VWAP', 'Volatility_20', 'ATR_14', ...
+                'Daily_Sentiment', 'Tweet_Volume'};
+        end
         
-        % Load scaler from disk directly since it might not be in arguments
+        seqLen = 30;
+        if size(fullData_features, 1) < seqLen
+            error('Insufficient historical data for sequence generation');
+        end
+        featDataRaw = table2array(fullData_features(end-seqLen+1:end, featureListLive));
+        
+        % Load scaler from disk directly if needed
         sc = load(fullfile(pwd, 'models', 'scaler.mat'));
         ts = load(fullfile(pwd, 'models', 'targetScaler.mat'));
         scaler = sc.scaler;
@@ -188,34 +180,23 @@ function processLiveTick(newCandle, fullData, fusionEngine, macroEngine, models,
         
         featScaled = PipelineDataProcessor.scaleData(featDataRaw, scaler);
         
-        % Format for CNN/LSTM (Cell array of Features x 1)
-        cnnLstmInput = {featScaled'};
+        % B4: Use corrected B5 interface; canonical P0-04 sequence path inside
+        ensemblePredRaw = PipelineDataProcessor.predictEnsemble( ...
+            models, featScaled, targetScaler, scaler, featureListLive);
         
-        cnnPredScaled = predict(models.CNN, cnnLstmInput);
-        cnnPred = cnnPredScaled * (targetScaler.Max - targetScaler.Min) + targetScaler.Min;
-        
-        lstmPredScaled = predict(models.LSTM, cnnLstmInput);
-        lstmPred = lstmPredScaled * (targetScaler.Max - targetScaler.Min) + targetScaler.Min;
-        
-        % ARIMAX prediction
-        sentimentIdx = find(strcmp(defaultFeatureList, 'Daily_Sentiment'));
-        sentimentVal = featDataRaw(1, sentimentIdx);
-        y0 = fullData.Close(end-1);
-        
-        if ~strcmp(class(models.ARIMA), 'struct')
-            [arimaPred, ~] = forecast(models.ARIMA, 1, 'Y0', y0, 'X0', sentimentVal, 'XF', sentimentVal);
-        else
-            arimaPred = cnnPred; % Fallback if ARIMA fails to load
+        % predictEnsemble returns one output per input row, NaN-padded for the
+        % rows that lack a full sequence. Live inference needs the prediction
+        % for the most recent row only, so reduce the column to a scalar.
+        ensemblePred = ensemblePredRaw(find(isfinite(ensemblePredRaw), 1, 'last'));
+        if isempty(ensemblePred)
+            error('run_pipeline:NoValidPrediction', ...
+                'Ensemble produced no finite prediction for the live window.');
         end
-        
-        % Ensemble
-        ensemblePred = (cnnPred * models.EnsembleWeights(1)) + ...
-                       (lstmPred * models.EnsembleWeights(2)) + ...
-                       (arimaPred * models.EnsembleWeights(3));
+        ensemblePred = ensemblePred(1);
     catch ME
-        % If models are missing/fail, gracefully fallback to NaN prediction
+        % B4: Surface inference failure (do not silently mask to NaN/WAIT here)
         Logger.error('Inference failed: %s', ME.message);
-        ensemblePred = NaN;
+        rethrow(ME);
     end
     
     
@@ -343,17 +324,4 @@ function processLiveTick(newCandle, fullData, fusionEngine, macroEngine, models,
     end
 end
 
-function logPrediction(ts, price, pred, conf, sl, tp, signal)
-    logFile = fullfile('logs', 'prediction_log.csv');
-    writeHeader = ~exist(logFile, 'file');
-    
-    fid = fopen(logFile, 'a');
-    if fid ~= -1
-        if writeHeader
-            fprintf(fid, 'Timestamp,Price,Prediction,Confidence,SL,TP,Signal\n');
-        end
-        fprintf(fid, '%s,%.2f,%.2f,%.4f,%.2f,%.2f,%s\n', ...
-            datestr(ts, 'yyyy-mm-dd HH:MM:SS'), price, pred, conf, sl, tp, signal);
-        fclose(fid);
-    end
-end
+% logPrediction intentionally retained: CSV prediction audit trail (caller: live pipeline future integration point). Currently unused — no call in active code path.

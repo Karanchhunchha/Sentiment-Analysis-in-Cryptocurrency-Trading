@@ -1,10 +1,3 @@
-%#ok<*AGROW>
-%#ok<*INUSD>
-%#ok<*NASGU>
-%#ok<*STOUT>
-%#ok<*DATNM>
-%#ok<*DATST>
-%#ok<*MATCH>
 classdef FeatureEngineer
     % FeatureEngineer Automatically calculates technical indicators and market structure metrics
     
@@ -30,9 +23,9 @@ classdef FeatureEngineer
         
         function df = calcMovingAverages(df)
             % Simple Moving Averages
-            df.SMA_20 = movmean(df.Close, 20);
-            df.SMA_50 = movmean(df.Close, 50);
-            df.SMA_200 = movmean(df.Close, 200);
+            df.SMA_20 = movmean(df.Close, [19 0]);
+            df.SMA_50 = movmean(df.Close, [49 0]);
+            df.SMA_200 = movmean(df.Close, [199 0]);
             
             % Exponential Moving Averages
             alpha12 = 2 / (12 + 1);
@@ -53,7 +46,7 @@ classdef FeatureEngineer
             % VWAP (Volume Weighted Average Price) approximation over a rolling 24-period window
             typicalPrice = (df.High + df.Low + df.Close) / 3;
             volXPrice = typicalPrice .* df.Volume;
-            df.VWAP = movsum(volXPrice, 24) ./ movsum(df.Volume, 24);
+            df.VWAP = movsum(volXPrice, [23 0]) ./ movsum(df.Volume, [23 0]);
         end
         
         function df = calcMomentum(df)
@@ -62,8 +55,8 @@ classdef FeatureEngineer
             gains = max(priceDiff, 0);
             losses = -min(priceDiff, 0);
             
-            avgGain = movmean(gains, 14);
-            avgLoss = movmean(losses, 14);
+            avgGain = movmean(gains, [13 0]);
+            avgLoss = movmean(losses, [13 0]);
             
             % Avoid divide by zero
             rs = avgGain ./ max(avgLoss, 1e-10);
@@ -89,21 +82,21 @@ classdef FeatureEngineer
         function df = calcVolatility(df)
             % True Range and ATR
             tr1 = df.High - df.Low;
-            tr2 = abs(df.High - [0; df.Close(1:end-1)]);
-            tr3 = abs(df.Low - [0; df.Close(1:end-1)]);
+            tr2 = abs(df.High - [df.High(1); df.Close(1:end-1)]);
+            tr3 = abs(df.Low - [df.Low(1); df.Close(1:end-1)]);
             
             trueRange = max([tr1, tr2, tr3], [], 2);
-            df.ATR = movmean(trueRange, 14);
+            df.ATR = movmean(trueRange, [13 0]);
             
             % Bollinger Bands
-            stdDev = movstd(df.Close, 20);
+            stdDev = movstd(df.Close, [19 0]);
             df.BB_Upper = df.SMA_20 + (2 * stdDev);
             df.BB_Lower = df.SMA_20 - (2 * stdDev);
             df.BB_Width = (df.BB_Upper - df.BB_Lower) ./ df.SMA_20;
             
             % Rolling Volatility (20-period standard deviation of returns)
             returns = [0; diff(df.Close) ./ df.Close(1:end-1)];
-            df.Rolling_Vol = movstd(returns, 20);
+            df.Rolling_Vol = movstd(returns, [19 0]);
         end
         
         function df = calcReturns(df)
@@ -127,8 +120,8 @@ classdef FeatureEngineer
             df.Market_Regime(df.Close < df.SMA_50 & df.SMA_50 < df.SMA_200) = -1;
             
             % Local Support/Resistance (Rolling Min/Max over 20 periods)
-            df.Support = movmin(df.Low, 20);
-            df.Resistance = movmax(df.High, 20);
+            df.Support = movmin(df.Low, [19 0]);
+            df.Resistance = movmax(df.High, [19 0]);
             
             % Advanced Swing Support/Resistance
             df.Swing_High = df.Resistance;
@@ -165,8 +158,8 @@ classdef FeatureEngineer
             df.Sell_Liquidity = zeros(height(df), 1);
             
             % Identifying liquidity above recent significant highs and below recent significant lows
-            df.Buy_Liquidity = movmax(df.High, 50); % Macro swing high (liquidity pool)
-            df.Sell_Liquidity = movmin(df.Low, 50); % Macro swing low (liquidity pool)
+            df.Buy_Liquidity = movmax(df.High, [49 0]); % Macro swing high (liquidity pool)
+            df.Sell_Liquidity = movmin(df.Low, [49 0]); % Macro swing low (liquidity pool)
         end
     end
 end

@@ -43,7 +43,12 @@ classdef ModelComparer < handle
             splitIdx = floor(size(X, 1) * splitRatio);
             X_train = X(1:splitIdx, :);
             y_train = Y(1:splitIdx);
-            X_test_raw = X(splitIdx+1:end, :);
+            % Include history for CNN lookback
+            seqLookback = 29;
+            evalStart = splitIdx + 1 - seqLookback;
+            if evalStart < 1; evalStart = 1; end
+            
+            X_test_raw = X(evalStart:end, :);
             y_test  = Y(splitIdx+1:end);
             
             % We need to scale test data
@@ -56,16 +61,24 @@ classdef ModelComparer < handle
             Logger.info(sprintf('Training set: %d rows, Test set: %d rows', splitIdx, length(y_test)));
             
             % 4. Evaluate Models
-            obj = obj.evaluateEnsemble(models, X_test_scaled, y_test, actual_dir, y_train, targetScaler);
+            obj = obj.evaluateEnsemble(models, X_test_scaled, y_test, actual_dir, y_train, targetScaler, scaler, featureList);
             obj = obj.evaluateNaive(y_train, y_test, actual_dir); % Random Walk baseline
             
             % 5. Print Results
             obj.printReport();
         end
         
-        function obj = evaluateEnsemble(obj, models, X_test_scaled, y_test, actual_dir, y_train, targetScaler)
+        function obj = evaluateEnsemble(obj, models, X_test_scaled, y_test, actual_dir, y_train, targetScaler, scaler, featureList)
+            if nargin < 9 || isempty(scaler) || isempty(featureList)
+                error('ModelComparer:evaluateEnsemble:MissingContext', ...
+                    'ModelComparer.evaluateEnsemble requires the feature scaler and featureList to run the ensemble.');
+            end
             Logger.info('Evaluating Production Ensemble Model...');
-            preds = PipelineDataProcessor.predictEnsemble(models, X_test_scaled, targetScaler);
+            preds = PipelineDataProcessor.predictEnsemble(models, X_test_scaled, targetScaler, scaler, featureList);
+            
+            % Trim the lookback predictions so they match y_test
+            actualTestSize = length(y_test);
+            preds = preds(end-actualTestSize+1:end);
             
             y_test = y_test(:);
             preds = preds(:);

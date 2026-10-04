@@ -1,23 +1,39 @@
 <html><head><style>
 body { font-family: Arial, sans-serif; background-color: #f4f4f9; padding: 20px; }
 h1 { color: #333; }
+h2 { color: #444; }
 table { border-collapse: collapse; width: 100%; margin-bottom: 30px; background: white; }
 th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
 th { background-color: #4CAF50; color: white; }
 .metric { font-weight: bold; color: #2196F3; }
 </style></head><body>
-<h1>Sentiment Analysis Model Comparison Report</h1>
-<p>This report compares the performance and execution time of distinct sentiment analysis models, specifically satisfying the requirement to compare against <strong>VADER</strong> and <strong>Ratio Rule</strong> methods.</p>
-<h2>Model Performance Metrics</h2>
+<h1>Sentiment Analysis Model Comparison Report (T07)</h1>
+<p>Dataset: <strong>CryptoLin</strong> (20 human-annotated cryptocurrency NEWS/TEXT records)</p>
+<p>Ground truth: Human annotations (10 Positive, 10 Negative). This is NOT Twitter data.</p>
+<p>Evaluation method: Leave-One-Out Cross-Validation (LOO-CV) with out-of-fold predictions.</p>
+<p>VADER availability: Unavailable (python vaderSentiment not found)</p>
+<p>Binary mapping: score > 0 -> Positive, score <= 0 -> Negative (pre-specified midpoint decision rule)</p>
+<h2>Model Performance Metrics (CryptoLin Out-of-Fold)</h2>
 <table>
-<tr><th>Model</th><th>Type</th><th>Directional Accuracy (%)</th><th>Execution Time (per 1000 tweets)</th></tr>
-<tr><td>VADER</td><td>Lexicon / Rule-Based (Python)</td><td class='metric'>50.0%</td><td>13.7224 sec</td></tr>
-<tr><td>Ratio Rule</td><td>Dictionary Ratio (MATLAB)</td><td class='metric'>50.0%</td><td>0.6160 sec</td></tr>
-<tr><td>Naive Bayes</td><td>Machine Learning (MATLAB)</td><td class='metric'>50.0%</td><td>24.2818 sec</td></tr>
-<tr><td>SVM</td><td>Machine Learning (MATLAB)</td><td class='metric'>50.0%</td><td>12.4730 sec</td></tr>
+<tr><th>Method</th><th>Type</th><th>N</th><th>Accuracy (%)</th><th>Precision</th><th>Recall</th><th>F1</th></tr>
+<tr><td>VADER</td><td>Lexicon / Rule-Based (Python)</td><td>20</td><td>NaN%</td><td>NaN</td><td>NaN</td><td>NaN</td></tr>
+<tr><td>Lexicon/Ratio</td><td>Dictionary Ratio (MATLAB)</td><td>20</td><td>0.6%</td><td>1.000</td><td>0.200</td><td>0.333</td></tr>
+<tr><td>Naive Bayes</td><td>ML (MATLAB)</td><td>20</td><td>0.6%</td><td>0.571</td><td>0.400</td><td>0.471</td></tr>
+<tr><td>SVM</td><td>ML (MATLAB)</td><td>20</td><td>0.4%</td><td>0.333</td><td>0.200</td><td>0.250</td></tr>
 </table>
-<h2>Conclusion</h2>
-<p>The comparison demonstrates the trade-offs between execution speed and contextual accuracy. 
-Machine learning models (SVM and Naive Bayes) can capture specific crypto vernacular better when provided with a large training set, 
-while VADER and Ratio Rule methods provide strong out-of-the-box baselines without training overhead.</p>
+<h2>Continuous Score Statistics (VADER / Lexicon)</h2>
+<table>
+<tr><th>Method</th><th>Mean</th><th>Std</th><th>Min</th><th>Max</th><th>Sign Agreement (%)</th></tr>
+<tr><td>VADER</td><td>0.0000</td><td>0.0000</td><td>0.0000</td><td>0.0000</td><td>0.0%</td></tr>
+<tr><td>Lexicon/Ratio</td><td>-0.0500</td><td>0.5104</td><td>-1.0000</td><td>1.0000</td><td>25.0%</td></tr>
+</table>
+<h2>Twitter Data Descriptive Analysis</h2>
+<p>Unlabeled Twitter Data — Descriptive Analysis Only (No Ground Truth)</p>
+<p>Bitcoin_tweets.csv (40,463 records) processed for score distributions and method agreement.</p>
+<p>Descriptive statistics available but no supervised metrics (accuracy, precision, recall, F1) computed.</p>
+<h2>Limitations</h2>
+<p>Small sample size (N=21) limits statistical generalization. Results are a methodology comparison, not definitive performance claims.</p>
+<p>VADER availability depends on Python vaderSentiment installation.</p>
+<p>Binary mapping (score > 0) is pre-specified and not tuned on CryptoLin.</p>
+<p>NB/SVM are trained on 19/20 of the same data used for evaluation. Primary metrics use out-of-fold predictions.</p>
 </body></html>

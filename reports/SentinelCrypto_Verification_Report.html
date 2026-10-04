@@ -11,19 +11,21 @@ th, td { padding: 12px; text-align: left; border: 1px solid #1f2833; }
 th { background-color: #1f2833; color: #66fcf1; }
 .pass { color: #00ff00; font-weight: bold; }
 .fail { color: #ff0000; font-weight: bold; }
-.score { font-size: 2em; color: #00ff00; }
+.score { font-size: 2em; color: #ff0000; }
 </style>
 </head>
 <body>
 <h1>SentinelCrypto Verification Report (MathWorks Challenge #239)</h1>
-<p>Generated on: 25-Jul-2026 16:42:17</p>
+<p>Generated on: 04-Oct-2026 22:33:53</p>
 <h2>Institutional Readiness Score</h2>
-<p class="score">100.0%</p>
-<p class="pass">STATUS: CLEARED FOR INSTITUTIONAL DEPLOYMENT</p>
+<p class="score">66.7%</p>
+<h3>Infrastructure Ready: true</h3>
+<h3>Model Quality Gate: FAIL - REQUIRES_MODEL_IMPROVEMENT</h3>
+<p class="fail">STATUS: VALIDATION INCOMPLETE. DO NOT DEPLOY.</p>
 <h2>Unit Tests</h2>
 <table>
 <tr><th>Metric</th><th>Value</th><th>Status</th></tr>
-<tr><td>Tests Passed</td><td>18</td><td><span class="pass">PASS</span></td></tr>
+<tr><td>Tests Passed</td><td>110</td><td><span class="fail">FAIL</span></td></tr>
 </table>
 <h2>Validation</h2>
 <table>
@@ -35,18 +37,25 @@ th { background-color: #1f2833; color: #66fcf1; }
 <tr><td>Repository Health Report Generated</td><td></td><td><span class="pass">PASS</span></td></tr>
 <tr><td>Portfolio Optimization Report Generated</td><td></td><td><span class="pass">PASS</span></td></tr>
 </table>
+<h2>Benchmark</h2>
+<table>
+<tr><th>Metric</th><th>Value</th><th>Status</th></tr>
+<tr><td>Ensemble RMSE</td><td>1854.7407</td><td><span class="fail">FAIL</span></td></tr>
+<tr><td>Naive Baseline RMSE</td><td>1139.8157</td><td><span class="pass">PASS</span></td></tr>
+</table>
 <h2>Backtest</h2>
 <table>
 <tr><th>Metric</th><th>Value</th><th>Status</th></tr>
-<tr><td>Total Trades</td><td>72</td><td><span class="pass">PASS</span></td></tr>
-<tr><td>Win Rate</td><td>55.5556</td><td><span class="pass">PASS</span></td></tr>
-<tr><td>Max Drawdown</td><td>38.1081</td><td><span class="pass">PASS</span></td></tr>
+<tr><td>Total Trades</td><td>3211</td><td><span class="pass">PASS</span></td></tr>
+<tr><td>Win Rate</td><td>39.3958</td><td><span class="fail">FAIL</span></td></tr>
+<tr><td>Max Drawdown</td><td>92.6082</td><td><span class="fail">FAIL</span></td></tr>
 </table>
 <h2>Robustness</h2>
 <table>
 <tr><th>Metric</th><th>Value</th><th>Status</th></tr>
-<tr><td>Probability Of Ruin</td><td>0</td><td><span class="pass">PASS</span></td></tr>
-<tr><td>Expected Return</td><td>9534.3484</td><td><span class="pass">PASS</span></td></tr>
+<tr><td>Probability Of Ruin</td><td>100</td><td><span class="fail">FAIL</span></td></tr>
+<tr><td>Expected Return</td><td>-91.837</td><td><span class="pass">PASS</span></td></tr>
+<tr><td>MonteCarlo Empirical Run</td><td></td><td><span class="pass">PASS</span></td></tr>
 </table>
 </body>
 </html>

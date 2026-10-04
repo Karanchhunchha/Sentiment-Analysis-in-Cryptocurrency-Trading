@@ -1,10 +1,3 @@
-%#ok<*AGROW>
-%#ok<*INUSD>
-%#ok<*NASGU>
-%#ok<*STOUT>
-%#ok<*DATNM>
-%#ok<*DATST>
-%#ok<*MATCH>
 classdef VerificationReport < handle
     % VerificationReport Generates the exhaustive 39-metric institutional
     % HTML report mandated for MathWorks Challenge #239.
@@ -12,6 +5,8 @@ classdef VerificationReport < handle
     properties
         ReportFile
         Metrics
+        InfrastructureReady = false
+        ModelQualityGate = 'INCONCLUSIVE'
     end
     
     methods
@@ -22,6 +17,14 @@ classdef VerificationReport < handle
             end
             obj.ReportFile = fullfile(outputDir, 'SentinelCrypto_Verification_Report.html');
             obj.Metrics = struct();
+        end
+        
+        function setInfrastructureReady(obj, status)
+            obj.InfrastructureReady = status;
+        end
+        
+        function setModelQualityGate(obj, status)
+            obj.ModelQualityGate = status;
         end
         
         function addMetric(obj, category, name, value, isPassed)
@@ -80,6 +83,10 @@ classdef VerificationReport < handle
             
             fprintf(fid, '<h2>Institutional Readiness Score</h2>\n');
             fprintf(fid, '<p class="score">%.1f%%</p>\n', readiness);
+            
+            fprintf(fid, '<h3>Infrastructure Ready: %s</h3>\n', string(obj.InfrastructureReady));
+            fprintf(fid, '<h3>Model Quality Gate: %s</h3>\n', obj.ModelQualityGate);
+            
             if readiness == 100
                 fprintf(fid, '<p class="pass">STATUS: CLEARED FOR INSTITUTIONAL DEPLOYMENT</p>\n');
             else

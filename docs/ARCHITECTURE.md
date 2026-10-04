@@ -1,29 +1,28 @@
-# KCryptoX8 v4.0 Master Architecture
+# SentinelCrypto — Architecture (MathWorks Challenge #239)
 
-This document outlines the professional MATLAB Research & Decision Support Workstation aligned with MathWorks Challenge #239.
-
-## Overview
-The platform uses **MATLAB** as the core engine (UI, Orchestrator, AI), a **Python Extension Layer** for robust asynchronous API data fetching, and a dual-storage system (**PostgreSQL** + **Local Data Lake**).
+This document describes the MATLAB pipeline as built. The authoritative
+build guide is `REVIEWER_GUIDE.md`.
 
 ## 1. Fail-Safe Architecture
-The system employs strict graceful degradation:
-*   **LLM Priority Chain:** `Gemini -> Ollama -> OpenAI -> Traditional NLP (VADER)`
-*   **Data Source Failover:** `Binance -> CoinGecko -> Yahoo -> Local Cache`
-*   **Sentiment Failover:** `Reddit -> RSS News -> Announcements`
-*   **Model Failover:** `CNN-LSTM -> LSTM -> ARIMAX -> ARIMA`
 
-## 2. Python Extension Layer
-Located in `python_modules/`, accessed via `py.*`:
-*   `data_collectors.py`: Handles market data with automatic API switching and Parquet caching.
-*   `sentiment_collectors.py`: Collects and caches Reddit/RSS feeds.
+*   **Sentiment Path:** `VADER (Python via py.*) -> Dictionary fallback` (LLM provider is optional/experimental and not used in production pipeline)
+*   **Data Source Failover:** `Binance REST klines -> Local CSV (data/market/btc.csv)`
+*   **Sentiment Data:** `data/sentiment/historical_daily_sentiment.csv` on a continuous daily grid (`synchronize(..., 'daily','previous')`); `data/sentiment/cryptolin.csv` is the 20-headline demo sentiment-classifier fixture; the 2,683-record CryptoLin corpus (`re solution prompt's/CryptoLin_IE.csv`) is archived reference data
+*   **Model Failover:** `CNN-LSTM -> ARIMA` (ARIMAX(1,1,1) with `Daily_Sentiment` exogenous where estimable; otherwise pure `ARIMA(1,1,1)` — see `models/model_info.json:arima_model_type / fallback_reason` and `train_pipeline.m:P0-03`)
+
+## 2. MATLAB-First Pipeline
+
+*   **Data ingestion:** `src/loaders/PriceDataLoader.m` (Binance klines via `webread`).
+*   **Indicators:** `src/indicators/IndicatorEngine.m` + `src/data/FeatureEngineer.m` (all trailing windows, base MATLAB).
+*   **Streaming features:** `src/feature_engineering/FeatureFusionEngine.m` (genuine Wilder RSI / recursive EMA, deterministic).
+*   **Sequence construction:** `src/data/PipelineDataProcessor.m:formatForCNNLSTM` (30-bar × 20-feature, N-30+1 windows).
+*   **Models:** `train_pipeline.m` (CNN-LSTM via Deep Learning Toolbox) + Econometrics Toolbox (`arima(1,1,1)` / ARIMAX).
 
 ## 3. Storage
-*   **PostgreSQL (`src/database/schema.sql`):** Primary relational storage for datasets, features, models, experiments, and backtesting metrics.
-*   **Local Data Lake (`data/`):** Offline Parquet/CSV cache ensuring the application remains functional without database/internet access.
+
+*   **PostgreSQL (`src/database/schema.sql`):** Relational store for features/models/experiments (optional).
+*   **Local Data Lake (`data/`):** Offline CSV cache (`btc.csv`, `historical_daily_sentiment.csv`) so the pipeline runs without DB/network.
 
 ## 4. UI: Research Workstation
-A unified dashboard (`SentinelAppCore.m`) displaying:
-*   Market & Sentiment Analysis
-*   Portfolio Simulation (Sharpe, Max Drawdown, VaR, CVaR)
-*   Model Manager & Experiment Tracking
-*   System Health Diagnostics
+
+A unified dashboard (`src/dashboard/SentinelDashboard.m`) displaying market & sentiment analysis, portfolio simulation, model manager and system diagnostics.

@@ -1,15 +1,4 @@
-%#ok<*AGROW>
-%#ok<*INUSD>
-%#ok<*NASGU>
-%#ok<*STOUT>
-%#ok<*DATNM>
-%#ok<*DATST>
-%#ok<*MATCH>
 classdef PortfolioSimulator
-%#ok<*AGROW>
-%#ok<*INUSD>
-%#ok<*NASGU>
-%#ok<*STOUT>
     % PortfolioSimulator Backtests strategy and computes risk metrics
     
     properties
@@ -115,11 +104,8 @@ classdef PortfolioSimulator
             conn = DataIngestion.getDbConnection();
             if ~isempty(conn) && isopen(conn)
                 try
-                    query = sprintf(...
-                        "INSERT INTO portfolio_performance (strategy_name, model_id, sharpe_ratio, sortino_ratio, max_drawdown, cagr, btc_weight, cash_weight) " + ...
-                        "VALUES ('%s', '%s', %f, %f, %f, %f, %f, %f);", ...
-                        strategyName, modelId, metrics.SharpeRatio, metrics.SortinoRatio, metrics.MaxDrawdown, metrics.CAGR, metrics.FinalBTCWeight, metrics.FinalCashWeight);
-                    execute(conn, query);
+                    query = "INSERT INTO portfolio_performance (strategy_name, model_id, sharpe_ratio, sortino_ratio, max_drawdown, cagr, btc_weight, cash_weight) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+                    execute(conn, query, {strategyName, modelId, metrics.SharpeRatio, metrics.SortinoRatio, metrics.MaxDrawdown, metrics.CAGR, metrics.FinalBTCWeight, metrics.FinalCashWeight});
                 catch e
                     Logger.error('Failed to log portfolio metrics: %s', e.message);
                 end
@@ -128,6 +114,14 @@ classdef PortfolioSimulator
         end
         
         function [bestWeights, maxSharpe, htmlPath] = optimizePortfolio(obj)
+            % Seed is now controlled by the caller or initialized once
+            % at the start of the function, but removed from inside
+            % the loop if it was there. wait - rng should be here.
+            % The test called this twice, each time rng was set. 
+            % fmincon is deterministic? sqp might depend on start point.
+            % Let me set a fixed RNG seed at top level or here if it
+            % must be. Let's make it deterministic.
+            rng(12345); 
             Logger.info('Initializing Mean-Variance Portfolio Optimizer (BTC/ETH/BNB/Cash)...');
             
             % 1. Fetch live prices from Binance API
@@ -165,47 +159,35 @@ classdef PortfolioSimulator
             meanR = mean(R);
             covR = cov(R);
             
-            % 3. Monte Carlo Simulation for Efficient Frontier
-            numPortfolios = 5000;
-            allWeights = zeros(numPortfolios, 4);
-            allReturns = zeros(numPortfolios, 1);
-            allVols = zeros(numPortfolios, 1);
-            allSharpes = zeros(numPortfolios, 1);
+            % 3. Deterministic Optimization for Efficient Frontier
+            % Constraints: sum(w) = 1, 0 <= w <= 1
+            Aeq = ones(1, 4);
+            beq = 1;
+            lb = zeros(1, 4);
+            ub = ones(1, 4);
+            x0 = [0.25 0.25 0.25 0.25];
+            options = optimoptions('fmincon', 'Display', 'off', 'Algorithm', 'sqp');
+
+            % Maximize Sharpe Ratio (Minimize negative Sharpe) — 365 days/year for crypto.
+            N = 365;
+            objFunc = @(w) -(w * meanR' * N) / (sqrt(w * covR * w') * sqrt(N));
+            bestWeights = fmincon(objFunc, x0, [], [], Aeq, beq, lb, ub, [], options);
+            maxSharpe = -objFunc(bestWeights);
+            bestRet = bestWeights * meanR' * N;
+            bestVol = sqrt(bestWeights * covR * bestWeights') * sqrt(N);
             
-            for i = 1:numPortfolios
-                w = rand(1, 4);
-                w = w / sum(w);
-                allWeights(i, :) = w;
-                
-                % Annualized Return & Volatility
-                portRet = sum(w .* meanR) * 252;
-                portVol = sqrt(w * covR * w') * sqrt(252);
-                
-                allReturns(i) = portRet;
-                allVols(i) = portVol;
-                if portVol > 0
-                    allSharpes(i) = portRet / portVol;
-                else
-                    allSharpes(i) = 0;
-                end
-            end
+            % Minimize Variance
+            varFunc = @(w) w * covR * w';
+            minVolWeights = fmincon(varFunc, x0, [], [], Aeq, beq, lb, ub, [], options);
+            minVol = sqrt(minVolWeights * covR * minVolWeights') * sqrt(N);
+            minVolRet = minVolWeights * meanR' * N;
             
-            % Find optimal weights
-            [maxSharpe, bestIdx] = max(allSharpes);
-            bestWeights = allWeights(bestIdx, :);
-            bestRet = allReturns(bestIdx);
-            bestVol = allVols(bestIdx);
-            
-            % Find minimum variance portfolio
-            [minVol, minVolIdx] = min(allVols);
-            minVolWeights = allWeights(minVolIdx, :);
-            minVolRet = allReturns(minVolIdx);
-            
-            % Find maximum return portfolio
-            [maxRet, maxRetIdx] = max(allReturns);
-            maxRetWeights = allWeights(maxRetIdx, :);
-            maxRetVol = allVols(maxRetIdx);
-            maxRetSharpe = allSharpes(maxRetIdx);
+            % Maximize Return
+            retFunc = @(w) -(w * meanR' * N);
+            maxRetWeights = fmincon(retFunc, x0, [], [], Aeq, beq, lb, ub, [], options);
+            maxRet = -retFunc(maxRetWeights);
+            maxRetVol = sqrt(maxRetWeights * covR * maxRetWeights') * sqrt(N);
+            maxRetSharpe = maxRet / maxRetVol;
             
             % 4. Generate HTML Report
             reportsDir = fullfile(pwd, 'reports');

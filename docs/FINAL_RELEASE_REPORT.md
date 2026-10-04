@@ -14,8 +14,8 @@ The system relies on a local feature fusion layer to decouple network latency fr
 
 ### Machine Learning
 - CNN-LSTM trained on a 20-feature input sequence.
-- ARIMAX integration utilizing exogenous tweet volume and sentiment polarity to predict base asset movements.
-- Ensembling weights: `0.6` CNN-LSTM, `0.4` ARIMAX (Configurable in `train_pipeline.m`).
+- ARIMA integration to predict base asset movements.
+- Ensembling weights: `0.6` CNN-LSTM, `0.4` ARIMA (Configurable in `train_pipeline.m`).
 
 ### Verification & CI/CD
 Local verification is executed via `verify_submission.m`. No external CI triggers are required, as the test suite is entirely bundled and executes purely inside the MATLAB environment without third-party frameworks.

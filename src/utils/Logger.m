@@ -1,10 +1,3 @@
-%#ok<*AGROW>
-%#ok<*INUSD>
-%#ok<*NASGU>
-%#ok<*STOUT>
-%#ok<*DATNM>
-%#ok<*DATST>
-%#ok<*MATCH>
 classdef Logger
     % Logger Handles application logging (console + file)
     
@@ -55,7 +48,7 @@ classdef Logger
         end
         
         function warning(message, varargin)
-            Logger.log('WARN', message, varargin{:});
+            Logger.warn(message, varargin{:});
         end
         
         function success(message, varargin)

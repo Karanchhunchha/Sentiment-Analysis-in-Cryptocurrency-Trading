@@ -1,10 +1,3 @@
-%#ok<*AGROW>
-%#ok<*INUSD>
-%#ok<*NASGU>
-%#ok<*STOUT>
-%#ok<*DATNM>
-%#ok<*DATST>
-%#ok<*MATCH>
 classdef IndicatorEngine
     % IndicatorEngine Computes robust technical indicators on historical data.
     % Avoids reliance on specific Financial Toolbox functions to ensure 
@@ -20,8 +13,8 @@ classdef IndicatorEngine
             vol = data.Volume;
             
             % SMA & EMA
-            data.SMA_20 = movmean(closeP, 20);
-            data.SMA_50 = movmean(closeP, 50);
+            data.SMA_20 = movmean(closeP, [19 0]);
+            data.SMA_50 = movmean(closeP, [49 0]);
             data.EMA_20 = IndicatorEngine.calcEMA(closeP, 20);
             data.EMA_50 = IndicatorEngine.calcEMA(closeP, 50);
             
@@ -36,7 +29,7 @@ classdef IndicatorEngine
             data.RSI_14 = IndicatorEngine.calcRSI(closeP, 14);
             
             % Bollinger Bands (20-period, 2-std)
-            std20 = movstd(closeP, 20);
+            std20 = movstd(closeP, [19 0]);
             data.BB_Upper = data.SMA_20 + (2 .* std20);
             data.BB_Lower = data.SMA_20 - (2 .* std20);
             
@@ -48,7 +41,7 @@ classdef IndicatorEngine
             
             % Volatility (Rolling standard deviation of returns)
             returns = [0; diff(closeP) ./ closeP(1:end-1)];
-            data.Volatility_20 = movstd(returns, 20);
+            data.Volatility_20 = movstd(returns, [19 0]);
             
             % True Range & ATR
             tr = max([highP - lowP, ...
@@ -56,8 +49,9 @@ classdef IndicatorEngine
                       abs(lowP - [closeP(1); closeP(1:end-1)])], [], 2);
             data.ATR_14 = IndicatorEngine.calcEMA(tr, 14);
             
-            % Drop initial NaN rows due to lookback periods
-            data(1:50, :) = [];
+            % Drop initial rows for warm-up: longest indicator is SMA_50 -> 50 bars
+            warmUp = 50;
+            data(1:warmUp, :) = [];
             
             Logger.success('Indicators calculated successfully. Added 14 features.');
         end
@@ -78,8 +72,8 @@ classdef IndicatorEngine
             gains = max(0, diffs);
             losses = max(0, -diffs);
             
-            avgGain = movmean(gains, period);
-            avgLoss = movmean(losses, period);
+            avgGain = movmean(gains, [period-1 0]);
+            avgLoss = movmean(losses, [period-1 0]);
             
             rs = avgGain ./ max(avgLoss, 1e-8);
             rsi = 100 - (100 ./ (1 + rs));
