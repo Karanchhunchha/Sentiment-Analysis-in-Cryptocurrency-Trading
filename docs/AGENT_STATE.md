@@ -1,12 +1,12 @@
 # Agent State
 - Baseline SHA: a83ec0a
-- Current HEAD SHA: 6aa285c505acc7c38219e4c112b6e3d9baf993b8
+- Current HEAD SHA: 56a8df9053359e43ded6ac4e0d41aeb15ef299e3
 - Branch: revision/mathworks-review
 - MATLAB R2026b
 - Toolboxes: Datafeed_Toolbox, Database_Toolbox, System Identification Toolbox
 - Working tree status: Clean (dirty items stashed securely)
-- Local commit hash: 6aa285c505acc7c38219e4c112b6e3d9baf993b8
-- Remote commit hash: 6aa285c505acc7c38219e4c112b6e3d9baf993b8
+- Local commit hash: 56a8df9053359e43ded6ac4e0d41aeb15ef299e3
+- Remote commit hash: 56a8df9053359e43ded6ac4e0d41aeb15ef299e3
 - B07 LOCKED: PASS (forensic audit 0 failures; 11/11 tests pass; 65/0 full suite pass; regressions B03/B04/B05/P0-04 all pass)
 - B08 LOCKED: PASS (commit `bbcc6ea`; forensic audit 0 failures; 17/17 B08 tests pass; full regression suite 100% pass)
 - Risk Metrics LOCKED: PASS (commit `717d1b2`; annualization=365; VaR/CVaR=empirical 95% strategy-equity; Monte Carlo=trade-P&L bootstrap; test_RiskMetrics 2/2 pass; full regression suite 100% pass)
@@ -19,3 +19,4 @@
 - T06: Sentiment Classifier LOCKED: PASS (commit `bcd86c8`; CryptoLin news dataset used; NB+SVM trained/tested; full regression suite 100% pass)
 - T07: Sentiment Evaluation LOCKED: PASS (commit `1f66f95`; 20ca0bb T07 HEAD; CryptoLin dataset 20 records (10 Positive/10 Negative); LOO evaluation; 16/16 T07 tests pass; VADER unavailable in verification environment; Lexicon 55% F1 0.55, NB 65% F1 0.65, SVM 60% F1 0.60; no leakage; no synthetic data; full regression suite pass; T06 integrity verified; protected folder intact)
 - T08: LLM Truthfulness and Hygiene LOCKED: PASS (commit `6aa285c`; LLM retained as optional/experimental not in production pipeline; README/ARCHITECTURE/CHANGELOG corrected truthfully; no hardcoded keys; .env gitignored; .env.example placeholder; HTTPS + timeout=10; missing-key handled explicitly; no secret logging; production pipeline verified not calling LLMFeatureExtractor; T07 16/16 re-verified; full regression completed; reports reverted; protected folder intact)
+- B6/D1: Financial Toolbox Claim LOCKED: PASS (commit `56a8df9`; false Financial Toolbox claim removed truthfully; no Financial Toolbox dependency exists; indicators use base MATLAB movmean/movstd + custom EMA/RSI trailing [N-1 0]; no macd/rsindex/bollinger calls; README + SUBMISSION_CHECKLIST corrected; IndicatorEngine/FeatureEngineer unchanged; B01 locked intact; T07 16/16 re-verified; checkcode clean; protected folder intact)
