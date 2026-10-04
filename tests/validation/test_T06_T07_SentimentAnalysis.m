@@ -13,7 +13,9 @@ classdef test_T06_T07_SentimentAnalysis < matlab.unittest.TestCase
         function testClassifierPerformance(testCase)
             % 1. Load CryptoLin
             classifier = SentimentClassifier();
-            classifier = classifier.train('data/sentiment/cryptolin.csv');
+            % classifier = classifier.train('data/sentiment/cryptolin.csv');
+            absPath = 'D:\Sentiment Analysis in Cryptocurrency Trading\data\sentiment\cryptolin.csv';
+            classifier = classifier.train(absPath);
             
             % 2. Verify Classifier returns valid scores
             [nb, svm] = classifier.predict('bitcoin is bullish');
