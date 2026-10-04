@@ -11,7 +11,7 @@
 | **Price Forecasting** | ✅ Ready |
 | **VAR Econometrics** | ✅ Ready |
 | **Backtesting Engine** | ✅ Ready |
-| **LLM Feature Extraction (Anthropic)** | ✅ Ready (API key in `configs/.env`) |
+| **LLM Feature Extraction (Anthropic)** | Optional/experimental (not used in production pipeline; API key in `configs/.env`) |
 
 A MATLAB-based, end-to-end cryptocurrency trading system implementing time-series forecasting, sentiment analysis, and risk management. 
 

@@ -7,7 +7,7 @@
 - `schema.sql`: Official PostgreSQL schema for price, sentiment, and portfolio data.
 - `EconometricForecast.m`: ARIMA forecasting model using MATLAB Econometrics Toolbox.
 - `SentimentEngine.m`: Naive Bayes classifier & VADER implementation using MATLAB Stats & ML Toolbox.
-- `LLMFeatureExtractor.m`: Multi-provider LLM integration via MATLAB REST APIs.
+- `LLMFeatureExtractor.m`: Multi-provider LLM integration via MATLAB REST APIs (optional/experimental; not used in production pipeline).
 - `.env.example`: Configuration template for Database and LLM secrets.
 
 ### Changed

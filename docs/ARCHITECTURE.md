@@ -7,7 +7,7 @@ The platform uses **MATLAB** as the core engine (UI, Orchestrator, AI), a **Pyth
 
 ## 1. Fail-Safe Architecture
 The system employs strict graceful degradation:
-*   **LLM Priority Chain:** `Gemini -> Ollama -> OpenAI -> Traditional NLP (VADER)`
+*   **Sentiment Path:** `VADER (Python) -> Dictionary fallback` (LLM provider is optional/experimental and not used in production pipeline)
 *   **Data Source Failover:** `Binance -> CoinGecko -> Yahoo -> Local Cache`
 *   **Sentiment Failover:** `Reddit -> RSS News -> Announcements`
 *   **Model Failover:** `CNN-LSTM -> LSTM -> ARIMA` (ARIMAX attempted but infeasible with current 231-row sentiment overlap; falls back to pure ARIMA(1,1,1))
