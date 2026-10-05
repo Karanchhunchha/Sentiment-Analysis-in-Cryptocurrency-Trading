@@ -64,8 +64,13 @@ classdef App < handle
             % Settings Tab
             obj.SettingsModule = uitab(obj.TabGroup, 'Title', 'Settings');
             cfg = ConfigManager.getEnv();
+            apiKey = cfg('ALPHAVANTAGE_API_KEY');
+            apiKeyMasked = 'NOT CONFIGURED';
+            if ~isempty(apiKey) && ~strcmp(apiKey, 'your_api_key_here')
+                apiKeyMasked = 'CONFIGURED';
+            end
             txt = sprintf('Configuration:\nAPI Key: %s\nWorking Dir: %s', ...
-                char(cfg('ALPHAVANTAGE_API_KEY')), pwd);
+                apiKeyMasked, pwd);
             uilabel(obj.SettingsModule, 'Text', txt, ...
                     'Position', [50 350 400 100], 'FontSize', 14);
 
