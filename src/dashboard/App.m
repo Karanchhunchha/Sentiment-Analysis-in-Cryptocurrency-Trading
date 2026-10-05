@@ -9,7 +9,19 @@ classdef App < handle
         % Module References
         HomeModule
         SystemHealthModule
-        % other modules will be added here
+        MarketAnalysisModule
+        SentimentAnalysisModule
+        ForecastModule
+        ModelComparisonModule
+        FeatureImportanceModule
+        PortfolioSimulationModule
+        BacktestingModule
+        ExperimentsModule
+        DataPipelineModule
+        DataQualityModule
+        ModelManagerModule
+        DatabaseModule
+        SettingsModule
     end
     
     methods
@@ -31,25 +43,32 @@ classdef App < handle
             
             % Initialize Modular Tabs
             obj.HomeModule = HomeTab(obj.TabGroup, obj);
+            obj.MarketAnalysisModule = MarketAnalysisTab(obj.TabGroup, obj);
+            obj.SentimentAnalysisModule = SentimentAnalysisTab(obj.TabGroup, obj);
+            obj.ForecastModule = ForecastTab(obj.TabGroup, obj);
             
-            % Create placeholders for unbuilt tabs per PRD
-            placeholders = {'Market Analysis', 'Sentiment Analysis', 'Forecast', 'Model Comparison', ...
-                            'Feature Importance', 'Portfolio Simulation', 'Backtesting', ...
-                            'Experiments', 'Data Pipeline', 'Data Quality', 'Model Manager', 'Database'};
-                            
-            for i = 1:length(placeholders)
-                t = uitab(obj.TabGroup, 'Title', placeholders{i});
-                uilabel(t, 'Text', sprintf('--- %s Module ---', placeholders{i}), ...
-                    'Position', [400 350 400 40], 'FontSize', 18, 'HorizontalAlignment', 'center');
-            end
+            % Modular Tabs (Wire to real backends)
+            obj.ModelComparisonModule = ModelComparisonTab(obj.TabGroup, obj);
+            obj.FeatureImportanceModule = GenericDiagnosticTab(obj.TabGroup, 'Feature Importance (Diag)', obj, @() ['Feature Importance status: ' char(obj.SystemHealthModule.checkFeatureImportanceStatus())]);
+            obj.PortfolioSimulationModule = PortfolioSimulationTab(obj.TabGroup, obj);
+            obj.BacktestingModule = BacktestingTab(obj.TabGroup, obj);
+            obj.ExperimentsModule = GenericDiagnosticTab(obj.TabGroup, 'Experiments (Diag)', obj, @() 'Experiments (Diag): Comparison scripts available in scripts/ folder.');
+            obj.DataPipelineModule = GenericDiagnosticTab(obj.TabGroup, 'Data Pipeline (Diag)', obj, @() ['Data Pipeline status: ' char(obj.SystemHealthModule.checkDataPipelineStatus())]);
+            obj.DataQualityModule = GenericDiagnosticTab(obj.TabGroup, 'Data Quality (Diag)', obj, @() ['Data Quality analysis: ' char(obj.SystemHealthModule.checkDataQualityStatus())]);
+            obj.ModelManagerModule = GenericDiagnosticTab(obj.TabGroup, 'Model Manager (Diag)', obj, @() ['Model Manager status: ' char(obj.SystemHealthModule.checkModelStatus())]);
+            obj.DatabaseModule = GenericDiagnosticTab(obj.TabGroup, 'Database (Diag)', obj, @() ['Database status: ' char(obj.SystemHealthModule.checkDatabaseStatus())]);
             
             % System Health Tab
             obj.SystemHealthModule = SystemHealthTab(obj.TabGroup, obj);
             
             % Settings Tab
-            t = uitab(obj.TabGroup, 'Title', 'Settings');
-            uilabel(t, 'Text', '--- Settings Module ---', ...
-                    'Position', [400 350 400 40], 'FontSize', 18, 'HorizontalAlignment', 'center');
+            obj.SettingsModule = uitab(obj.TabGroup, 'Title', 'Settings');
+            cfg = ConfigManager.getEnv();
+            txt = sprintf('Configuration:\nAPI Key: %s\nWorking Dir: %s', ...
+                char(cfg('ALPHAVANTAGE_API_KEY')), pwd);
+            uilabel(obj.SettingsModule, 'Text', txt, ...
+                    'Position', [50 350 400 100], 'FontSize', 14);
+
         end
         
         function updateStatus(obj, text, color)

@@ -75,6 +75,38 @@ classdef SystemHealthCheck
                 result = 'PASS (Config Found)';
             end
         end
+
+        function result = checkFeatureImportanceStatus()
+            if exist('models/feature_list.mat', 'file')
+                result = 'PASS (Artifact Found)';
+            else
+                result = 'WARN (Artifact Missing)';
+            end
+        end
+
+        function result = checkDataPipelineStatus()
+            if ~isempty(dir(fullfile(pwd, 'data', 'market', '*.csv')))
+                result = 'PASS (Data Found)';
+            else
+                result = 'WARN (No CSV Data)';
+            end
+        end
+
+        function result = checkDataQualityStatus()
+            if exist('reports/DataAuditReport.html', 'file')
+                result = 'PASS (Report Generated)';
+            else
+                result = 'WARN (Report Missing)';
+            end
+        end
+        
+        function result = checkModelStatus()
+            if exist('models/cnn_lstm.mat', 'file')
+                result = 'PASS (Model Artifact Found)';
+            else
+                result = 'FAIL (Model Artifact Missing)';
+            end
+        end
         
         function result = checkInternet()
             try
