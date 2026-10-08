@@ -26,13 +26,29 @@ classdef test_Indicators < matlab.unittest.TestCase
     
     methods(Test)
         function testSMA(testCase)
-            data = IndicatorEngine.calculateAll(testCase.TestData);
+            % SMA20 golden reference: Close = (1:60)', SMA20(51) MUST equal 41.5.
+            data = testCase.TestData(1:60, :);
+            data.Close = (1:60)';
+            out = IndicatorEngine.calculateAll(data);
             
-            % SMA20 of a straight line linspace(100, 200, 100) + sine wave
-            % We will just check if the SMA exists and is structurally sound
-            testCase.verifyTrue(ismember('SMA_20', data.Properties.VariableNames));
-            % Check there are no NaNs left since the engine drops the first 50 rows
-            testCase.verifyFalse(any(isnan(data.SMA_20)));
+            testCase.verifyTrue(ismember('SMA_20', out.Properties.VariableNames));
+            % Note: IndicatorEngine drops first 50 rows.
+            % So row 51 in original data becomes row 1 in output data.
+            testCase.verifyEqual(out.SMA_20(1), 41.5, 'AbsTol', 1e-4);
+        end
+        
+        function testFutureRowInvariance(testCase)
+            % Changing future observations must not change earlier indicator outputs
+            data1 = testCase.TestData(1:100, :);
+            data2 = testCase.TestData(1:100, :);
+            data2.Close(90:100) = 99999; % Alter future rows
+            
+            out1 = IndicatorEngine.calculateAll(data1);
+            out2 = IndicatorEngine.calculateAll(data2);
+            
+            % Compare output for row 80 (which is index 30 after 50 warm-up dropped)
+            testCase.verifyEqual(out1.SMA_20(30), out2.SMA_20(30));
+            testCase.verifyEqual(out1.RSI_14(30), out2.RSI_14(30));
         end
         
         function testEMA(testCase)
@@ -64,7 +80,7 @@ classdef test_Indicators < matlab.unittest.TestCase
             
             % The reviewer noted the previous test was tautological (A-B == A-B).
             % Now we verify MACD against an independent mathematical reference
-            price = data.Close;
+            price = testCase.TestData.Close;
             ema12 = zeros(size(price)); ema26 = zeros(size(price));
             ema12(1) = price(1); ema26(1) = price(1);
             k12 = 2/13; k26 = 2/27;
@@ -75,7 +91,7 @@ classdef test_Indicators < matlab.unittest.TestCase
             refMACD = ema12 - ema26;
             
             % Test valid indices (after drop rows, test against reference)
-            diff = abs(data.MACD_Line(51:end) - refMACD(100:end));
+            diff = abs(data.MACD_Line - refMACD(51:end));
             testCase.verifyLessThan(mean(diff), 1e-2);
         end
         
@@ -84,11 +100,10 @@ classdef test_Indicators < matlab.unittest.TestCase
             
             testCase.verifyTrue(ismember('BB_Upper', data.Properties.VariableNames));
             testCase.verifyTrue(ismember('BB_Lower', data.Properties.VariableNames));
-            testCase.verifyTrue(ismember('BB_Mid', data.Properties.VariableNames));
             
-            % Verify that Upper is always >= Mid and Lower <= Mid
-            testCase.verifyTrue(all(data.BB_Upper >= data.BB_Mid));
-            testCase.verifyTrue(all(data.BB_Lower <= data.BB_Mid));
+            % Verify that Upper is always >= Mid and Lower <= Mid (Mid is SMA_20)
+            testCase.verifyTrue(all(data.BB_Upper >= data.SMA_20));
+            testCase.verifyTrue(all(data.BB_Lower <= data.SMA_20));
         end
     end
 end
