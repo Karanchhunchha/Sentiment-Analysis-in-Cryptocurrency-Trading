@@ -62,9 +62,33 @@ classdef test_Indicators < matlab.unittest.TestCase
             testCase.verifyTrue(ismember('MACD_Signal', data.Properties.VariableNames));
             testCase.verifyTrue(ismember('MACD_Hist', data.Properties.VariableNames));
             
-            % Check that Hist = MACD - Signal
-            histCheck = data.MACD_Line - data.MACD_Signal;
-            testCase.verifyEqual(data.MACD_Hist(35:end), histCheck(35:end), 'AbsTol', 1e-4);
+            % The reviewer noted the previous test was tautological (A-B == A-B).
+            % Now we verify MACD against an independent mathematical reference
+            price = data.Close;
+            ema12 = zeros(size(price)); ema26 = zeros(size(price));
+            ema12(1) = price(1); ema26(1) = price(1);
+            k12 = 2/13; k26 = 2/27;
+            for i=2:length(price)
+                ema12(i) = price(i)*k12 + ema12(i-1)*(1-k12);
+                ema26(i) = price(i)*k26 + ema26(i-1)*(1-k26);
+            end
+            refMACD = ema12 - ema26;
+            
+            % Test valid indices (after drop rows, test against reference)
+            diff = abs(data.MACD_Line(51:end) - refMACD(100:end));
+            testCase.verifyLessThan(mean(diff), 1e-2);
+        end
+        
+        function testBollingerBands(testCase)
+            data = IndicatorEngine.calculateAll(testCase.TestData);
+            
+            testCase.verifyTrue(ismember('BB_Upper', data.Properties.VariableNames));
+            testCase.verifyTrue(ismember('BB_Lower', data.Properties.VariableNames));
+            testCase.verifyTrue(ismember('BB_Mid', data.Properties.VariableNames));
+            
+            % Verify that Upper is always >= Mid and Lower <= Mid
+            testCase.verifyTrue(all(data.BB_Upper >= data.BB_Mid));
+            testCase.verifyTrue(all(data.BB_Lower <= data.BB_Mid));
         end
     end
 end

@@ -23,7 +23,7 @@ classdef test_T06_T07_SentimentAnalysis < matlab.unittest.TestCase
             testCase.verifyTrue(abs(svm) <= 1, 'SVM score out of range');
             
             % 3. Verify metrics
-            metrics = classifier.evaluate('data/sentiment/cryptolin.csv');
+            metrics = classifier.evaluate(absPath);
             testCase.verifyTrue(isfield(metrics.NB, 'Accuracy'), 'NB metrics missing');
             testCase.verifyTrue(isfield(metrics.SVM, 'Accuracy'), 'SVM metrics missing');
         end
