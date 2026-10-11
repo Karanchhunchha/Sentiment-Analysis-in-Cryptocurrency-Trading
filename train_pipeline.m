@@ -9,8 +9,10 @@
 % MathWorks Challenge #239 - SentinelCrypto
 % train_pipeline.m (Training Mode Orchestrator)
 
-function train_pipeline(seed)
+function train_pipeline(seed, interval, maxRows)
 if nargin < 1, seed = 42; end
+if nargin < 2, interval = '1d'; end
+if nargin < 3, maxRows = []; end
 clc; close all;
 rng(seed); 
 
@@ -20,13 +22,17 @@ addpath(genpath('data'));
 addpath(genpath('configs'));
 addpath(genpath('models'));
 
+% Isolate artifacts by timeframe
+outputDir = fullfile('models', interval);
+if ~exist(outputDir, 'dir'), mkdir(outputDir); end
+
 disp('====================================================');
-disp('      🧠 SENTINELCRYPTO TRAINING PIPELINE 🧠      ');
+disp(['      🧠 SENTINELCRYPTO TRAINING PIPELINE (', interval, ') 🧠      ']);
 disp('====================================================');
 
 %% 1 & 2. Data Ingestion & Feature Engineering
 disp('-> [1-3/6] Loading Data, Sentiment, and Engineering Features...');
-[fullData, X, Y] = PipelineDataProcessor.prepareData();
+[fullData, X, Y] = PipelineDataProcessor.prepareData([], interval, maxRows);
 featureList = fullData.Properties.VariableNames(1:end-1);
 % PipelineDataProcessor uses a fixed default featureList; the explicit list below
 % is kept so the pipeline's expected 20-feature set is transparent to the reviewer.
@@ -85,6 +91,11 @@ options = trainingOptions('adam', ...
 % Convert data for sequence input (Features x SequenceLength for each observation)
 [XTrainSeq, vTrain] = PipelineDataProcessor.formatForCNNLSTM(XTrain, 30);
 YTrainSeq = YTrain(vTrain);
+
+% Exclude any samples where target is NaN (synthetic target masking)
+validTargetMask = ~isnan(YTrainSeq);
+XTrainSeq = XTrainSeq(validTargetMask);
+YTrainSeq = YTrainSeq(validTargetMask);
 try
     cnnLstmNet = trainNetwork(XTrainSeq, YTrainSeq, layers, options);
     Logger.success('CNN-LSTM Training Complete.');
@@ -132,7 +143,7 @@ marketDataAR   = readtable(fullfile(pwd, 'data', 'market', 'btc.csv'));
 sentimentDataAR = readtable(fullfile(pwd, 'data', 'sentiment', 'historical_daily_sentiment.csv'));
 
 marketDataAR.Date   = dateshift(datetime(marketDataAR.Date),   'start', 'day');
-sentimentDataAR.Date = dateshift(datetime(sentimentDataAR.Date), 'start', 'day');
+sentimentDataAR.Date = dateshift(datetime(sentimentDataAR.Date), 'start', 'day') + caldays(1);
 
 % Assert chronological order (non-negotiable for time-series models)
 assert(all(diff(marketDataAR.Date)   > 0), 'train_pipeline:NotSorted', 'Market data not sorted ascending.');
@@ -255,7 +266,9 @@ end
 % ---- SVM Training ----
 disp('  => Training SVM Model...');
 try
-    svmModel = fitrsvm(XTrain, YTrain, 'Standardize', true, 'KernelFunction', 'gaussian', 'KernelScale', 'auto', 'RNGSeed', seed);
+    % RNGSeed is not a valid fitrsvm name-value parameter. Global RNG stream
+    % is already seeded via rng(seed) at pipeline entry for reproducibility.
+    svmModel = fitrsvm(XTrain, YTrain, 'Standardize', true, 'KernelFunction', 'gaussian', 'KernelScale', 'auto');
     Logger.success('SVM Training Complete.');
 catch ME
     Logger.warning('SVM failed: %s. Using stub model.', ME.message);
@@ -369,7 +382,7 @@ ensembleWeights = [0.6, 0.4]; % CNN-LSTM, ARIMA (or use the best models)
 
 %% 6. Model Saving
 disp('-> [6/6] Saving Artifacts to disk...');
-mgr = ModelManager();
+mgr = ModelManager(outputDir);
 isArimax = contains(arimaModelType, 'ARIMAX');
 modelTypeShort = 'ARIMA';
 if isArimax, modelTypeShort = 'ARIMAX'; end

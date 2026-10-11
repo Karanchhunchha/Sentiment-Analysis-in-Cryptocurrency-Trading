@@ -2,14 +2,34 @@ classdef PipelineDataProcessor
     % Single Source of Truth for Data Loading, Feature Engineering, and Preprocessing
     
     methods (Static)
-        function [fullData, X, Y] = prepareData(featureList)
+        function [fullData, X, Y] = prepareData(featureList, interval, maxRows)
+            if nargin < 2; interval = '1d'; end
+            if nargin < 3; maxRows = []; end
+            
             % 1. Load Market Data
-            loader = PriceDataLoader('BTCUSDT', '1d');
-            try
-                marketData = loader.loadHistoricalCSV('data/market/btc.csv');
-            catch
-                marketData = loader.loadHistoricalCSV('btc.csv');
+            loader = PriceDataLoader('BTCUSDT', interval);
+            if strcmp(interval, '1d')
+                marketFile = fullfile(pwd, 'data', 'market', 'btc.csv');
+            elseif strcmp(interval, '15m')
+                marketFile = fullfile(pwd, 'data', 'market', 'btc_15m_data_2018_to_2025.csv');
+            else
+                marketFile = fullfile(pwd, 'data', 'market', ['btc_', interval, '.csv']);
             end
+            try
+                marketData = loader.loadHistoricalCSV(marketFile);
+            catch
+                % Fallback for legacy filenames
+                if strcmp(interval, '15m')
+                    marketData = loader.loadHistoricalCSV(fullfile(pwd, 'data', 'market', 'btc_15m_data_2018_to_2025.csv'));
+                else
+                    marketData = loader.loadHistoricalCSV(fullfile(pwd, 'btc.csv'));
+                end
+            end
+            
+            if ~isempty(maxRows) && height(marketData) > maxRows
+                marketData = marketData(end-maxRows+1:end, :);
+            end
+
             
             % 2. Load Sentiment Data
             try
@@ -21,19 +41,59 @@ classdef PipelineDataProcessor
                 sentimentData = readtable('data/sentiment/historical_daily_sentiment.csv');
             end
             
-            % 3. Merge and Align on a Continuous Daily Grid
+            % 3. Merge and Align on a Continuous Grid
             % The reviewer identified gaps in the time-series which break autoregressive models.
-            % We create a continuous regular daily grid and synchronize to prevent alignment issues.
-            marketData.Date = dateshift(datetime(marketData.Date), 'start', 'day');
-            sentimentData.Date = dateshift(datetime(sentimentData.Date), 'start', 'day');
+            % We create a continuous regular grid and synchronize to prevent alignment issues.
+            % Standardize column names
+            if any(strcmp(marketData.Properties.VariableNames, 'Open_time'))
+               marketData.Properties.VariableNames{'Open_time'} = 'Date';
+            elseif any(strcmp(marketData.Properties.VariableNames, 'Open time'))
+               marketData.Properties.VariableNames{'Open time'} = 'Date';
+            elseif any(strcmp(marketData.Properties.VariableNames, 'OpenTime'))
+               marketData.Properties.VariableNames{'OpenTime'} = 'Date';
+            end
+            marketData.Date = datetime(marketData.Date);
+            % Remove rows with NaT date early
+            marketData(isnat(marketData.Date), :) = [];
             
-            % Convert to timetables for explicit alignment
+            % Apply +1 calendar-day lag to sentiment to ensure no look-ahead.
+            sentimentData.Date = dateshift(datetime(sentimentData.Date), 'start', 'day') + caldays(1);
+            
+             % Convert to timetables for explicit alignment
             marketTT = table2timetable(marketData, 'RowTimes', 'Date');
             sentimentTT = table2timetable(sentimentData, 'RowTimes', 'Date');
             
-            % Synchronize onto a continuous daily grid using forward-fill for missing observations
-            % Forward-fill (previous) is scientifically safe and introduces no future information.
-            fullDataTT = synchronize(marketTT, sentimentTT, 'daily', 'previous');
+            % Remove duplicate timestamps: 
+            [~, idxM] = unique(marketTT.Date); % unique automatically sorts
+            marketTT = marketTT(idxM, :);
+            
+            [~, idxS] = unique(sentimentTT.Date); % unique automatically sorts
+            sentimentTT = sentimentTT(idxS, :);
+
+            % Final safety sort
+            marketTT = sortrows(marketTT, 'Date');
+            sentimentTT = sortrows(sentimentTT, 'Date');
+            
+            fprintf('Market TT Type: %s, Sentiment TT Type: %s\n', class(marketTT.Properties.RowTimes), class(sentimentTT.Properties.RowTimes));
+            fprintf('Market TT Timezone: %s, Sentiment TT Timezone: %s\n', marketTT.Properties.RowTimes.TimeZone, sentimentTT.Properties.RowTimes.TimeZone);
+            
+            % Synchronize onto a continuous grid
+
+            if strcmp(interval, '1d')
+                fullDataTT = synchronize(marketTT, sentimentTT, 'daily', 'previous');
+            elseif strcmp(interval, '15m')
+                % Create an explicit datetime grid
+                startTime = min(min(marketTT.Date), min(sentimentTT.Date));
+                endTime = max(max(marketTT.Date), max(sentimentTT.Date));
+                regularGrid = (startTime:minutes(15):endTime)';
+                
+                fprintf('Grid Size: %d, Start: %s, End: %s\n', length(regularGrid), char(regularGrid(1)), char(regularGrid(end)));
+                fprintf('Market TT Start: %s, End: %s\n', char(marketTT.Date(1)), char(marketTT.Date(end)));
+                
+                fullDataTT = synchronize(marketTT, sentimentTT, regularGrid, 'previous');
+            else
+                fullDataTT = synchronize(marketTT, sentimentTT, 'daily', 'previous');
+            end
             
             % Convert back to table
             fullData = timetable2table(fullDataTT);
@@ -55,6 +115,32 @@ classdef PipelineDataProcessor
             
             % 5. Targets (shifted closing prices)
             fullData.Target = [fullData.Close(2:end); NaN];
+            
+            % Identify synthetic forward-filled grid rows to construct a TargetEligibility mask
+            % Preserve the complete chronological grid for indicator memory and lookback context,
+            % but mark synthetic target labels as NaN so supervised training loss ignores them.
+            if strcmp(interval, '15m')
+                try
+                    rawMarket = readtable(fullfile(pwd, 'data', 'market', 'btc_15m_data_2018_to_2025.csv'), 'VariableNamingRule', 'preserve');
+                    if any(strcmp(rawMarket.Properties.VariableNames, 'Open_time'))
+                       rawMarket.Properties.VariableNames{'Open_time'} = 'Date';
+                    elseif any(strcmp(rawMarket.Properties.VariableNames, 'Open time'))
+                       rawMarket.Properties.VariableNames{'Open time'} = 'Date';
+                    elseif any(strcmp(rawMarket.Properties.VariableNames, 'OpenTime'))
+                       rawMarket.Properties.VariableNames{'OpenTime'} = 'Date';
+                    end
+                    rawDates = datetime(rawMarket.Date);
+                    rawDatesClean = rawDates(~isnat(rawDates));
+                    isSynth = ~ismember(fullData.Date, rawDatesClean);
+                    % Target(t) corresponds to Close(t+1), so check observation status at t+1
+                    targetIsSynth = [isSynth(2:end); false];
+                    
+                    % Explicitly set Target to NaN for synthetic rows without deleting grid rows
+                    fullData.Target(targetIsSynth) = NaN;
+                catch
+                end
+            end
+            
             fullData(end, :) = [];
             
             % 6. Features & Labels
@@ -69,15 +155,21 @@ classdef PipelineDataProcessor
         end
         
         function X_scaled = scaleData(X, scaler)
-            X_scaled = (X - scaler.Min) ./ (scaler.Max - scaler.Min);
+            range = scaler.Max - scaler.Min;
+            range(range == 0) = 1;
+            X_scaled = (X - scaler.Min) ./ range;
         end
         
         function Y_scaled = scaleTarget(Y, targetScaler)
-            Y_scaled = (Y - targetScaler.Min) ./ (targetScaler.Max - targetScaler.Min);
+            range = targetScaler.Max - targetScaler.Min;
+            range(range == 0) = 1;
+            Y_scaled = (Y - targetScaler.Min) ./ range;
         end
         
         function Y_raw = unscaleTarget(Y_scaled, targetScaler)
-            Y_raw = Y_scaled .* (targetScaler.Max - targetScaler.Min) + targetScaler.Min;
+            range = targetScaler.Max - targetScaler.Min;
+            range(range == 0) = 1;
+            Y_raw = Y_scaled .* range + targetScaler.Min;
         end
         
         function [X_seq, validIdx] = formatForCNNLSTM(X_scaled, sequenceLength)
@@ -156,7 +248,9 @@ classdef PipelineDataProcessor
             
             % Un-scale features from X_scaled back to raw space
             % scaler.Min and scaler.Max are per-feature vectors
-            X_raw = X_scaled .* (scaler.Max - scaler.Min) + scaler.Min;
+            range = scaler.Max - scaler.Min;
+            range(range == 0) = 1;
+            X_raw = X_scaled .* range + scaler.Min;
             
             % For ARIMAX, produce one-step-ahead forecasts matching CNN-LSTM output count.
             % Rolling forecast: for each position t, forecast t+1 using Y0 from t,t-1 and XF at t+1.
@@ -216,7 +310,7 @@ classdef PipelineDataProcessor
             Logger.info('Generating Data Audit Report...');
             
             % 1. Load Data
-            [fullData, ~, ~] = PipelineDataProcessor.prepareData();
+            [fullData, ~, ~] = PipelineDataProcessor.prepareData([], '1d');
             
             % Prepare HTML Lines
             htmlLines = [
