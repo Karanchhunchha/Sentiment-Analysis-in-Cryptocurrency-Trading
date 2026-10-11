@@ -60,7 +60,12 @@ function results = verify_performance(evalRows, artifactDir)
         y0Idx = max(min(y0Idx, size(X_raw, 1)), 2);
         y0Raw = X_raw(y0Idx-1:y0Idx, closeIdx);
         xfVal = X_raw(min(y0Idx, size(X_raw,1)), sentimentIdx);
-        arimaPredsRaw(i) = forecast(models.ARIMA, 1, 'Y0', y0Raw, 'XF', xfVal);
+        
+        if ~isempty(models.ARIMA.Beta)
+            arimaPredsRaw(i) = forecast(models.ARIMA, 1, 'Y0', y0Raw, 'XF', xfVal);
+        else
+            arimaPredsRaw(i) = forecast(models.ARIMA, 1, 'Y0', y0Raw);
+        end
     end
     
     % Handle NaN values in first sequence rows (due to sequenceLength = 30)
