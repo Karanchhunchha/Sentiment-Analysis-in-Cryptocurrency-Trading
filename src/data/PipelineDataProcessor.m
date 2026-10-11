@@ -266,8 +266,12 @@ classdef PipelineDataProcessor
                 % XF at forecast time (use forward-filled sentiment)
                 xfVal = X_raw(min(y0Idx, size(X_raw,1)), sentimentIdx);
                 
-                % 1-step forecast in raw price space
-                arimaPreds(i) = forecast(models.ARIMA, 1, 'Y0', y0Raw, 'XF', xfVal);
+                % 1-step forecast in raw price space with explicit Beta check
+                if ~isempty(models.ARIMA.Beta)
+                    arimaPreds(i) = forecast(models.ARIMA, 1, 'Y0', y0Raw, 'XF', xfVal);
+                else
+                    arimaPreds(i) = forecast(models.ARIMA, 1, 'Y0', y0Raw);
+                end
             end
             
             % Ensure column vector
