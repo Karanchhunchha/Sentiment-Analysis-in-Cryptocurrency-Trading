@@ -323,6 +323,27 @@ properties
             results.MaxDrawdown = riskResults.MaxDrawdown;
 
             results.DateRange = sprintf('%04d-%04d', year(fullData.Date(1)), year(fullData.Date(end)));
+            
+            % Count ensemble vs CNN-only folds
+            ensembleFolds = 0;
+            cnnOnlyFolds = 0;
+            if ~isempty(obj.FoldMetrics)
+                for k = 1:numel(obj.FoldMetrics)
+                    if contains(obj.FoldMetrics(k).Status, 'Ensemble')
+                        ensembleFolds = ensembleFolds + 1;
+                    else
+                        cnnOnlyFolds = cnnOnlyFolds + 1;
+                    end
+                end
+            end
+            results.EnsembleFoldsCount = ensembleFolds;
+            results.CnnOnlyFoldsCount = cnnOnlyFolds;
+            if cnnOnlyFolds > 0
+                results.ExecutionMode = sprintf('Mixed Ensemble (%d Ensemble folds, %d CNN-Only fallback folds)', ensembleFolds, cnnOnlyFolds);
+            else
+                results.ExecutionMode = 'Pure Full Ensemble (CNN + ARIMAX across all folds)';
+            end
+            
             obj.printReport(results);
         end
 
@@ -330,6 +351,7 @@ properties
             fprintf('\n======================================================\n');
             fprintf('        HISTORICAL BACKTEST RESULTS (%s)       \n', results.DateRange);
             fprintf('======================================================\n');
+            fprintf('Execution Mode:  %s\n', results.ExecutionMode);
             fprintf('Total Trades:    %d\n', results.TotalTrades);
             fprintf('Win Rate:        %.2f%%\n', results.WinRate);
             fprintf('Final Equity:    $%.2f\n', results.FinalEquity);

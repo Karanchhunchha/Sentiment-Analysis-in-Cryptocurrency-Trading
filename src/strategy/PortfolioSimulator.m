@@ -62,19 +62,24 @@ classdef PortfolioSimulator
             for i = 2:length(returns)
                 sig = signals(i-1);
                 
+                feeCost = 0;
                 if sig ~= position
-                    cost = obj.TransactionFee * equity(i-1);
-                    equity(i-1) = equity(i-1) - cost;
+                    feeCost = obj.TransactionFee * equity(i-1);
                 end
                 
                 position = sig;
                 
-                dailyRet = position * returns(i);
-                strategyReturns(i) = dailyRet;
-                equity(i) = equity(i-1) * (1 + dailyRet);
-                if equity(i) <= 0
-                    equity(i) = 0; % Ruin boundary
+                % Gross equity before fee
+                grossNewEquity = equity(i-1) * (1 + position * returns(i));
+                % Net equity after fee deduction
+                netNewEquity = grossNewEquity - feeCost;
+                
+                if netNewEquity <= 0
+                    netNewEquity = 0;
                 end
+                
+                equity(i) = netNewEquity;
+                strategyReturns(i) = (equity(i) - equity(i-1)) / equity(i-1);
             end
             
             metrics = obj.computeMetrics(equity, strategyReturns, position);
