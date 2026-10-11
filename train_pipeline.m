@@ -255,23 +255,19 @@ Logger.success('[P0-03] Model artifact verified: class=%s, type=%s', class(arima
 % ---- Random Forest Training ----
 disp('  => Training Random Forest Model...');
 try
-    rfModel = TreeBagger(50, XTrain, YTrain, 'Method', 'regression', 'OOBPredictorImportance', 'on', 'Options', statset('UseParallel', true, 'UseSubstreams', true, 'Streams', RandStream('mlfg6331_64', 'Seed', seed)));
+    rfModel = TreeBagger(50, XTrain, YTrain, 'Method', 'regression', 'OOBPredictorImportance', 'on', 'Options', statset('UseParallel', false, 'UseSubstreams', true, 'Streams', RandStream('mlfg6331_64', 'Seed', seed)));
     Logger.success('Random Forest Training Complete.');
 catch ME
-    Logger.warning('Random Forest failed: %s. Using stub model.', ME.message);
-    rfModel = struct('Type', 'Stub');
+    error('train_pipeline:RFFailed', 'Random Forest training failed: %s. Pipeline terminated to prevent stub leaderboard entry.', ME.message);
 end
 
 % ---- SVM Training ----
 disp('  => Training SVM Model...');
 try
-    % RNGSeed is not a valid fitrsvm name-value parameter. Global RNG stream
-    % is already seeded via rng(seed) at pipeline entry for reproducibility.
     svmModel = fitrsvm(XTrain, YTrain, 'Standardize', true, 'KernelFunction', 'gaussian', 'KernelScale', 'auto');
     Logger.success('SVM Training Complete.');
 catch ME
-    Logger.warning('SVM failed: %s. Using stub model.', ME.message);
-    svmModel = struct('Type', 'Stub');
+    error('train_pipeline:SVMFailed', 'SVM training failed: %s. Pipeline terminated to prevent stub leaderboard entry.', ME.message);
 end
 
 %% 5. Model Evaluation & Leaderboard
