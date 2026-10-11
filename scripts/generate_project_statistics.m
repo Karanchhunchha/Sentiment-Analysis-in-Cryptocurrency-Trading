@@ -51,10 +51,14 @@ function generate_project_statistics()
     fprintf(fid, '| Markdown Documentation (`.md`) | %d |\n', numMdFiles);
     
     fprintf(fid, '\n## Dependencies\n');
-    fprintf(fid, '- Financial Toolbox\n');
     fprintf(fid, '- Statistics and Machine Learning Toolbox\n');
     fprintf(fid, '- Deep Learning Toolbox\n');
     fprintf(fid, '- Text Analytics Toolbox\n');
+    fprintf(fid, '- Econometrics Toolbox\n');
+    fprintf(fid, '\n## Technical Indicators\n');
+    fprintf(fid, 'All technical indicators (SMA, EMA, MACD, RSI, Bollinger Bands, ATR, VWAP) are implemented\n');
+    fprintf(fid, 'using base MATLAB (`movmean`, `movstd`, custom EMA/RSI loops). **Financial Toolbox is not required**\n');
+    fprintf(fid, 'and is not used. See `src/indicators/IndicatorEngine.m`.\n');
     
     fclose(fid);
     

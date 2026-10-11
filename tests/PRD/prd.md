@@ -92,7 +92,7 @@ Use wherever appropriate:
 * Statistics and Machine Learning Toolbox
 * Deep Learning Toolbox
 * Econometrics Toolbox
-* Financial Toolbox
+* Financial Toolbox _(planned; not implemented — all technical indicators use base MATLAB `movmean`/`movstd` and custom EMA/RSI; no Financial Toolbox functions are called in production code)_
 * App Designer
 
 If available, optionally leverage:

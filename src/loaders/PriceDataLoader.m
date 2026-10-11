@@ -64,11 +64,21 @@ classdef PriceDataLoader < handle
                     Logger.success('Fetched %d live historical candles.', height(obj.Data));
                 else
                     Logger.warning('Binance returned empty response. Attempting fallback to CSV.');
-                    data = obj.loadHistoricalCSV('D:\Sentiment Analysis in Cryptocurrency Trading\data\market\btc.csv');
+                    if strcmp(obj.Interval, '1d')
+                        fallbackFile = 'data/market/btc.csv';
+                    else
+                        fallbackFile = fullfile('data', 'market', ['btc_', obj.Interval, '.csv']);
+                    end
+                    data = obj.loadHistoricalCSV(fallbackFile);
                 end
             catch ME
                 Logger.error('Failed to fetch recent history: %s. Attempting fallback to CSV.', ME.message);
-                data = obj.loadHistoricalCSV('D:\Sentiment Analysis in Cryptocurrency Trading\data\market\btc.csv');
+                if strcmp(obj.Interval, '1d')
+                    fallbackFile = 'data/market/btc.csv';
+                else
+                    fallbackFile = fullfile('data', 'market', ['btc_', obj.Interval, '.csv']);
+                end
+                data = obj.loadHistoricalCSV(fallbackFile);
             end
         end
         

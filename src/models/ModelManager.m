@@ -7,9 +7,13 @@ classdef ModelManager
     end
     
     methods
-        function obj = ModelManager()
+        function obj = ModelManager(modelDir)
             % Setup model directory
-            obj.ModelDir = fullfile(pwd, 'models');
+            if nargin < 1
+                obj.ModelDir = fullfile(pwd, 'models');
+            else
+                obj.ModelDir = modelDir;
+            end
             if ~exist(obj.ModelDir, 'dir')
                 mkdir(obj.ModelDir);
             end
