@@ -4,7 +4,6 @@
 function generate_project_statistics()
     disp('Generating Project Statistics...');
     
-    % Determine the root directory dynamically relative to the script path
     scriptPath = mfilename('fullpath');
     [scriptDir, ~, ~] = fileparts(scriptPath);
     [rootDir, ~, ~] = fileparts(scriptDir);
@@ -13,29 +12,52 @@ function generate_project_statistics()
     cd(rootDir);
     cleanupDir = onCleanup(@() cd(origDir));
     
-    % Core counts, explicitly filtering out 're solution prompt''s' (protected path)
-    allFiles = dir('**/*');
+    % Safe directory traversal that prunes protected path ('re solution prompt') BEFORE recursing into it
     mFiles = []; pyFiles = []; csvFiles = []; htmlFiles = []; mdFiles = []; matFiles = [];
     
-    for i = 1:length(allFiles)
-        if allFiles(i).isdir, continue; end
-        relPath = fullfile(allFiles(i).folder, allFiles(i).name);
-        if contains(relPath, 're solution prompt') || contains(relPath, '.git')
+    q = {rootDir};
+    while ~isempty(q)
+        currDir = q{1};
+        q(1) = [];
+        
+        try
+            items = dir(currDir);
+        catch
             continue;
         end
-        [~, ~, ext] = fileparts(allFiles(i).name);
-        if strcmpi(ext, '.m')
-            if isempty(mFiles), mFiles = allFiles(i); else, mFiles(end+1) = allFiles(i); end
-        elseif strcmpi(ext, '.py')
-            if isempty(pyFiles), pyFiles = allFiles(i); else, pyFiles(end+1) = allFiles(i); end
-        elseif strcmpi(ext, '.csv')
-            if isempty(csvFiles), csvFiles = allFiles(i); else, csvFiles(end+1) = allFiles(i); end
-        elseif strcmpi(ext, '.html')
-            if isempty(htmlFiles), htmlFiles = allFiles(i); else, htmlFiles(end+1) = allFiles(i); end
-        elseif strcmpi(ext, '.md')
-            if isempty(mdFiles), mdFiles = allFiles(i); else, mdFiles(end+1) = allFiles(i); end
-        elseif strcmpi(ext, '.mat')
-            if isempty(matFiles), matFiles = allFiles(i); else, matFiles(end+1) = allFiles(i); end
+        
+        for k = 1:length(items)
+            itemName = items(k).name;
+            if strcmp(itemName, '.') || strcmp(itemName, '..')
+                continue;
+            end
+            
+            itemPath = fullfile(currDir, itemName);
+            
+            % CRITICAL SAFETY: Never open, list, scan, or enter the protected folder
+            if contains(lower(itemPath), 're solution prompt') || contains(itemName, '.git') || contains(itemName, '.kilo')
+                continue;
+            end
+            
+            if items(k).isdir
+                q{end+1} = itemPath; %#ok<AGROW>
+            else
+                [~, ~, ext] = fileparts(itemName);
+                s = struct('name', itemName, 'folder', currDir, 'bytes', items(k).bytes, 'date', items(k).date);
+                if strcmpi(ext, '.m')
+                    if isempty(mFiles), mFiles = s; else, mFiles(end+1) = s; end
+                elseif strcmpi(ext, '.py')
+                    if isempty(pyFiles), pyFiles = s; else, pyFiles(end+1) = s; end
+                elseif strcmpi(ext, '.csv')
+                    if isempty(csvFiles), csvFiles = s; else, csvFiles(end+1) = s; end
+                elseif strcmpi(ext, '.html')
+                    if isempty(htmlFiles), htmlFiles = s; else, htmlFiles(end+1) = s; end
+                elseif strcmpi(ext, '.md')
+                    if isempty(mdFiles), mdFiles = s; else, mdFiles(end+1) = s; end
+                elseif strcmpi(ext, '.mat')
+                    if isempty(matFiles), matFiles = s; else, matFiles(end+1) = s; end
+                end
+            end
         end
     end
     

@@ -39,6 +39,11 @@ classdef PortfolioSimulator
                         'PortfolioSimulator: length of timestamps (%d) does not match priceData (%d).', ...
                         length(cleanTimes), length(cleanPrices));
                 end
+                % Validate strict chronological ordering and uniqueness
+                if any(diff(cleanTimes) <= 0)
+                    error('PortfolioSimulator:UnsortedOrDuplicateTimestamps', ...
+                        'PortfolioSimulator: timestamps must be strictly sorted in ascending order with no duplicates.');
+                end
             end
             
             signals = zeros(size(cleanPreds));
