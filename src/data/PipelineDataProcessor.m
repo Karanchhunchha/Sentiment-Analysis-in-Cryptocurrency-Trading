@@ -116,29 +116,24 @@ classdef PipelineDataProcessor
             % 5. Targets (shifted closing prices)
             fullData.Target = [fullData.Close(2:end); NaN];
             
-            % Identify synthetic forward-filled grid rows to construct a TargetEligibility mask
-            % Preserve the complete chronological grid for indicator memory and lookback context,
-            % but mark synthetic target labels as NaN so supervised training loss ignores them.
+            % Exclude synthetic forward-filled target rows from training loss (Fail-Closed Policy)
             if strcmp(interval, '15m')
-                try
-                    rawMarket = readtable(fullfile(pwd, 'data', 'market', 'btc_15m_data_2018_to_2025.csv'), 'VariableNamingRule', 'preserve');
-                    if any(strcmp(rawMarket.Properties.VariableNames, 'Open_time'))
-                       rawMarket.Properties.VariableNames{'Open_time'} = 'Date';
-                    elseif any(strcmp(rawMarket.Properties.VariableNames, 'Open time'))
-                       rawMarket.Properties.VariableNames{'Open time'} = 'Date';
-                    elseif any(strcmp(rawMarket.Properties.VariableNames, 'OpenTime'))
-                       rawMarket.Properties.VariableNames{'OpenTime'} = 'Date';
-                    end
-                    rawDates = datetime(rawMarket.Date);
-                    rawDatesClean = rawDates(~isnat(rawDates));
-                    isSynth = ~ismember(fullData.Date, rawDatesClean);
-                    % Target(t) corresponds to Close(t+1), so check observation status at t+1
-                    targetIsSynth = [isSynth(2:end); false];
-                    
-                    % Explicitly set Target to NaN for synthetic rows without deleting grid rows
-                    fullData.Target(targetIsSynth) = NaN;
-                catch
+                rawMarket = readtable(fullfile(pwd, 'data', 'market', 'btc_15m_data_2018_to_2025.csv'), 'VariableNamingRule', 'preserve');
+                if any(strcmp(rawMarket.Properties.VariableNames, 'Open_time'))
+                   rawMarket.Properties.VariableNames{'Open_time'} = 'Date';
+                elseif any(strcmp(rawMarket.Properties.VariableNames, 'Open time'))
+                   rawMarket.Properties.VariableNames{'Open time'} = 'Date';
+                elseif any(strcmp(rawMarket.Properties.VariableNames, 'OpenTime'))
+                   rawMarket.Properties.VariableNames{'OpenTime'} = 'Date';
                 end
+                rawDates = datetime(rawMarket.Date);
+                rawDatesClean = rawDates(~isnat(rawDates));
+                isSynth = ~ismember(fullData.Date, rawDatesClean);
+                % Target(t) corresponds to Close(t+1), so check observation status at t+1
+                targetIsSynth = [isSynth(2:end); false];
+                
+                % Explicitly set Target to NaN for synthetic rows without deleting grid rows
+                fullData.Target(targetIsSynth) = NaN;
             end
             
             fullData(end, :) = [];

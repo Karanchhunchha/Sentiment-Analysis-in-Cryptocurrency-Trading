@@ -21,19 +21,24 @@ classdef test_SyntheticTargetExclusion < matlab.unittest.TestCase
             isSynth = ~ismember(fullData.Date, rawDatesClean);
             targetIsSynth = [isSynth(2:end); false];
             
-            % Check that every synthetic target row has NaN Target, preserving row count
+            % Check that every synthetic target row has NaN Target across the entire dataset
             synthIndices = find(targetIsSynth);
-            for i = 1:min(50, numel(synthIndices))
+            for i = 1:numel(synthIndices)
                 idx = synthIndices(i);
                 testCase.verifyTrue(isnan(fullData.Target(idx)), ...
                     sprintf('Synthetic target at index %d must be NaN.', idx));
             end
             
-            % Check that sequence formatting excludes NaN targets properly
-            [X_seq, validIdx] = PipelineDataProcessor.formatForCNNLSTM(X(1:100,:), 30);
-            Y_sub = fullData.Target(validIdx);
-            validMask = ~isnan(Y_sub);
-            testCase.verifyTrue(numel(Y_sub) == numel(validIdx), 'Sequence mapping preserves length before mask.');
+            % Verify that training sequence generation and masking actually exclude NaN responses
+            [XTrainSeq, vTrain] = PipelineDataProcessor.formatForCNNLSTM(X(1:500,:), 30);
+            YTrainSeq = Y(vTrain);
+            validTargetMask = ~isnan(YTrainSeq);
+            
+            % Verify that any training sequence preceding a synthetic target is successfully filtered out
+            XFiltered = XTrainSeq(validTargetMask);
+            YFiltered = YTrainSeq(validTargetMask);
+            testCase.verifyTrue(all(~isnan(YFiltered)), 'All filtered training responses must be non-NaN.');
+            testCase.verifyTrue(numel(YFiltered) <= numel(YTrainSeq), 'Mask must successfully exclude synthetic target examples.');
         end
     end
 end

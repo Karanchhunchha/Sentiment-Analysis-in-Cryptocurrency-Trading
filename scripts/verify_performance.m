@@ -1,7 +1,8 @@
-function results = verify_performance(evalRows)
+function results = verify_performance(evalRows, artifactDir)
     % VERIFY_PERFORMANCE Evaluates trained ensemble against persistence baseline
     % on the held-out test set under strict chronological validation.
     if nargin < 1, evalRows = []; end
+    if nargin < 2 || isempty(artifactDir), artifactDir = fullfile('models', '15m'); end
     
     % Setup paths and load artifacts
     addpath(fullfile(pwd, 'src', 'data'));
@@ -31,8 +32,8 @@ function results = verify_performance(evalRows)
     XTest_raw = X(evalStart:end, :);
     YTest_raw = Y(evalStart:end);                
     
-    % 4. Load Models/Scalers
-    mgr = ModelManager(fullfile(pwd, 'models', interval));
+    % 4. Load Models/Scalers from specified artifactDir
+    mgr = ModelManager(artifactDir);
     [models, scaler, featureList, targetScaler] = mgr.loadArtifacts();
     
     % 5. Preprocess (Reuse Training Scalers)

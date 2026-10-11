@@ -100,8 +100,7 @@ try
     cnnLstmNet = trainNetwork(XTrainSeq, YTrainSeq, layers, options);
     Logger.success('CNN-LSTM Training Complete.');
 catch ME
-    Logger.warning('Deep Learning Toolbox missing or failed: %s. Using stub model.', ME.message);
-    cnnLstmNet = struct('Type', 'Stub');
+    error('train_pipeline:CNNLSTMFailed', 'CNN-LSTM training failed: %s. Pipeline terminated to prevent saving stub artifacts.', ME.message);
 end
 
 % ---- ARIMAX / ARIMA Training (P0-03) ----
