@@ -108,19 +108,30 @@ properties
                 options = trainingOptions('adam', 'MaxEpochs', 15, 'MiniBatchSize', 32, 'GradientThreshold', 1, 'Verbose', false, 'Plots', 'none');
                 foldNet = trainNetwork(XTrainSeq, YTrainSeq, layers, options);
 
-                % Arimax is hard to reimplement quickly; reusing WalkForwardValidator's logic is best.
+                % Arimax training with fold tracking
                 wf = WalkForwardValidator([], obj.TrainWindowSize, obj.StepSize);
-                % Try to use WalkForwardValidator's arimax training if possible:
                 try
                     pd = wf.buildPreparedData();
                     [foldArima, arimaxStatus] = wf.trainFoldArimax(pd, f.TrainStart, f.TrainEnd);
                     if strcmp(arimaxStatus, 'trained')
                         models = struct('CNN', foldNet, 'ARIMA', foldArima, 'EnsembleWeights', [0.6, 0.4]);
+                        foldStatus = 'Ensemble (CNN + ARIMAX)';
                     else
                         models = struct('CNN', foldNet, 'ARIMA', [], 'EnsembleWeights', [1, 0]);
+                        foldStatus = 'CNN-Only (ARIMAX training failed/infeasible)';
                     end
-                catch
+                catch ME_fold
                     models = struct('CNN', foldNet, 'ARIMA', [], 'EnsembleWeights', [1, 0]);
+                    foldStatus = sprintf('CNN-Only (Error: %s)', ME_fold.message);
+                end
+                
+                % Store fold metadata
+                foldRecord = struct('Fold', k, 'TrainStart', f.TrainStart, 'TrainEnd', f.TrainEnd, ...
+                                    'TestStart', f.TestStart, 'TestEnd', f.TestEnd, 'Status', foldStatus);
+                if isempty(obj.FoldMetrics)
+                    obj.FoldMetrics = foldRecord;
+                else
+                    obj.FoldMetrics(end+1) = foldRecord;
                 end
 
                 XScaled = PipelineDataProcessor.scaleData(X, foldScaler);
