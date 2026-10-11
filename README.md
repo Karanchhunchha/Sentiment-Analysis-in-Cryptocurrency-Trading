@@ -2,28 +2,28 @@
 
 > [!IMPORTANT]
 > **Research Prototype & Academic Submission Only**  
-> This repository is a research prototype developed for the MathWorks Excellence in Innovation Program (Project #239).  
+> This repository is an academic research prototype developed for the MathWorks Excellence in Innovation Program (Project #239).  
 > **No live capital is at risk.** Backtesting and evaluation reflect historical simulation with realistic market frictions.  
 > **Predictive Performance Notice**: In empirical chronological holdout testing, the machine-learning ensemble **does not outperform the naive random-walk persistence baseline**. Passing all engineering and software tests indicates architectural correctness, not predictive alpha or trading profitability (see [Empirical Benchmark Results](#empirical-benchmark-results) and [Known Limitations](#known-limitations)).
 
 ---
 
-## 1. Project Overview & Status
+## 1. Project Overview & Scope
 
-Cryptocurrency markets operate 24/7 with extreme volatility influenced by order flow, technical momentum, and social sentiment. SentinelCrypto implements an end-to-end, native MATLAB pipeline that:
+Cryptocurrency markets operate 24/7 with extreme volatility influenced by order flow, technical momentum, and social sentiment. **SentinelCrypto** is an end-to-end, native MATLAB quantitative trading research platform that:
 1. Ingests and synchronizes high-frequency market data and sentiment series onto a continuous regular grid.
 2. Derives 20 technical indicators using strictly trailing, causal windows to prevent look-ahead bias.
 3. Builds genuine 30-bar temporal sequence tensors for deep learning and aligns sentiment with a +1 calendar day lag.
 4. Trains a hybrid forecasting ensemble combining a **CNN-LSTM** network (Deep Learning Toolbox) with an **ARIMA/ARIMAX** autoregressive model (Econometrics Toolbox).
 5. Enforces quantitative risk controls (ATR-based dynamic Stop-Loss/Take-Profit, minimum 1.5 Risk/Reward filter).
 6. Conducts walk-forward out-of-sample backtesting with realistic execution frictions (slippage, fees, conservative same-bar TP/SL ambiguity handling).
-7. Visualizes forecasts in a real-time interactive UI (`SentinelDashboard.m`).
+7. Visualizes forecasts and metrics in a modular research dashboard (`SentinelDashboard.m` / `App.m`).
 
 **Current Status**: **Research Prototype — Fully Hardened & Scientifically Audited**. All look-ahead leakage, fabricated indicators, and silent fallback defects identified in the original MathWorks review have been remediated and verified with automated regression tests.
 
 ---
 
-## 2. Dataset Architecture & Distinction
+## 2. Dataset Architecture & Frequency Distinction
 
 The repository maintains strict separation between datasets of different frequencies and purposes:
 
@@ -40,150 +40,148 @@ The repository maintains strict separation between datasets of different frequen
 
 ---
 
-## 3. MATLAB-First Architecture
+## 3. How the Project Works (End-to-End Workflow)
 
-SentinelCrypto is constructed natively in MATLAB with modular object-oriented components:
+```mermaid
+flowchart TD
+    A[Market OHLCV Data <br> btc_15m_data_2018_to_2025.csv] --> C[Data Preparation & Time Alignment <br> PipelineDataProcessor.prepareData]
+    B[Sentiment Data <br> historical_daily_sentiment.csv] --> C
+    C --> D[Technical Indicators & Features <br> IndicatorEngine / FeatureEngineer]
+    D --> E[Model Training <br> train_pipeline.m <br> CNN-LSTM + ARIMA/ARIMAX]
+    E --> F[Model Persistence <br> ModelManager <br> Saves to models/15m/]
+    F --> G[Chronological Holdout Evaluation <br> verify_performance.m]
+    H[Persistence Baseline <br> P_t+1 = P_t] --> G
+    G --> I[Walk-Forward Backtesting & Risk <br> Backtester / PortfolioSimulator]
+    I --> J[Research Dashboard & HTML Reports <br> SentinelDashboard / reports/]
+```
+
+### Data Flow Breakdown
+1. **Ingestion & Synchronization**: Market OHLCV candles and sentiment series are loaded and synchronized onto a regular canonical grid. Missing intervals are forward-filled for context, while synthetic target rows are masked out of supervised training loss.
+2. **Feature Engineering**: Vectorized technical indicators (SMA, EMA, MACD, RSI, Bollinger Bands, VWAP, ATR) are computed using strictly trailing windows `[N-1 0]` to eliminate look-ahead bias. Sentiment observations receive a $+1$ calendar day lag.
+3. **Model Training & Persistence**: `train_pipeline.m` trains the CNN-LSTM deep network and ARIMA/ARIMAX autoregressive models. `ModelManager` persists trained artifacts, scalers, target scalers, and feature lists into isolated interval directories (`models/15m/`).
+4. **Holdout Evaluation & Backtesting**: Trained models and the persistence baseline are evaluated on a strict chronological holdout partition. The strategy simulation applies dynamic ATR position sizing, execution fees (0.1%), and slippage (0.05%) to compute net portfolio equity curves and risk metrics (Sharpe, Sortino, VaR, CVaR).
+
+---
+
+## 4. Repository Layout & Supporting Folders
 
 ```text
-src/
-├── dashboard/            # Real-time UI figure & interactive candlestick chart
-├── data/                 # Data loading, regular-grid synchronization, scaling
-├── feature_engineering/  # Low-latency incremental indicator calculation (<1ms)
-├── forecasting/          # Multi-horizon trajectory projection & confidence bounds
-├── indicators/           # Vectorized technical indicator calculations (trailing windows)
-├── loaders/              # PriceDataLoader (batch historical + live Binance REST polling)
-├── models/               # ModelManager (artifact persistence, metadata logging)
-├── reporting/            # Automated HTML report generators (Leaderboard, Health, Audit)
-├── risk/                 # RiskEngine & RiskMetricsCalculator (ATR stops, empirical VaR/CVaR)
-├── sentiment/            # MacroEngine, SentimentEngine, SentimentEvaluationT07
-├── strategy/             # PortfolioSimulator (parameterized database logging)
-└── utils/                # Logger, ConfigManager, SystemHealthCheck
+.
+├── data/                 # Market and sentiment datasets (CSV files)
+├── models/               # Saved model artifacts, scalers, and JSON metadata
+├── reports/              # Generated HTML reports (Leaderboard, Health, Audit)
+├── scripts/              # Operational, verification, and profiling scripts
+├── src/                  # MATLAB source code (OOP classes and packages)
+│   ├── dashboard/        # Modular research workstation UI (App.m, SentinelDashboard.m)
+│   ├── data/             # Data ingestion, regular-grid synchronization, scaling
+│   ├── feature_engineering/ # Incremental feature calculations (<1ms)
+│   ├── forecasting/      # Trajectory projection and confidence bounds
+│   ├── indicators/       # Vectorized technical indicators (trailing windows)
+│   ├── loaders/          # Batch historical and live Binance REST polling
+│   ├── models/           # ModelManager for artifact persistence and reload
+│   ├── reporting/        # Automated HTML report generator classes
+│   ├── risk/             # ATR stops and empirical VaR/CVaR calculations
+│   ├── sentiment/        # Macro and textual sentiment processing
+│   ├── strategy/         # PortfolioSimulator and parameterized database logging
+│   └── utils/            # Logger, ConfigManager, SystemHealthCheck
+├── tests/                # Unit, integration, causality, and backtesting test suites
+├── docs/                 # Methodology, architecture, data, and evaluation notes
+├── startup.m             # Adds project source and test folders to the MATLAB path
+├── train_pipeline.m      # Trains models for a selected interval
+├── run_pipeline.m        # Experimental event-driven prediction loop
+├── run_all_tests.m       # Canonical test suite and verification runner
+└── README.md
 ```
 
 ---
 
-## 4. Model Roster & Verification Lifecycle
+## 5. Entry-Point Scripts Table
 
-The pipeline verifies each model across its full lifecycle (**Train → Persist → Reload → Predict**):
-
-| Model Architecture | Implementation / Toolbox | Target Space | Persisted Artifact | Status |
+| File | Purpose | When to run | Dependencies | Output or Side Effects |
 | :--- | :--- | :--- | :--- | :--- |
-| **CNN-LSTM** | `trainNetwork` (Deep Learning Toolbox) | Min-Max Scaled [0, 1] | `models/<interval>/cnn_lstm.mat` | **Active** (Trained & Verified) |
-| **ARIMAX / ARIMA** | `estimate` / `forecast` (Econometrics Toolbox) | Raw USD Price ($) | `models/<interval>/arima.mat` | **Active** (Trained & Verified) |
-| **Ensemble (60/40)** | Weighted combination in raw USD space | Raw USD Price ($) | `models/<interval>/ensemble.mat` | **Active** (Dual-scale unified) |
-| **Random Forest** | `TreeBagger` (Statistics and ML Toolbox) | Raw USD Price ($) | Evaluated in Leaderboard | **Active** (OOB validated) |
-| **SVM Regression** | `fitrsvm` (Statistics and ML Toolbox) | Raw USD Price ($) | Evaluated in Leaderboard | **Active** (Gaussian kernel, global RNG) |
-
-*Artifact Isolation*: Models are saved in isolated directories (`models/1d/` or `models/15m/`) alongside `model_info.json`, `scaler.mat`, `targetScaler.mat`, and `feature_list.mat`. Failed models or stubs are strictly forbidden from entering the leaderboard or live inference bundle.
-
----
-
-## 5. Methodological Rigor & Remediation Summary
-
-In response to the MathWorks challenge review, the following technical safeguards are enforced:
-
-1. **Causal Indicators**: `IndicatorEngine.m` uses strictly trailing windows `[N-1 0]` for moving averages (`movmean`), standard deviations (`movstd`), and volatility. Wilder's RSI and recursive EMA are mathematically exact and deterministic.
-2. **Temporal Sequence Tensors**: `PipelineDataProcessor.formatForCNNLSTM` formats inputs into 30-step causal tensors `(Features x SequenceLength)` matching the input layer of the CNN-LSTM.
-3. **Sentiment Lag (+1 Calendar Day)**: All sentiment observations are shifted by `+caldays(1)` before timetable synchronization to guarantee zero forward leakage into market predictors.
-4. **Leakage-Free Preprocessing**: Scalers (`scaler` and `targetScaler`) are fitted strictly on the training partition (`XTrain_raw`, `YTrain_raw`). Test and validation partitions are transformed using stored training scalers. Division-by-zero protection (`range(range == 0) = 1`) ensures robustness against flat-price intervals.
-5. **Walk-Forward Validation**: 44 non-overlapping walk-forward folds (`train=500, step=100`) retrain models independently with fold-specific scalers. Directional accuracy evaluates true price movement relative to observed preceding close (`Close(t)`), never model self-momentum.
-6. **Realistic Backtesting**: `Backtester.m` implements ATR-based dynamic position sizing, 0.1% taker fees, 0.05% adverse slippage, and conservative same-bar TP/SL ambiguity resolution. Risk metrics (VaR 95%, CVaR 95%) are computed directly from the strategy equity returns curve.
-7. **Empirical Monte Carlo**: `MonteCarloSimulator.m` bootstraps 10,000 paths directly from realized historical trade P&L rather than synthetic parametric distributions.
+| `startup.m` | Initializes MATLAB path by adding `src/`, `tests/`, and subfolders. | **Step 1** (Always run first) | Base MATLAB | Modifies search path. |
+| `run_all_tests.m` | Executes all unit, integration, causality, and backtesting test suites. | **Step 2** (Verification) | Deep Learning, Econometrics, Stats Toolboxes | Prints test results, generates verification report. |
+| `train_pipeline.m` | Trains CNN-LSTM and ARIMA/ARIMAX models for a given interval and row cap. | **Step 3** (Training) | Dataset files, Deep Learning, Econometrics Toolboxes | Saves trained `.mat` artifacts in `models/<interval>/`. |
+| `scripts/verify_performance.m` | Evaluates trained ensemble against the persistence baseline on holdout data. | **Step 4** (Evaluation) | Trained model artifacts in `models/15m/` | Prints MAE, RMSE, and directional accuracy comparison table. |
+| `run_pipeline.m` | Launches event-driven live/historical prediction loop and dashboard UI. | **Step 5** (Dashboard UI) | Saved model artifacts, live network (optional) | Opens `SentinelDashboard` figure window. |
+| `verify_results.m` | Recomputes historical backtest metrics and asserts against authenticated baseline. | Optional Audit | Historical market data, Backtester | Exits non-zero if claim discrepancy is detected. |
+| `verify_submission.m` | Runs end-to-end system health checks, test suite, and compliance checks. | Optional Audit | Full test suite | Generates comprehensive HTML verification report in `reports/`. |
+| `quick_forecast.m` | Legacy quick-forecast entry point. | Deprecated | Binance API (live) | Prints quick forecast (subject to network availability). |
+| `evaluate_pipeline.m` | Legacy pipeline evaluator. | Deprecated | Prior session logs | Evaluates saved execution logs. |
 
 ---
 
-## 6. Empirical Benchmark Results
+## 6. Important Source Modules Reference
 
-### Model Ensemble vs. Naive Persistence Baseline
-
-A mandatory requirement of quantitative validation is comparing machine-learning forecasts against the **naive random-walk persistence baseline**:
-$$\widehat{P}_{t+1} = P_t$$
-For a 1-step-ahead next-close forecast, the persistence prediction is simply the latest observed close.
-
-Evaluation was performed on the chronological holdout partition of the 15-minute dataset (`models/15m/`):
-
-- **Timeframe**: 15-minute (`15m`)
-- **Holdout Date Range**: `2026-06-11 01:30:00` to `2026-06-15 23:00:00` (UTC)
-- **Sample Count**: 471 observations (500-candle holdout slice after 30-step sequence warm-up)
-- **Target Price Range**: $62,058.59 to $67,292.14 (Mean: $64,232.04)
-
-| Model Architecture | MAE ($) | RMSE ($) | Directional Accuracy | Status |
-| :--- | :--- | :--- | :--- | :--- |
-| **Persistence Baseline** ($\widehat{P}_{t+1} = P_t$) | **$86.20** | **$121.74** | *N/A (flat baseline)* | **Benchmark Ground Truth** |
-| **ARIMAX Alone** (40% ensemble weight) | $385.75 | $409.10 | 48.62% | Tracks price with lag |
-| **CNN-LSTM Alone** (60% ensemble weight) | $10,440.62 | $10,503.95 | 49.26% | Underfit (collapsed to training mean) |
-| **Full Ensemble** (60% CNN + 40% ARIMAX) | **$6,110.29** | **$6,149.94** | **50.74%** | **Underperforms Persistence** |
-
-### Key Findings & Analysis
-1. **Cryptocurrency Market Efficiency**: On a 15-minute horizon, Bitcoin prices closely approximate a random walk with high noise-to-signal ratio. The average price change per 15-minute candle is ~$86, making the persistence baseline extremely competitive.
-2. **Sub-Model Decomposition**:
-   - **ARIMAX** tracks the market closely (MAE: $385.75), capturing autoregressive structure and sentiment drift, but still trails persistence due to standard estimation lag.
-   - **CNN-LSTM** suffered representation underfitting during the bounded 15-epoch smoke run, converging to the training partition's target mean (~$74,672).
-   - Because the ensemble assigns 60% weight to the CNN-LSTM and 40% to ARIMAX, the collapsed neural network prediction pulled the overall ensemble error up to $6,110.29.
-3. **Honest Reporting**: In accordance with scientific research standards, these results are reported truthfully without altering holdout splits, cherry-picking windows, or fabricating claims.
+| Module Path | Responsibility | Inputs | Outputs / Side Effects | Called By | Covered By Tests |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `src/loaders/PriceDataLoader.m` | Batch historical loading & live Binance REST polling. | Symbol, Interval | Timetable / Table of OHLCV candles | PipelineDataProcessor, run_pipeline | `test_PhaseA_DataIngestion` |
+| `src/data/PipelineDataProcessor.m` | Regular-grid synchronization, scaling, and target masking. | Raw tables, interval | `fullData`, scaled `X`, `Y` | train_pipeline, verify_performance | `test_P0_04_TemporalSequences` |
+| `src/indicators/IndicatorEngine.m` | Technical indicators using strictly trailing windows (`[N-1 0]`). | Price table | Calculated indicator columns | FeatureEngineer, PipelineDataProcessor | `test_B01_LookAheadBias`, `test_B02_FabricatedFeatures` |
+| `src/models/ModelManager.m` | Artifact persistence, metadata logging, and model reload. | Directory path | Model structs, scalers, feature list | train_pipeline, verify_performance | `test_B03_AlignmentAndModelIntegrity` |
+| `src/strategy/PortfolioSimulator.m` | Portfolio simulation with fees, slippage, and net equity risk. | Prices, predictions | Performance metrics struct | PortfolioSimulationTab, Backtester | `test_B08_Backtester` |
+| `src/dashboard/App.m` / `SentinelDashboard.m` | Modular research workstation UI. | App state, models | Interactive figure window | run_pipeline | `test_B04_LiveInferenceIntegration` |
 
 ---
 
-## 7. Reproduction Steps
+## 7. Recommended Execution Order
 
-### Environment Prerequisites
-- **MATLAB Version**: MATLAB R2026b (also verified on R2023b+)
-- **Required Toolboxes**:
-  - Deep Learning Toolbox (CNN-LSTM training and inference)
-  - Econometrics Toolbox (ARIMA / ARIMAX estimation and forecasting)
-  - Statistics and Machine Learning Toolbox (TreeBagger, fitrsvm, cvpartition)
-- *Note*: Financial Toolbox is **NOT required**; all indicators use native base MATLAB.
-
-### Step 1: Initialize Environment
+### Step 1 — Initialize MATLAB Path
+Open MATLAB R2026b, set the Current Folder to the repository root, and run:
 ```matlab
 startup
 ```
 
-### Step 2: Run Automated Regression Test Suite
-Executes all unit, integration, causality, and backtesting tests:
+### Step 2 — Run Automated Test Suite
+Verify that all test units pass successfully:
 ```matlab
 run_all_tests
 ```
-*Expected Result*: All test units pass successfully; verification reports generated in `reports/`.
+*Expected Result*: All regression suites pass, verifying causal indicators, sequence tensor shapes, and backtesting logic.
 
-### Step 3: Train Pipeline (Bounded Smoke Run)
-Executes deterministic training with isolated artifact persistence:
+### Step 3 — Train a Bounded Model Run
+Train models with deterministic reproducibility on a bounded slice:
 ```matlab
 % Syntax: train_pipeline(seed, interval, maxRows)
-%   seed:    Integer RNG seed (e.g. 42)
-%   interval: '1d' or '15m'
-%   maxRows:  Row cap to bound execution time (e.g. 5000)
 train_pipeline(42, '15m', 5000);
 ```
+*Note*: This creates or replaces model artifacts in `models/15m/`. Back up existing artifacts if needed before retraining.
 
-### Step 4: Verify Model vs. Persistence Benchmark
-Recomputes benchmark metrics on the chronological holdout:
+### Step 4 — Verify Model vs. Persistence Benchmark
+Recompute forecasting errors on the chronological holdout partition:
 ```matlab
-% Syntax: verify_performance(evalRows, artifactDir)
-%   evalRows:    Optional integer (e.g. 500) to evaluate on the holdout tail
-%   artifactDir: Optional directory path (e.g. 'models/15m')
 addpath('scripts');
-verify_performance(500, 'models/15m');
+results = verify_performance(500, 'models/15m');
+disp(results);
 ```
 
-### Step 5: Launch Live Interactive Dashboard
+### Step 5 — Launch Research Dashboard
+Open the interactive UI:
 ```matlab
 run_pipeline
 ```
 
 ---
 
-## 8. Known Limitations & Research Realism
+## 8. Execution Rules & Important Guidelines
 
-1. **Model Quality vs. Code Correctness**: Passing 100% of software tests verifies that the code is free of bugs, memory leaks, and temporal lookahead. It does **not** indicate that the model achieves profitable trading performance.
-2. **Out-of-Sample Profitability**: When subjected to realistic execution costs (0.1% fees, 0.05% slippage, dynamic position sizing), historical walk-forward backtesting yields negative returns (-78.88% total return, 81.00% max drawdown). Retail claims of >150% return and 0% risk of ruin were in-sample artifacts without fees.
-3. **High-Frequency Directional Accuracy**: Model directional accuracy remains near 50.74% (coin-flip). Beating the random-walk persistence baseline in crypto markets requires order-book depth, funding rate arbitrage, or microsecond tick features, which are beyond daily/15m OHLCV.
-4. **Sentiment Data Scope**: The supervised sentiment classifier is trained on a 20-sample demonstration fixture (`data/sentiment/cryptolin.csv`) using LOOCV. Tweet data (`Bitcoin_tweets.csv`) is unlabeled and not used for supervised model training.
-5. **Demonstration Video**: A live interactive walkthrough of `SentinelDashboard.m` remains a manual requirement to record using the structured script in `docs/DEMO_SCRIPT.md` (Video Status: **SKIPPED PER USER**).
+1. **Do not run every `.m` file individually**: Entry-point scripts (`startup`, `run_all_tests`, `train_pipeline`, `verify_performance`, `run_pipeline`) orchestrate the software. Classes and utility functions are called automatically.
+2. **Preserve Protected Path**: Never access, read, or modify `re solution prompt's/`.
+3. **Demo Video**: Intentionally **SKIPPED PER USER** (`SKIPPED PER USER`).
+4. **Artifact Isolation**: When training new models, use isolated output directories to avoid overwriting baseline verification artifacts.
 
 ---
 
-## 9. License & Attribution
+## 9. Outputs, Common Failure Cases & Troubleshooting
+
+- **Missing Toolboxes**: Ensure Deep Learning, Econometrics, and Statistics Toolboxes are installed. (Financial Toolbox is not required).
+- **Missing Artifacts**: If `verify_performance` or dashboard simulation fails due to missing `.mat` files, run `train_pipeline(42, '15m', 5000)` first.
+- **Network Outages**: Live Binance polling (`PriceDataLoader`) requires internet access. If offline, the pipeline automatically falls back to committed historical CSV datasets (`data/market/btc.csv` or `btc_15m_data_2018_to_2025.csv`).
+- **Benchmark Underperformance**: If models underperform persistence, review empirical benchmark notes. This is a known, honestly disclosed market efficiency limitation, not a software failure.
+
+---
+
+## 10. License & Attribution
 
 - **Author**: Karan Chhunchha (karanchhunchha@gmail.com)
 - **Challenge**: MathWorks Excellence in Innovation Program (Project #239)
