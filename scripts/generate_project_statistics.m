@@ -13,13 +13,31 @@ function generate_project_statistics()
     cd(rootDir);
     cleanupDir = onCleanup(@() cd(origDir));
     
-    % Core counts
-    mFiles = dir('**/*.m');
-    pyFiles = dir('**/*.py');
-    csvFiles = dir('**/*.csv');
-    htmlFiles = dir('**/*.html');
-    mdFiles = dir('**/*.md');
-    matFiles = dir('**/*.mat');
+    % Core counts, explicitly filtering out 're solution prompt''s' (protected path)
+    allFiles = dir('**/*');
+    mFiles = []; pyFiles = []; csvFiles = []; htmlFiles = []; mdFiles = []; matFiles = [];
+    
+    for i = 1:length(allFiles)
+        if allFiles(i).isdir, continue; end
+        relPath = fullfile(allFiles(i).folder, allFiles(i).name);
+        if contains(relPath, 're solution prompt') || contains(relPath, '.git')
+            continue;
+        end
+        [~, ~, ext] = fileparts(allFiles(i).name);
+        if strcmpi(ext, '.m')
+            if isempty(mFiles), mFiles = allFiles(i); else, mFiles(end+1) = allFiles(i); end
+        elseif strcmpi(ext, '.py')
+            if isempty(pyFiles), pyFiles = allFiles(i); else, pyFiles(end+1) = allFiles(i); end
+        elseif strcmpi(ext, '.csv')
+            if isempty(csvFiles), csvFiles = allFiles(i); else, csvFiles(end+1) = allFiles(i); end
+        elseif strcmpi(ext, '.html')
+            if isempty(htmlFiles), htmlFiles = allFiles(i); else, htmlFiles(end+1) = allFiles(i); end
+        elseif strcmpi(ext, '.md')
+            if isempty(mdFiles), mdFiles = allFiles(i); else, mdFiles(end+1) = allFiles(i); end
+        elseif strcmpi(ext, '.mat')
+            if isempty(matFiles), matFiles = allFiles(i); else, matFiles(end+1) = allFiles(i); end
+        end
+    end
     
     totalMLines = 0;
     for i = 1:length(mFiles)

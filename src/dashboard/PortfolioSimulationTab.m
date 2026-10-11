@@ -22,17 +22,6 @@ classdef PortfolioSimulationTab < handle
             try
                 % Align interval with model artifacts (15m is the primary trained interval)
                 interval = '15m';
-                priceTable = PriceDataLoader('BTCUSDT', interval).fetchRecentHistory(300);
-                
-                if istable(priceTable)
-                    if ismember('Close', priceTable.Properties.VariableNames)
-                        priceVec = priceTable.Close;
-                    else
-                        priceVec = priceTable{:, 5}; % Default kline Close column
-                    end
-                else
-                    priceVec = priceTable;
-                end
                 
                 [fullData, X, Y] = PipelineDataProcessor.prepareData([], interval);
                 mgr = ModelManager(fullfile(pwd, 'models', interval));
@@ -41,13 +30,18 @@ classdef PortfolioSimulationTab < handle
                 XScaled = PipelineDataProcessor.scaleData(X, scaler);
                 preds = PipelineDataProcessor.predictEnsemble(models, XScaled, targetScaler, scaler, featureList);
                 
-                sim = PortfolioSimulator(10000);
+                % Interval-aware annualization factor for 15m bars: 365 days * 24 hours * 4 quarters = 35,040 periods/year
+                annualizationFactor = 365 * 24 * 4;
+                slippageRate = 0.0005; % 0.05% slippage
                 
-                % Ensure exact length alignment with observed close prices
-                metrics = sim.runSimulation(fullData.Close, preds, 'prod_15m', 'SentinelCrypto-Ensemble');
+                sim = PortfolioSimulator(10000, annualizationFactor, slippageRate);
                 
-                res = sprintf('Simulation Complete (%s interval).\nTotal Return: %.2f%%\nSharpe: %.2f\nMax Drawdown: %.2f%%\nFinal BTC Weight: %.2f', ...
-                    interval, metrics.TotalReturn * 100, metrics.SharpeRatio, metrics.MaxDrawdown * 100, metrics.FinalBTCWeight);
+                % Pass explicit price vector and timestamps for validation
+                timestamps = fullData.Date;
+                metrics = sim.runSimulation(fullData.Close, preds, 'prod_15m', 'SentinelCrypto-Ensemble', timestamps);
+                
+                res = sprintf('Simulation Complete (%s interval, Annualization: %d periods/yr).\nTotal Return: %.2f%%\nSharpe: %.2f\nMax Drawdown: %.2f%%\nFinal BTC Weight: %.2f', ...
+                    interval, annualizationFactor, metrics.TotalReturn * 100, metrics.SharpeRatio, metrics.MaxDrawdown * 100, metrics.FinalBTCWeight);
                 obj.TextArea.Value = res;
                 obj.AppRef.updateStatus('Simulation Complete.', [0 0.5 0]);
             catch e
