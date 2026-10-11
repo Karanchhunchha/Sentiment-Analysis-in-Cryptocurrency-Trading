@@ -4,33 +4,41 @@ classdef PortfolioSimulator
     properties
         InitialCapital = 10000;
         TransactionFee = 0.001; % 0.1% Binance tier
+        SlippageRate = 0.0005;  % 0.05% slippage rate
+        AnnualizationFactor = 365; % Default daily; adjusted for 15m (365*24*4 = 35040)
     end
     
     methods
-        function obj = PortfolioSimulator(initialCapital)
-            if nargin > 0
+        function obj = PortfolioSimulator(initialCapital, annualizationFactor, slippageRate)
+            if nargin > 0 && ~isempty(initialCapital)
                 obj.InitialCapital = initialCapital;
+            end
+            if nargin > 1 && ~isempty(annualizationFactor)
+                obj.AnnualizationFactor = annualizationFactor;
+            end
+            if nargin > 2 && ~isempty(slippageRate)
+                obj.SlippageRate = slippageRate;
             end
         end
         
-        function metrics = runSimulation(obj, priceData, predictions, modelId, strategyName)
-            % Compute equity curve based on predictions.
-            % Convert raw price predictions or continuous outputs into {-1, 0, 1} trading signals.
-            % We use momentum / direction of predictions relative to current price or previous prediction,
-            % or thresholding. A standard robust mapping for price forecasts:
-            % If prediction(t) > priceData(t), signal = 1 (Long); if < priceData(t), signal = -1 (Short); else 0.
-            % Or if predictions are already signals, use sign(predictions).
-            % Let's implement robust signal extraction:
-            
-            % Handle NaN padding / warm-up in predictions
+        function metrics = runSimulation(obj, priceData, predictions, modelId, strategyName, timestamps)
+            % Compute equity curve based on predictions with explicit timestamp and length validation.
             cleanPreds = predictions(:);
             cleanPrices = priceData(:);
             
             if length(cleanPreds) ~= length(cleanPrices)
-                % Align lengths by taking tail
-                minLen = min(length(cleanPreds), length(cleanPrices));
-                cleanPreds = cleanPreds(end-minLen+1:end);
-                cleanPrices = cleanPrices(end-minLen+1:end);
+                error('PortfolioSimulator:LengthMismatch', ...
+                    'PortfolioSimulator: length of predictions (%d) does not match priceData (%d). Silent truncation forbidden.', ...
+                    length(cleanPreds), length(cleanPrices));
+            end
+            
+            if nargin >= 6 && ~isempty(timestamps)
+                cleanTimes = timestamps(:);
+                if length(cleanTimes) ~= length(cleanPrices)
+                    error('PortfolioSimulator:TimestampMismatch', ...
+                        'PortfolioSimulator: length of timestamps (%d) does not match priceData (%d).', ...
+                        length(cleanTimes), length(cleanPrices));
+                end
             end
             
             signals = zeros(size(cleanPreds));
@@ -38,7 +46,6 @@ classdef PortfolioSimulator
                 if isnan(cleanPreds(i)) || isnan(cleanPrices(i))
                     signals(i) = 0;
                 else
-                    % If prediction is higher than current price, go long (1); lower, short (-1)
                     if cleanPreds(i) > cleanPrices(i)
                         signals(i) = 1;
                     elseif cleanPreds(i) < cleanPrices(i)
@@ -48,10 +55,10 @@ classdef PortfolioSimulator
                     end
                 end
             end
-            signals(1) = 0; % initial
+            signals(1) = 0;
             
             returns = diff(cleanPrices) ./ cleanPrices(1:end-1);
-            returns = [0; returns]; % align length
+            returns = [0; returns];
             
             equity = zeros(length(returns), 1);
             equity(1) = obj.InitialCapital;
@@ -62,24 +69,31 @@ classdef PortfolioSimulator
             for i = 2:length(returns)
                 sig = signals(i-1);
                 
-                feeCost = 0;
+                cost = 0;
                 if sig ~= position
-                    feeCost = obj.TransactionFee * equity(i-1);
+                    % Apply transaction fee + execution slippage at trade entry/exit
+                    cost = (obj.TransactionFee + obj.SlippageRate) * equity(i-1);
                 end
                 
                 position = sig;
                 
-                % Gross equity before fee
                 grossNewEquity = equity(i-1) * (1 + position * returns(i));
-                % Net equity after fee deduction
-                netNewEquity = grossNewEquity - feeCost;
+                netNewEquity = grossNewEquity - cost;
                 
-                if netNewEquity <= 0
+                if netNewEquity <= 0 || ~isfinite(netNewEquity)
                     netNewEquity = 0;
                 end
                 
                 equity(i) = netNewEquity;
-                strategyReturns(i) = (equity(i) - equity(i-1)) / equity(i-1);
+                
+                if equity(i-1) > 0
+                    strategyReturns(i) = (equity(i) - equity(i-1)) / equity(i-1);
+                else
+                    strategyReturns(i) = 0;
+                end
+                if ~isfinite(strategyReturns(i))
+                    strategyReturns(i) = 0;
+                end
             end
             
             metrics = obj.computeMetrics(equity, strategyReturns, position);
@@ -90,34 +104,32 @@ classdef PortfolioSimulator
             metrics = struct();
             metrics.TotalReturn = (equity(end) - obj.InitialCapital) / obj.InitialCapital;
             
-            N = 365; 
+            N = obj.AnnualizationFactor; 
             
             years = length(equity) / N;
-            if years > 0
+            if years > 0 && equity(end) > 0
                 metrics.CAGR = (equity(end) / obj.InitialCapital)^(1/years) - 1;
             else
                 metrics.CAGR = 0;
             end
             
-            % Sharpe based on strategy returns (not asset returns)
-            dailyRiskFreeRate = 0.02 / N;
-            excessReturns = strategyReturns - dailyRiskFreeRate;
-            if std(excessReturns) ~= 0
+            riskFreeRate = 0.02 / N;
+            excessReturns = strategyReturns - riskFreeRate;
+            if std(excessReturns) ~= 0 && ~isnan(std(excessReturns))
                 metrics.SharpeRatio = sqrt(N) * mean(excessReturns) / std(excessReturns);
             else
                 metrics.SharpeRatio = 0;
             end
             
-            % Sortino based on strategy returns
             downside = excessReturns(excessReturns < 0);
-            if ~isempty(downside) && std(downside) ~= 0
+            if ~isempty(downside) && std(downside) ~= 0 && ~isnan(std(downside))
                 metrics.SortinoRatio = sqrt(N) * mean(excessReturns) / std(downside);
             else
                 metrics.SortinoRatio = 0;
             end
             
             peaks = cummax(equity);
-            drawdowns = (peaks - equity) ./ peaks;
+            drawdowns = (peaks - equity) ./ max(peaks, 1);
             metrics.MaxDrawdown = max(drawdowns);
             
             if metrics.MaxDrawdown > 0
@@ -128,6 +140,7 @@ classdef PortfolioSimulator
             
             metrics.VaR = prctile(strategyReturns, 5);
             metrics.CVaR = mean(strategyReturns(strategyReturns <= metrics.VaR));
+            if ~isfinite(metrics.CVaR), metrics.CVaR = 0; end
             
             metrics.FinalBTCWeight = abs(finalPosition);
             metrics.FinalCashWeight = 1 - abs(finalPosition);
