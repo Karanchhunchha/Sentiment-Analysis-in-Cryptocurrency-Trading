@@ -29,7 +29,7 @@ The repository maintains strict separation between datasets of different frequen
 
 | Dataset Path | Rows | Frequency | Role in Repository |
 | :--- | :--- | :--- | :--- |
-| `data/market/btc_15m_data_2018_to_2025.csv` | 295,917 | 15-minute | **Primary high-frequency intraday market data** (2018–2026). Synchronizes to 296,395 regular grid rows. |
+| `data/market/btc_15m_data_2018_to_2025.csv` | 295,917 | 15-minute | **Primary high-frequency intraday market data** (2018–2026). Synchronizes to 296,446 regular grid rows. |
 | `data/market/Real_Bitcoin_Price_History_2015_2026.csv` | ~4,000 | Daily | **Historical daily reference series**. Not a substitute for 15-minute intraday candles. |
 | `data/market/btc.csv` | 4,994 | Daily | **Daily market dataset** used for daily baseline pipeline execution and legacy compatibility. |
 | `data/sentiment/historical_daily_sentiment.csv` | 231 | Daily | **Aggregated daily sentiment scores** with timestamp alignment. |
@@ -144,7 +144,7 @@ Executes all unit, integration, causality, and backtesting tests:
 ```matlab
 run_all_tests
 ```
-*Expected Result*: All 18 test units pass; verification reports generated in `reports/`.
+*Expected Result*: All test units pass successfully; verification reports generated in `reports/`.
 
 ### Step 3: Train Pipeline (Bounded Smoke Run)
 Executes deterministic training with isolated artifact persistence:
@@ -159,10 +159,11 @@ train_pipeline(42, '15m', 5000);
 ### Step 4: Verify Model vs. Persistence Benchmark
 Recomputes benchmark metrics on the chronological holdout:
 ```matlab
-% Syntax: verify_performance(evalRows)
-%   evalRows: Optional integer (e.g. 500) to evaluate on the holdout tail
+% Syntax: verify_performance(evalRows, artifactDir)
+%   evalRows:    Optional integer (e.g. 500) to evaluate on the holdout tail
+%   artifactDir: Optional directory path (e.g. 'models/15m')
 addpath('scripts');
-verify_performance(500);
+verify_performance(500, 'models/15m');
 ```
 
 ### Step 5: Launch Live Interactive Dashboard
@@ -178,7 +179,7 @@ run_pipeline
 2. **Out-of-Sample Profitability**: When subjected to realistic execution costs (0.1% fees, 0.05% slippage, dynamic position sizing), historical walk-forward backtesting yields negative returns (-78.88% total return, 81.00% max drawdown). Retail claims of >150% return and 0% risk of ruin were in-sample artifacts without fees.
 3. **High-Frequency Directional Accuracy**: Model directional accuracy remains near 50.74% (coin-flip). Beating the random-walk persistence baseline in crypto markets requires order-book depth, funding rate arbitrage, or microsecond tick features, which are beyond daily/15m OHLCV.
 4. **Sentiment Data Scope**: The supervised sentiment classifier is trained on a 20-sample demonstration fixture (`data/sentiment/cryptolin.csv`) using LOOCV. Tweet data (`Bitcoin_tweets.csv`) is unlabeled and not used for supervised model training.
-5. **Demonstration Video**: A live interactive walkthrough of `SentinelDashboard.m` remains a manual requirement to record using the structured script in `docs/DEMO_SCRIPT.md`.
+5. **Demonstration Video**: A live interactive walkthrough of `SentinelDashboard.m` remains a manual requirement to record using the structured script in `docs/DEMO_SCRIPT.md` (Video Status: **SKIPPED PER USER**).
 
 ---
 
