@@ -138,33 +138,39 @@ arimaModelType = 'none';
 arimaFallbackReason = '';  % P0-03: will hold exact ARIMAX failure message if fallback used
 
 % Load and align data for ARIMAX attempt
-marketDataAR   = readtable(fullfile(pwd, 'data', 'market', 'btc.csv'));
-sentimentDataAR = readtable(fullfile(pwd, 'data', 'sentiment', 'historical_daily_sentiment.csv'));
-
-marketDataAR.Date   = dateshift(datetime(marketDataAR.Date),   'start', 'day');
-sentimentDataAR.Date = dateshift(datetime(sentimentDataAR.Date), 'start', 'day') + caldays(1);
-
-% Assert chronological order (non-negotiable for time-series models)
-assert(all(diff(marketDataAR.Date)   > 0), 'train_pipeline:NotSorted', 'Market data not sorted ascending.');
-assert(all(diff(sentimentDataAR.Date) > 0), 'train_pipeline:NotSorted', 'Sentiment data not sorted ascending.');
-
-marketTTar    = table2timetable(marketDataAR,   'RowTimes', 'Date');
-sentimentTTar = table2timetable(sentimentDataAR, 'RowTimes', 'Date');
-
-% TRUE inner join: only dates present in BOTH tables
-% No forward-fill, no zero-fill — only genuine sentiment observations
-alignedTT = synchronize(marketTTar, sentimentTTar, 'intersection');
-alignedTT = rmmissing(alignedTT, 'DataVariables', {'Close', 'Daily_Sentiment'});
-nAligned  = height(alignedTT);
-
-Logger.info('[P0-03] ARIMAX-eligible aligned rows (true intersection): %d', nAligned);
-
-arCloseAll = alignedTT.Close;
-arSentAll  = alignedTT.Daily_Sentiment;
-
-% Assert data is chronological after join
-assert(all(diff(alignedTT.Date) > 0), 'train_pipeline:NotSorted', ...
-    'Aligned intersection data is not sorted ascending.');
+if strcmp(interval, '15m')
+    % For 15m interval, use 15m close and forward-filled sentiment from fullData to match cadence perfectly
+    arCloseAll = fullData.Close(1:splitIdx);
+    arSentAll  = fullData.Daily_Sentiment(1:splitIdx);
+    nAligned   = length(arCloseAll);
+    Logger.info('[P0-03] 15m ARIMAX cadence aligned rows: %d', nAligned);
+else
+    marketDataAR   = readtable(fullfile(pwd, 'data', 'market', 'btc.csv'));
+    sentimentDataAR = readtable(fullfile(pwd, 'data', 'sentiment', 'historical_daily_sentiment.csv'));
+    
+    marketDataAR.Date   = dateshift(datetime(marketDataAR.Date),   'start', 'day');
+    sentimentDataAR.Date = dateshift(datetime(sentimentDataAR.Date), 'start', 'day') + caldays(1);
+    
+    % Assert chronological order (non-negotiable for time-series models)
+    assert(all(diff(marketDataAR.Date)   > 0), 'train_pipeline:NotSorted', 'Market data not sorted ascending.');
+    assert(all(diff(sentimentDataAR.Date) > 0), 'train_pipeline:NotSorted', 'Sentiment data not sorted ascending.');
+    
+    marketTTar    = table2timetable(marketDataAR,   'RowTimes', 'Date');
+    sentimentTTar = table2timetable(sentimentDataAR, 'RowTimes', 'Date');
+    
+    % TRUE inner join: only dates present in BOTH tables
+    alignedTT = synchronize(marketTTar, sentimentTTar, 'intersection');
+    alignedTT = rmmissing(alignedTT, 'DataVariables', {'Close', 'Daily_Sentiment'});
+    nAligned  = height(alignedTT);
+    
+    Logger.info('[P0-03] ARIMAX-eligible aligned rows (true intersection): %d', nAligned);
+    
+    arCloseAll = alignedTT.Close;
+    arSentAll  = alignedTT.Daily_Sentiment;
+    
+    assert(all(diff(alignedTT.Date) > 0), 'train_pipeline:NotSorted', ...
+        'Aligned intersection data is not sorted ascending.');
+end
 
 splitIdxAR  = floor(0.8 * nAligned);
 
