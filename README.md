@@ -100,12 +100,15 @@ flowchart TD
 | File | Purpose | When to run | Dependencies | Output or Side Effects |
 | :--- | :--- | :--- | :--- | :--- |
 | `startup.m` | Initializes MATLAB path by adding `src/`, `tests/`, and subfolders. | **Step 1** (Always run first) | Base MATLAB | Modifies search path. |
+| `start_sentinel.m` | Initializes project paths and launches the modular workstation UI (`App.m`). | **Recommended Launch** | Base MATLAB, trained artifacts | Opens `SentinelDashboard` workstation UI. |
 | `run_all_tests.m` | Executes all unit, integration, causality, and backtesting test suites. | **Step 2** (Verification) | Deep Learning, Econometrics, Stats Toolboxes | Prints test results, generates verification report. |
 | `train_pipeline.m` | Trains CNN-LSTM and ARIMA/ARIMAX models for a given interval and row cap. | **Step 3** (Training) | Dataset files, Deep Learning, Econometrics Toolboxes | Saves trained `.mat` artifacts in `models/<interval>/`. |
 | `scripts/verify_performance.m` | Evaluates trained ensemble against the persistence baseline on holdout data. | **Step 4** (Evaluation) | Trained model artifacts in `models/15m/` | Prints MAE, RMSE, and directional accuracy comparison table. |
-| `run_pipeline.m` | Launches event-driven live/historical prediction loop and dashboard UI. | **Step 5** (Dashboard UI) | Saved model artifacts, live network (optional) | Opens `SentinelDashboard` figure window. |
+| `run_pipeline.m` | Experimental event-driven background loop and standalone prediction runner. | Alternative CLI Loop | Saved model artifacts, live network (optional) | Executes terminal/figure loop. |
 | `verify_results.m` | Recomputes historical backtest metrics and asserts against authenticated baseline. | Optional Audit | Historical market data, Backtester | Exits non-zero if claim discrepancy is detected. |
 | `verify_submission.m` | Runs end-to-end system health checks, test suite, and compliance checks. | Optional Audit | Full test suite | Generates comprehensive HTML verification report in `reports/`. |
+| `evaluate_manual_trades.m` | Evaluates manual trade logs against historical price trajectories. | Optional Audit | Trade log files | Prints trade performance metrics. |
+| `test_ppi.m` / `test_prediction_render.m` | Diagnostic rendering and PPI test scripts. | Development / Debug | Base MATLAB | Renders test figure elements. |
 | `quick_forecast.m` | Legacy quick-forecast entry point. | Deprecated | Binance API (live) | Prints quick forecast (subject to network availability). |
 | `evaluate_pipeline.m` | Legacy pipeline evaluator. | Deprecated | Prior session logs | Evaluates saved execution logs. |
 
@@ -118,9 +121,12 @@ flowchart TD
 | `src/loaders/PriceDataLoader.m` | Batch historical loading & live Binance REST polling. | Symbol, Interval | Timetable / Table of OHLCV candles | PipelineDataProcessor, run_pipeline | `test_PhaseA_DataIngestion` |
 | `src/data/PipelineDataProcessor.m` | Regular-grid synchronization, scaling, and target masking. | Raw tables, interval | `fullData`, scaled `X`, `Y` | train_pipeline, verify_performance | `test_P0_04_TemporalSequences` |
 | `src/indicators/IndicatorEngine.m` | Technical indicators using strictly trailing windows (`[N-1 0]`). | Price table | Calculated indicator columns | FeatureEngineer, PipelineDataProcessor | `test_B01_LookAheadBias`, `test_B02_FabricatedFeatures` |
+| `src/feature_engineering/FeatureFusionEngine.m` | Low-latency incremental Wilder's RSI and EMA calculation (<1ms). | Candle row, state | Updated feature vector / table | Live streaming loop | `test_B02_FabricatedFeatures` |
+| `src/sentiment/SentimentEngine.m` | Lexicon and ML sentiment scoring with +1 day lag. | Headlines/Tweets | Numerical sentiment scores | PipelineDataProcessor, MacroEngine | `test_SentimentLag`, `test_T07_SentimentComparison` |
 | `src/models/ModelManager.m` | Artifact persistence, metadata logging, and model reload. | Directory path | Model structs, scalers, feature list | train_pipeline, verify_performance | `test_B03_AlignmentAndModelIntegrity` |
+| `src/risk/RiskEngine.m` & `RiskMetricsCalculator.m` | ATR stop-loss/take-profit derivation & empirical VaR/CVaR. | Equity curve, trades | Stop/target levels, risk metrics | Strategy execution, Backtester | `test_B08_Backtester`, `test_RiskMetrics` |
 | `src/strategy/PortfolioSimulator.m` | Portfolio simulation with fees, slippage, and net equity risk. | Prices, predictions | Performance metrics struct | PortfolioSimulationTab, Backtester | `test_B08_Backtester` |
-| `src/dashboard/App.m` / `SentinelDashboard.m` | Modular research workstation UI. | App state, models | Interactive figure window | run_pipeline | `test_B04_LiveInferenceIntegration` |
+| `src/dashboard/App.m` / `SentinelDashboard.m` | Modular research workstation UI (`start_sentinel`). | App state, models | Interactive figure window | start_sentinel | `test_B04_LiveInferenceIntegration` |
 
 ---
 

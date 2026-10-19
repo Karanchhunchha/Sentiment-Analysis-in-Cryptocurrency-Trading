@@ -23,9 +23,13 @@ classdef SentimentEngine
         
         function obj = SentimentEngine()
             % Default tweet datasets (historical); may be absent, handled gracefully in processHistoricalTweets
+            rootDir = fileparts(fileparts(fileparts(which('SentimentEngine'))));
+            if isempty(rootDir)
+                rootDir = pwd;
+            end
             obj.TweetFiles = {
-                fullfile(pwd, 'data', 'sentiment', 'Bitcoin_tweets.csv'), ...
-                fullfile(pwd, 'data', 'sentiment', 'Bitcoin_tweets_dataset_2.csv')
+                fullfile(rootDir, 'data', 'sentiment', 'Bitcoin_tweets.csv'), ...
+                fullfile(rootDir, 'data', 'sentiment', 'Bitcoin_tweets_dataset_2.csv')
             };
             
             % Initialize SentimentClassifier
@@ -138,7 +142,7 @@ classdef SentimentEngine
                 'VariableNames', {'Date', 'Daily_Sentiment', 'Tweet_Volume'});
             
             % Save to Sentiment Data Folder
-            outPath = fullfile(pwd, 'data', 'sentiment', 'historical_daily_sentiment.csv');
+            outPath = fullfile(fileparts(fileparts(fileparts(which('SentimentEngine')))), 'data', 'sentiment', 'historical_daily_sentiment.csv');
             outDir = fileparts(outPath);
             if ~exist(outDir, 'dir')
                 mkdir(outDir);
@@ -150,11 +154,19 @@ classdef SentimentEngine
         function obj = trainMLClassifier(obj)
             % Trains classifier using SentimentClassifier (trained on News dataset)
             try
-                absPath = 'D:\Sentiment Analysis in Cryptocurrency Trading\data\sentiment\cryptolin.csv';
+                rootDir = fileparts(fileparts(fileparts(which('SentimentEngine'))));
+                if isempty(rootDir)
+                    rootDir = pwd;
+                end
+                absPath = fullfile(rootDir, 'data', 'sentiment', 'cryptolin.csv');
+                if ~exist(absPath, 'file')
+                    Logger.warning('Training dataset cryptolin.csv not found at %s. ML classifier will use default state.', absPath);
+                    return;
+                end
                 obj.Classifier = obj.Classifier.train(absPath);
                 obj.Vocabulary = obj.Classifier.TrainingBag.Vocabulary;
             catch ME
-                % Fallback
+                Logger.warning('Failed to train ML classifier: %s', ME.message);
             end
         end
         
