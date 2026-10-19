@@ -5,40 +5,46 @@ classdef PipelineDataProcessor
         function [fullData, X, Y] = prepareData(featureList, interval, maxRows)
             if nargin < 2; interval = '1d'; end
             if nargin < 3; maxRows = []; end
-            
+
+            rootDir = fileparts(fileparts(fileparts(which('PipelineDataProcessor'))));
+            if isempty(rootDir)
+                rootDir = pwd;
+            end
+
             % 1. Load Market Data
             loader = PriceDataLoader('BTCUSDT', interval);
             if strcmp(interval, '1d')
-                marketFile = fullfile(pwd, 'data', 'market', 'btc.csv');
+                marketFile = fullfile(rootDir, 'data', 'market', 'btc.csv');
             elseif strcmp(interval, '15m')
-                marketFile = fullfile(pwd, 'data', 'market', 'btc_15m_data_2018_to_2025.csv');
+                marketFile = fullfile(rootDir, 'data', 'market', 'btc_15m_data_2018_to_2025.csv');
             else
-                marketFile = fullfile(pwd, 'data', 'market', ['btc_', interval, '.csv']);
+                marketFile = fullfile(rootDir, 'data', 'market', ['btc_', interval, '.csv']);
             end
             try
                 marketData = loader.loadHistoricalCSV(marketFile);
             catch
                 % Fallback for legacy filenames
                 if strcmp(interval, '15m')
-                    marketData = loader.loadHistoricalCSV(fullfile(pwd, 'data', 'market', 'btc_15m_data_2018_to_2025.csv'));
+                    marketData = loader.loadHistoricalCSV(fullfile(rootDir, 'data', 'market', 'btc_15m_data_2018_to_2025.csv'));
                 else
-                    marketData = loader.loadHistoricalCSV(fullfile(pwd, 'btc.csv'));
+                    marketData = loader.loadHistoricalCSV(fullfile(rootDir, 'btc.csv'));
                 end
             end
-            
+
             if ~isempty(maxRows) && height(marketData) > maxRows
                 marketData = marketData(end-maxRows+1:end, :);
             end
 
-            
+
             % 2. Load Sentiment Data
+            sentimentFile = fullfile(rootDir, 'data', 'sentiment', 'historical_daily_sentiment.csv');
             try
-                sentimentData = readtable('data/sentiment/historical_daily_sentiment.csv');
+                sentimentData = readtable(sentimentFile);
             catch
                 Logger.warning('Sentiment dataset missing. Generating it...');
                 engine = SentimentEngine();
                 engine.processHistoricalTweets();
-                sentimentData = readtable('data/sentiment/historical_daily_sentiment.csv');
+                sentimentData = readtable(sentimentFile);
             end
             
             % 3. Merge and Align on a Continuous Grid
@@ -118,7 +124,7 @@ classdef PipelineDataProcessor
             
             % Exclude synthetic forward-filled target rows from training loss (Fail-Closed Policy)
             if strcmp(interval, '15m')
-                rawMarket = readtable(fullfile(pwd, 'data', 'market', 'btc_15m_data_2018_to_2025.csv'), 'VariableNamingRule', 'preserve');
+                rawMarket = readtable(fullfile(rootDir, 'data', 'market', 'btc_15m_data_2018_to_2025.csv'), 'VariableNamingRule', 'preserve');
                 if any(strcmp(rawMarket.Properties.VariableNames, 'Open_time'))
                    rawMarket.Properties.VariableNames{'Open_time'} = 'Date';
                 elseif any(strcmp(rawMarket.Properties.VariableNames, 'Open time'))
