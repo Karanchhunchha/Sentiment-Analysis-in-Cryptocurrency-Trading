@@ -6,7 +6,7 @@
 
 | Check | Verified result |
 | :--- | :--- |
-| Full test suite (`run_all_tests`, MATLAB R2026b) | **105 passed / 11 failed / 11 skipped** of 117 — every failure is license-only: the verification machine had no Econometrics Toolbox, so the saved `arima` artifact could not load there |
+| Full test suite (`run_all_tests`, MATLAB R2026b) | **105 of 117 tests pass; the 11 failures are all license-only** (B03 ×4, B04 ×1, B05 ×6): the verification machine had no Econometrics Toolbox, so the saved `arima` artifact could not load there; 1 further test is filtered because its 15-minute dataset is not committed |
 | Sentiment evaluation suite (run separately as a double-check) | **16 of 16 tests pass** |
 | Sentiment accuracy, stratified 10-fold cross-validation on the committed 1,741-record CryptoLin corpus | **Naive Bayes 85.9% · linear SVM 85.8%** |
 | Walk-forward backtest | 44 folds · 4,400 out-of-sample predictions · RMSE 8106.01 · directional accuracy 47.68% |
@@ -59,7 +59,7 @@ This repository was revised end-to-end in response to the MathWorks review of Pr
 
 **Sentiment evaluation rebuilt**: the CryptoLin evaluation previously depended on a 20-record demonstration file that existed on one machine. The committed dataset is now the full binary subset of the official CryptoLin corpus (1,741 human-annotated records; derivation in `data/sentiment/CRYPTOLIN-SOURCE.md`), evaluated by stratified 10-fold cross-validation (leave-one-out was measured at ~43 hours per pass at this scale and is documented as replaced inside `SentimentEvaluationT07.m`). Cross-validated accuracy: **Naive Bayes 85.9%**, **linear SVM 85.8%**; the project's scorers are also compared against the Text Analytics Toolbox's VADER and ratio scorers by `src/sentiment/compareWithTextAnalytics.m`.
 
-**Verified test results** (MATLAB R2026b, 25 Nov 2026): **105 passed / 11 failed / 11 skipped** of 117. All 11 failures share one environmental cause: the verification machine's license had no Econometrics Toolbox, so the saved `arima` artifact could not load there (B03 ×4, B04 ×1, B05 ×6). On an installation with the Econometrics Toolbox the artifact loads as a genuine `arima` object. Walk-forward verification: 44 folds, RMSE 8106.01, MAE 2418.90, directional accuracy 47.68% — the ensemble does not beat the naive baseline, and the suite's readiness gate reports exactly that.
+**Verified test results** (MATLAB R2026b, 25 Nov 2026): **105 of 117 tests pass; 11 fail and 1 is filtered** (the filtered test's 15-minute dataset is not committed; the runner's incomplete count overlaps the failures — the 10 errored failures are counted as incomplete too). All 11 failures share one environmental cause: the verification machine's license had no Econometrics Toolbox, so the saved `arima` artifact could not load there (B03 ×4, B04 ×1, B05 ×6). On an installation with the Econometrics Toolbox the artifact loads as a genuine `arima` object. Walk-forward verification: 44 folds, RMSE 8106.01, MAE 2418.90, directional accuracy 47.68% — the ensemble does not beat the naive baseline, and the suite's readiness gate reports exactly that.
 
 ---
 
@@ -197,7 +197,7 @@ startup
 ```matlab
 run_all_tests
 ```
-*Expected Result*: On a full installation (Deep Learning, Econometrics, Statistics & Machine Learning, Text Analytics toolboxes), the regression suites verify causal indicators, sequence tensor shapes, ensemble integrity and backtesting logic. Verified 25 Nov 2026 on MATLAB R2026b: 105 passed / 11 failed / 11 skipped — the 11 failures occur only on licenses without the Econometrics Toolbox, where the saved `arima` artifact cannot load (see [Revision & Verification](#revision--verification-november-2026)).
+*Expected Result*: On a full installation (Deep Learning, Econometrics, Statistics & Machine Learning, Text Analytics toolboxes), the regression suites verify causal indicators, sequence tensor shapes, ensemble integrity and backtesting logic. Verified 25 Nov 2026 on MATLAB R2026b: 105 of 117 passed, 11 failed, 1 filtered — the 11 failures occur only on licenses without the Econometrics Toolbox, where the saved `arima` artifact cannot load (see [Revision & Verification](#revision--verification-november-2026)).
 
 ### Step 3 — Train a Bounded Model Run
 Train models with deterministic reproducibility on a bounded slice:
