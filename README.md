@@ -1,5 +1,20 @@
 # SentinelCrypto: Sentiment Analysis & Quantitative Forecasting in Cryptocurrency Trading
 
+**A native MATLAB research system that fuses 20 causal technical indicators with crypto-news sentiment to forecast Bitcoin — CNN-LSTM + ARIMAX ensemble, walk-forward backtesting with real fees and risk controls, and a modular research dashboard.** Built for the MathWorks Excellence in Innovation Program, **Project #239**.
+
+### Status — revised and verified by execution (25 Nov 2026)
+
+| Check | Verified result |
+| :--- | :--- |
+| Full test suite (`run_all_tests`, MATLAB R2026b) | **105 passed / 11 failed / 11 skipped** of 117 — every failure is license-only: the verification machine had no Econometrics Toolbox, so the saved `arima` artifact could not load there |
+| Sentiment evaluation suite (run separately as a double-check) | **16 of 16 tests pass** |
+| Sentiment accuracy, stratified 10-fold cross-validation on the committed 1,741-record CryptoLin corpus | **Naive Bayes 85.9% · linear SVM 85.8%** |
+| Walk-forward backtest | 44 folds · 4,400 out-of-sample predictions · RMSE 8106.01 · directional accuracy 47.68% |
+| Static analysis (`codeIssues('src')`) | **10 findings**, down from 39 — each remaining one documented in the code with its reason |
+| Look-ahead / fabrication regression tests | `test_B01_LookAheadBias` and `test_B02_FabricatedFeatures` pass at runtime |
+
+This revision answers the September 2026 MathWorks review point by point — see **[Revision & Verification](#revision--verification-november-2026)**. Reviewers: the fastest path through this repo is **[REVIEWER_GUIDE.md](REVIEWER_GUIDE.md)** (setup + one-command verification in under 10 minutes).
+
 > [!IMPORTANT]
 > **Research Prototype & Academic Submission Only**  
 > This repository is an academic research prototype developed for the MathWorks Excellence in Innovation Program (Project #239).  
@@ -239,7 +254,7 @@ run_pipeline
 
 ## Demo Video
 
-A short demo video (starting the pipeline with `start_sentinel`, a tour of the dashboard, and one backtest run) is in preparation and will be linked here.
+A demo video has been produced (3 min 35 s, 8 scenes): what the system is, how it works end to end, how the ensemble decides, the honest benchmark result, and the verified test numbers from the 25 Nov 2026 run. The public link will be added here on publication.
 
 ---
 
