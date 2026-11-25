@@ -227,7 +227,7 @@ run_pipeline
 
 1. **Do not run every `.m` file individually**: Entry-point scripts (`startup`, `run_all_tests`, `train_pipeline`, `verify_performance`, `run_pipeline`) orchestrate the software. Classes and utility functions are called automatically.
 2. **Preserve Protected Path**: Never access, read, or modify `re solution prompt's/`.
-3. **Demo Video**: A demo video is in preparation — see the [Demo Video](#demo-video) section.
+3. **Demo Video**: A narrated demo video is linked in the [Demo Video](#demo-video) section.
 4. **Artifact Isolation**: When training new models, use isolated output directories to avoid overwriting baseline verification artifacts.
 
 ---
@@ -254,7 +254,7 @@ run_pipeline
 
 ## Demo Video
 
-A demo video has been produced (3 min 35 s, 8 scenes): what the system is, how it works end to end, how the ensemble decides, the honest benchmark result, and the verified test numbers from the 25 Nov 2026 run. The public link will be added here on publication.
+▶ **Watch the demo video:** https://youtu.be/sdFi1m9n7Bg (2 min 54 s, 8 scenes, narrated): what the system is, how it works end to end, how the ensemble decides, the honest benchmark result, and the verified test numbers from the 25 Nov 2026 run — including real MATLAB screenshots of the trailing-window indicator code, the Text Analytics comparison, the walk-forward validation block, and the full test-suite re-test.
 
 ---
 
