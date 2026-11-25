@@ -14,7 +14,7 @@ classdef LiveLogger < handle
                 mkdir('data/logs');
             end
             
-            timestamp = datestr(now, 'yyyymmdd_HHMMSS');
+            timestamp = char(datetime('now', 'Format', 'yyyyMMdd_HHmmss'));
             obj.LogFile = sprintf('data/logs/LivePredictionLog_%s.csv', timestamp);
             
             % Write headers
@@ -67,12 +67,30 @@ classdef LiveLogger < handle
                         isCorrect = currentPrice < entry.CurrentPrice;
                     end
                     
+                    % Format timestamps (the legacy default format was
+                    % 'dd-mmm-yyyy HH:MM:SS'). Accept datetime or datenum
+                    % inputs, as the legacy call did — no in-repo caller pins the type.
+                    entryTime = entry.Time;
+                    if isnumeric(entryTime)
+                        entryTime = datetime(entryTime, 'ConvertFrom', 'datenum');
+                    else
+                        entryTime = datetime(entryTime);
+                    end
+                    entryTime.Format = 'dd-MMM-yyyy HH:mm:ss';
+                    outcomeTime = currentTime;
+                    if isnumeric(outcomeTime)
+                        outcomeTime = datetime(outcomeTime, 'ConvertFrom', 'datenum');
+                    else
+                        outcomeTime = datetime(outcomeTime);
+                    end
+                    outcomeTime.Format = 'dd-MMM-yyyy HH:mm:ss';
+
                     % Write to CSV
                     fid = fopen(obj.LogFile, 'a');
                     fprintf(fid, '%s,%.2f,%.2f,%.2f,%.2f,%.2f,%s,%.2f,%d\n', ...
-                        datestr(entry.Time), entry.CurrentPrice, entry.Prediction, ...
+                        char(entryTime), entry.CurrentPrice, entry.Prediction, ...
                         entry.Confidence, entry.SL, entry.TP, ...
-                        datestr(currentTime), currentPrice, isCorrect);
+                        char(outcomeTime), currentPrice, isCorrect);
                     fclose(fid);
                     
                     keepIdx(i) = false; % Remove from pending

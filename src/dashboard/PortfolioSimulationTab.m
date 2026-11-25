@@ -23,7 +23,7 @@ classdef PortfolioSimulationTab < handle
                 % Align interval with model artifacts (15m is the primary trained interval)
                 interval = '15m';
                 
-                [fullData, X, Y] = PipelineDataProcessor.prepareData([], interval);
+                [fullData, X, ~] = PipelineDataProcessor.prepareData([], interval);
                 mgr = ModelManager(fullfile(pwd, 'models', interval));
                 [models, scaler, featureList, targetScaler] = mgr.loadArtifacts();
                 

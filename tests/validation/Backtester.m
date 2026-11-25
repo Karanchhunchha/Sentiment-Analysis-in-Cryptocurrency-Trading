@@ -1,10 +1,3 @@
-%#ok<*AGROW>
-%#ok<*INUSD>
-%#ok<*NASGU>
-%#ok<*STOUT>
-%#ok<*DATNM>
-%#ok<*DATST>
-%#ok<*MATCH>
 classdef Backtester < handle
     properties
         InitialEquity = 10000
@@ -281,7 +274,7 @@ properties
                     if isempty(allTrades)
                         allTrades = cell2table(newRow, 'VariableNames', {'EntryTime','ExitTime','Direction','EntryPrice','ExitPrice','PositionUnits','EntryNotional','ExitNotional','EntryFee','ExitFee','Slippage','GrossPnL','NetPnL','EquityBefore','EquityAfter','StopLoss','TakeProfit','ExitReason'});
                     else
-                        allTrades = [allTrades; newRow]; %#ok<AGROW>
+                        allTrades = [allTrades; newRow];
                     end
 
                 end

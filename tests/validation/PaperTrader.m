@@ -1,10 +1,3 @@
-%#ok<*AGROW>
-%#ok<*INUSD>
-%#ok<*NASGU>
-%#ok<*STOUT>
-%#ok<*DATNM>
-%#ok<*DATST>
-%#ok<*MATCH>
 classdef PaperTrader < handle
     % PaperTrader Simulates paper trading forward in time, collecting deep
     % institutional financial metrics over 1000+ trades.

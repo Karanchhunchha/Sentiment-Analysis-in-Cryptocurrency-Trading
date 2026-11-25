@@ -1,10 +1,3 @@
-%#ok<*AGROW>
-%#ok<*INUSD>
-%#ok<*NASGU>
-%#ok<*STOUT>
-%#ok<*DATNM>
-%#ok<*DATST>
-%#ok<*MATCH>
 classdef DataIngestion
     methods (Static)
         function env = readEnv(envPath)
@@ -96,7 +89,7 @@ classdef DataIngestion
             
             for i = 1:height(dataTable)
                 rowTime = nowTime - hours(height(dataTable) - i);
-                timeStr = datestr(rowTime, 'yyyy-mm-dd HH:MM:SS');
+                timeStr = char(datetime(rowTime, 'Format', 'yyyy-MM-dd HH:mm:ss'));
                 
                 query = "INSERT INTO historical_prices (timestamp, symbol, open_price, high_price, low_price, close_price, volume) " + ...
                     "VALUES (?, ?, ?, ?, ?, ?, ?) " + ...
@@ -134,7 +127,14 @@ classdef DataIngestion
                 return;
             end
             
-            timeStr = datestr(timestamp, 'yyyy-mm-dd HH:MM:SS');
+            % Accept datetime or datenum input (as the legacy call did); normalise to datetime.
+            if isnumeric(timestamp)
+                dtTimestamp = datetime(timestamp, 'ConvertFrom', 'datenum');
+            else
+                dtTimestamp = datetime(timestamp);
+            end
+            dtTimestamp.Format = 'yyyy-MM-dd HH:mm:ss';
+            timeStr = char(dtTimestamp);
             query = "INSERT INTO sentiment_scores (timestamp, symbol, ml_score, vader_score, ratio_rule_score, llm_score, llm_confidence) " + ...
                 "VALUES (?, ?, ?, ?, ?, ?, ?) " + ...
                 "ON CONFLICT (timestamp, symbol) DO UPDATE SET " + ...

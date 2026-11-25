@@ -14,7 +14,7 @@ classdef ForecastProjectionEngine < handle
             end
         end
         
-        function [expectedPath, upConf, dnConf, metrics, sourceStruct] = project(obj, currentPrice, oneStepPred, volatility, signal, currentConfidence)
+        function [expectedPath, upConf, dnConf, metrics, sourceStruct] = project(obj, currentPrice, oneStepPred, volatility, ~, currentConfidence)
             % Projects a single-step prediction into a multi-step forecast
             
             horizons = VisualizationConfig.ForecastHorizons.Steps;

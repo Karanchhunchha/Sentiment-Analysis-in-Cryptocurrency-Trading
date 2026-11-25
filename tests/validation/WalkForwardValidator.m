@@ -1,15 +1,4 @@
-%#ok<*AGROW>
-%#ok<*INUSD>
-%#ok<*NASGU>
-%#ok<*STOUT>
-%#ok<*DATNM>
-%#ok<*DATST>
-%#ok<*MATCH>
 classdef WalkForwardValidator < handle
-%#ok<*AGROW>
-%#ok<*INUSD>
-%#ok<*NASGU>
-%#ok<*STOUT>
 
     % WalkForwardValidator Performs genuine sliding-window (walk-forward)
     % out-of-sample validation.
@@ -122,8 +111,8 @@ classdef WalkForwardValidator < handle
             for k = 1:numel(folds)
                 rec = obj.runOneFold(folds(k), k, pd);
 
-                allPreds = [allPreds; rec.Predictions]; %#ok<AGROW>
-                allActuals = [allActuals; rec.Actuals]; %#ok<AGROW>
+                allPreds = [allPreds; rec.Predictions];
+                allActuals = [allActuals; rec.Actuals];
                 totalHits = totalHits + rec.DAccHits;
                 totalScored = totalScored + rec.DAccScored;
                 totalStrictHits = totalStrictHits + rec.StrictHits;
@@ -131,14 +120,14 @@ classdef WalkForwardValidator < handle
 
                 if strcmp(rec.ModelPath, 'fold-ensemble')
                     numEnsembleFolds = numEnsembleFolds + 1;
-                    ensPreds = [ensPreds; rec.Predictions]; %#ok<AGROW>
-                    ensActuals = [ensActuals; rec.Actuals]; %#ok<AGROW>
+                    ensPreds = [ensPreds; rec.Predictions];
+                    ensActuals = [ensActuals; rec.Actuals];
                 end
 
                 if k == 1
                     obj.FoldRecords = rec;
                 else
-                    obj.FoldRecords(end+1) = rec; %#ok<AGROW>
+                    obj.FoldRecords(end+1) = rec;
                 end
 
                 fprintf('  -> Fold %2d/%2d  train[%4d..%4d]  test[%4d..%4d]  %s  n=%d  RMSE=%.2f  DA=%.2f%%\n', ...
@@ -572,7 +561,7 @@ classdef WalkForwardValidator < handle
                                 try
                                     v = double(L.(pn));
                                     if ~isempty(v) && isnumeric(v)
-                                        vals = [vals; v(:)]; %#ok<AGROW>
+                                        vals = [vals; v(:)];
                                     end
                                 catch
                                 end
@@ -603,7 +592,7 @@ classdef WalkForwardValidator < handle
                     v = arimaObj.AR;
                     for ci = 1:numel(v)
                         if ~isempty(v{ci})
-                            ar = [ar; double(v{ci}(:))]; %#ok<AGROW>
+                            ar = [ar; double(v{ci}(:))];
                         end
                     end
                 end

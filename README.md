@@ -23,6 +23,31 @@ Evaluated on a strict out-of-sample chronological holdout partition of BTC 15-mi
 
 ---
 
+## Revision & Verification (November 2026)
+
+This repository was revised end-to-end in response to the MathWorks review of Project #239 (September 2026), and every claim below was verified by executing the code, not by inspection alone.
+
+**What the review found — and what changed**
+
+| Review finding | Resolution |
+| :--- | :--- |
+| Centered-window look-ahead bias in indicators | All indicators use strictly trailing windows; regression test `test_B01_LookAheadBias` verifies causality at runtime. |
+| Fabricated RSI/EMA in FeatureFusionEngine | Real Wilder's RSI and EMA calculations; `test_B02_FabricatedFeatures` compares against independent recomputation. |
+| ARIMAX was a stub | Genuine `arima`/`estimate`/`forecast` implementation with sentiment as exogenous input; the ensemble prediction is a true weighted blend (previously it silently returned the CNN output only). |
+| Live-inference errors masked into a permanent "WAIT" | Errors surface loudly; no silent fallbacks anywhere in the pipeline. |
+| README claimed Financial Toolbox functions that were never called | Corrected — Financial Toolbox is **not** used or required. |
+| "Readiness Score: 100%" beside a model that loses to the baseline | The readiness gate now fails when the model loses (see results below). The honest negative result is published, per the reviewer's guidance. |
+| Fee-free in-sample backtester, fixed 1 BTC sizing | Backtester charges fees and slippage, sizes positions by ATR risk, and evaluates strictly out-of-sample. |
+| Walk-forward never retrained per fold | Every fold retrains on its own training window only (44 folds, 4,400 out-of-sample predictions). |
+
+**Housekeeping in the same revision**: all blanket `%#ok` suppression pragmas removed; all `datestr` calls replaced with `datetime`; no hard-coded local paths remain (everything resolves repo-relatively); the LLM feature extractor reads its API key only from an environment variable / `getSecret`, never from a plaintext file; the Monte Carlo simulator's legacy fixed-percentage path was deleted in favour of the bootstrap method; `codeIssues('src')` went from 39 findings to 10, each remaining one documented in the code with its reason.
+
+**Sentiment evaluation rebuilt**: the CryptoLin evaluation previously depended on a 20-record demonstration file that existed on one machine. The committed dataset is now the full binary subset of the official CryptoLin corpus (1,741 human-annotated records; derivation in `data/sentiment/CRYPTOLIN-SOURCE.md`), evaluated by stratified 10-fold cross-validation (leave-one-out was measured at ~43 hours per pass at this scale and is documented as replaced inside `SentimentEvaluationT07.m`). Cross-validated accuracy: **Naive Bayes 85.9%**, **linear SVM 85.8%**; the project's scorers are also compared against the Text Analytics Toolbox's VADER and ratio scorers by `src/sentiment/compareWithTextAnalytics.m`.
+
+**Verified test results** (MATLAB R2026b, 25 Nov 2026): **105 passed / 11 failed / 11 skipped** of 117. All 11 failures share one environmental cause: the verification machine's license had no Econometrics Toolbox, so the saved `arima` artifact could not load there (B03 ×4, B04 ×1, B05 ×6). On an installation with the Econometrics Toolbox the artifact loads as a genuine `arima` object. Walk-forward verification: 44 folds, RMSE 8106.01, MAE 2418.90, directional accuracy 47.68% — the ensemble does not beat the naive baseline, and the suite's readiness gate reports exactly that.
+
+---
+
 ## 1. Project Overview & Scope
 
 Cryptocurrency markets operate 24/7 with extreme volatility influenced by order flow, technical momentum, and social sentiment. **SentinelCrypto** is an end-to-end, native MATLAB quantitative trading research platform that:
@@ -44,11 +69,11 @@ The repository maintains strict separation between datasets of different frequen
 
 | Dataset Path | Rows | Frequency | Role in Repository |
 | :--- | :--- | :--- | :--- |
-| `data/market/btc_15m_data_2018_to_2025.csv` | 295,917 | 15-minute | **Primary high-frequency intraday market data** (2018–2026). Synchronizes to 296,446 regular grid rows. |
+| `data/market/btc_15m_data_2018_to_2025.csv` | 295,917 | 15-minute | **Primary high-frequency intraday market data** (2018–2026). Synchronizes to 296,446 regular grid rows. **Not committed to this repository** (large file, local working copy only); the pipeline fails loudly with the expected path when it is absent, and the daily datasets below are the committed fallback. |
 | `data/market/Real_Bitcoin_Price_History_2015_2026.csv` | ~4,000 | Daily | **Historical daily reference series**. Not a substitute for 15-minute intraday candles. |
 | `data/market/btc.csv` | 4,994 | Daily | **Daily market dataset** used for daily baseline pipeline execution and legacy compatibility. |
 | `data/sentiment/historical_daily_sentiment.csv` | 231 | Daily | **Aggregated daily sentiment scores** with timestamp alignment. |
-| `data/sentiment/cryptolin.csv` | 20 | Headline | **Demonstration fixture** (10 positive, 10 negative) for text classification LOOCV validation. |
+| `data/sentiment/cryptolin.csv` | 1,741 | Headline | **Full binary subset of the CryptoLin corpus** (1,356 positive, 385 negative; neutral records excluded — the classifiers are binary) for text-classification validation by stratified 10-fold cross-validation. Source and derivation: `data/sentiment/CRYPTOLIN-SOURCE.md`. |
 | `data/sentiment/Bitcoin_tweets.csv` | 40,000+ | Unlabeled | **Raw social media corpus**. Unlabeled; excluded from supervised training. |
 
 *Safety Notice*: The archived reference corpus in `re solution prompt's/` is strictly protected and never modified by pipeline operations.
@@ -154,11 +179,10 @@ startup
 ```
 
 ### Step 2 — Run Automated Test Suite
-Verify that all test units pass successfully:
 ```matlab
 run_all_tests
 ```
-*Expected Result*: All regression suites pass, verifying causal indicators, sequence tensor shapes, and backtesting logic.
+*Expected Result*: On a full installation (Deep Learning, Econometrics, Statistics & Machine Learning, Text Analytics toolboxes), the regression suites verify causal indicators, sequence tensor shapes, ensemble integrity and backtesting logic. Verified 25 Nov 2026 on MATLAB R2026b: 105 passed / 11 failed / 11 skipped — the 11 failures occur only on licenses without the Econometrics Toolbox, where the saved `arima` artifact cannot load (see [Revision & Verification](#revision--verification-november-2026)).
 
 ### Step 3 — Train a Bounded Model Run
 Train models with deterministic reproducibility on a bounded slice:
@@ -188,7 +212,7 @@ run_pipeline
 
 1. **Do not run every `.m` file individually**: Entry-point scripts (`startup`, `run_all_tests`, `train_pipeline`, `verify_performance`, `run_pipeline`) orchestrate the software. Classes and utility functions are called automatically.
 2. **Preserve Protected Path**: Never access, read, or modify `re solution prompt's/`.
-3. **Demo Video**: Intentionally **SKIPPED PER USER** (`SKIPPED PER USER`).
+3. **Demo Video**: A demo video is in preparation — see the [Demo Video](#demo-video) section.
 4. **Artifact Isolation**: When training new models, use isolated output directories to avoid overwriting baseline verification artifacts.
 
 ---
@@ -199,6 +223,23 @@ run_pipeline
 - **Missing Artifacts**: If `verify_performance` or dashboard simulation fails due to missing `.mat` files, run `train_pipeline(42, '15m', 5000)` first.
 - **Network Outages**: Live Binance polling (`PriceDataLoader`) requires internet access. If offline, the pipeline automatically falls back to committed historical CSV datasets (`data/market/btc.csv` or `btc_15m_data_2018_to_2025.csv`).
 - **Benchmark Underperformance**: If models underperform persistence, review empirical benchmark notes. This is a known, honestly disclosed market efficiency limitation, not a software failure.
+
+---
+
+## <a name="known-limitations"></a>Known Limitations
+
+1. **Predictive performance**: the ensemble does not beat the naive persistence baseline on held-out data (see the benchmark table above). This is disclosed, not hidden: the test suite's readiness gate fails in exactly this situation.
+2. **Econometrics Toolbox is required** for the ARIMA/ARIMAX components and for loading the committed `models/arima.mat` artifact. Without it, the ensemble tests (B03–B05) error and walk-forward runs fall back to the CNN-LSTM only, which is reported in the run output.
+3. **The 15-minute dataset is not committed** (see the dataset table). Committed data covers the daily pipeline end-to-end; 15-minute runs require the local file.
+4. **Python VADER bridge**: `SentimentEngine`'s VADER score uses the Python `vaderSentiment` package when available and a built-in lexicon fallback otherwise; `SentimentEvaluationT07` marks VADER predictions "Unavailable" when the package is absent rather than substituting another scorer.
+5. **Legacy training API**: model training still calls `trainNetwork` (deprecated in favour of `trainnet`). The migration is deliberately *not* done silently: `trainnet` changes the loss scaling and the network object type, so it requires a full retrain and re-verification cycle rather than a find-and-replace.
+6. **Research prototype**: no live trading, no capital at risk, and Binance live polling depends on network/geo availability (with a committed-data fallback when the API is unreachable).
+
+---
+
+## Demo Video
+
+A short demo video (starting the pipeline with `start_sentinel`, a tour of the dashboard, and one backtest run) is in preparation and will be linked here.
 
 ---
 

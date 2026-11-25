@@ -20,16 +20,17 @@ classdef PipelineDataProcessor
             else
                 marketFile = fullfile(rootDir, 'data', 'market', ['btc_', interval, '.csv']);
             end
-            try
-                marketData = loader.loadHistoricalCSV(marketFile);
-            catch
-                % Fallback for legacy filenames
-                if strcmp(interval, '15m')
-                    marketData = loader.loadHistoricalCSV(fullfile(rootDir, 'data', 'market', 'btc_15m_data_2018_to_2025.csv'));
-                else
-                    marketData = loader.loadHistoricalCSV(fullfile(rootDir, 'btc.csv'));
-                end
+            if ~exist(marketFile, 'file')
+                % Only daily data is committed in this repository. Fail loudly
+                % with the expected location instead of silently substituting
+                % a different interval's data.
+                error('PipelineDataProcessor:IntervalDataNotFound', ...
+                    ['Market data file for interval ''%s'' not found: %s\n' ...
+                     'This repository commits daily data only (data/market/btc.csv). ' ...
+                     'Export the %s data to the path above to use this interval.'], ...
+                    interval, marketFile, interval);
             end
+            marketData = loader.loadHistoricalCSV(marketFile);
 
             if ~isempty(maxRows) && height(marketData) > maxRows
                 marketData = marketData(end-maxRows+1:end, :);
@@ -381,7 +382,7 @@ classdef PipelineDataProcessor
             end
             
             % Summary Table
-            htmlLines = [htmlLines; %#ok<AGROW>
+            htmlLines = [htmlLines;
                 "<h2>Data Integrity Checks</h2>"
                 "<table><tr><th>Audit Metric</th><th>Result</th><th>Status</th></tr>"
                 "<tr><td>Missing Values</td><td>" + num2str(numMissing) + " missing elements</td><td class='" + missingClass + "'>" + missingStatus + "</td></tr>"
@@ -393,26 +394,28 @@ classdef PipelineDataProcessor
             ];
             
             % 7. Feature Scaling & Sample Stats
-            htmlLines = [htmlLines; %#ok<AGROW>
+            htmlLines = [htmlLines;
                 "<h2>Feature Scaling Statistics (Raw)</h2>"
                 "<table><tr><th>Feature</th><th>Min</th><th>Max</th><th>Mean</th><th>Std Dev</th></tr>"
             ];
             
             numericVars = fullData(:, vartype('numeric'));
             varNames = numericVars.Properties.VariableNames;
+            % Preallocate one row per variable instead of growing htmlLines
+            % inside the loop (AGROW)
+            featureRows = strings(width(numericVars), 1);
             for i = 1:width(numericVars)
                 v = numericVars{:, i};
                 minV = min(v); maxV = max(v); meanV = mean(v); stdV = std(v);
-                htmlLines = [htmlLines; %#ok<AGROW>
-                    "<tr><td>" + string(varNames{i}) + "</td>" + ...
+                featureRows(i) = "<tr><td>" + string(varNames{i}) + "</td>" + ...
                     "<td>" + num2str(minV, '%.4f') + "</td>" + ...
                     "<td>" + num2str(maxV, '%.4f') + "</td>" + ...
                     "<td>" + num2str(meanV, '%.4f') + "</td>" + ...
-                    "<td>" + num2str(stdV, '%.4f') + "</td></tr>"
-                ];
+                    "<td>" + num2str(stdV, '%.4f') + "</td></tr>";
             end
+            htmlLines = [htmlLines; featureRows];
             
-            htmlLines = [htmlLines; %#ok<AGROW>
+            htmlLines = [htmlLines;
                 "</table>"
                 "</body></html>"
             ];

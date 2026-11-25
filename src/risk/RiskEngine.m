@@ -17,10 +17,12 @@ classdef RiskEngine < handle
             obj.ATRMultiplierTP = tpMult;
             obj.MinRiskReward = minRR;
         end
-        function [tp, sl, rr, etaMinutes] = calculateRiskMetrics(obj, currentPrice, expectedPath, signal, volatility, support, resistance, metrics, timeframeStr)
+        function [tp, sl, rr, etaMinutes] = calculateRiskMetrics(obj, currentPrice, expectedPath, signal, volatility, support, resistance, ~, timeframeStr)
+            % The 8th positional input (a metrics struct) is part of
+            % the established calling interface but is not used by the
+            % current calculation; it is accepted and ignored (~).
             % TP is the peak expected value before confidence decays below threshold
-            threshold = metrics.AdaptiveThreshold;
-            
+
             % Currently, confidence metrics are not per-step in this simplified model, 
             % but let's assume we find the local extremum in the path.
             

@@ -9,7 +9,10 @@ classdef test_FallbackResilience < matlab.unittest.TestCase
 
         function testCSVContainsRealData(testCase)
              loader = PriceDataLoader('BTCUSDT', '1h');
-             data = loader.loadHistoricalCSV('D:\Sentiment Analysis in Cryptocurrency Trading\data\market\btc.csv');
+             % Repo-relative path to the committed real data file
+             % (this file lives in <root>/tests/validation -> <root>)
+             projectRoot = fileparts(fileparts(fileparts(mfilename('fullpath'))));
+             data = loader.loadHistoricalCSV(fullfile(projectRoot, 'data', 'market', 'btc.csv'));
              testCase.assertTrue(height(data) > 0, 'CSV fallback data is empty.');
              testCase.assertTrue(iscolumn(data.Close), 'Missing Close column in data.');
         end

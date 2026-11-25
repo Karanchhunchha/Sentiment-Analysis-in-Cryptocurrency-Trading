@@ -1,10 +1,3 @@
-%#ok<*AGROW>
-%#ok<*INUSD>
-%#ok<*NASGU>
-%#ok<*STOUT>
-%#ok<*DATNM>
-%#ok<*DATST>
-%#ok<*MATCH>
 % generate_sample_data.m
 % Generates small sample datasets for MathWorks Challenge evaluators.
 % Creates a 500-row slice of BTC price data and a 100-row slice of tweets.

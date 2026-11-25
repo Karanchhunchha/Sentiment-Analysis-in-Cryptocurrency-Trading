@@ -1,15 +1,4 @@
-%#ok<*AGROW>
-%#ok<*INUSD>
-%#ok<*NASGU>
-%#ok<*STOUT>
-%#ok<*DATNM>
-%#ok<*DATST>
-%#ok<*MATCH>
 classdef ModelComparer < handle
-%#ok<*AGROW>
-%#ok<*INUSD>
-%#ok<*NASGU>
-%#ok<*STOUT>
     % ModelComparer Orchestrates the institutional model comparison suite.
     % Evaluates multiple architectures (ARIMA, Random Forest, CNN, LSTM)
     % strictly on the same out-of-sample data to prevent selection bias.

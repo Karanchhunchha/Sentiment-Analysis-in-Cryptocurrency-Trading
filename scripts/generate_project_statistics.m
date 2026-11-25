@@ -40,7 +40,7 @@ function generate_project_statistics()
             end
             
             if items(k).isdir
-                q{end+1} = itemPath; %#ok<AGROW>
+                q{end+1} = itemPath;
             else
                 [~, ~, ext] = fileparts(itemName);
                 s = struct('name', itemName, 'folder', currDir, 'bytes', items(k).bytes, 'date', items(k).date);

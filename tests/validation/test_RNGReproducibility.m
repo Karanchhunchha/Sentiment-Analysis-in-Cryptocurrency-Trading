@@ -7,7 +7,7 @@ end
 
         function test_MonteCarloSimulator_controlled(testCase)
             initialCapital = 10000;
-            mcs = MonteCarloSimulator(0.5, 0.1, -0.05, initialCapital);
+            mcs = MonteCarloSimulator(initialCapital);
             
             % Mock trade log
             tradeLog.NetPnL = [100; -50; 200];

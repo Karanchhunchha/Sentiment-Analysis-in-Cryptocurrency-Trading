@@ -24,14 +24,15 @@ classdef ModelComparisonTab < handle
                 comparer = ModelComparer(histData);
                 comparer.runComparison(0.8);
                 
-                % Format table to string
+                % Format table to string (preallocated cell, joined once —
+                % no string growth inside the loop)
                 T = comparer.Results;
-                str = '';
+                lines = cell(height(T), 1);
                 for i = 1:height(T)
-                    str = [str, sprintf('%s: RMSE=%.2f, MAE=%.2f, DA=%.2f%%\n', ...
-                        T.Model{i}, T.RMSE(i), T.MAE(i), T.DirectionalAccuracy(i))];
+                    lines{i} = sprintf('%s: RMSE=%.2f, MAE=%.2f, DA=%.2f%%\n', ...
+                        T.Model{i}, T.RMSE(i), T.MAE(i), T.DirectionalAccuracy(i));
                 end
-                obj.TextArea.Value = str;
+                obj.TextArea.Value = [lines{:}];
                 obj.AppRef.updateStatus('Comparison Complete.', [0 0.5 0]);
             catch e
                 obj.AppRef.updateStatus(['Error: ' e.message], [0.8 0 0]);

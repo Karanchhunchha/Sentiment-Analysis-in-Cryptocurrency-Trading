@@ -1,7 +1,7 @@
 function test_MonteCarloBootstrap()
     % Setup
     initialCapital = 10000;
-    mc = MonteCarloSimulator(0.5, 0.05, -0.04, initialCapital);
+    mc = MonteCarloSimulator(initialCapital);
     
     % Test empty handling
     success = false;

@@ -5,7 +5,7 @@ classdef ProjectionValidator < handle
         function obj = ProjectionValidator()
         end
         
-        function [isValid, reason] = validate(obj, expectedPath, upConf, dnConf, signal, tp, sl, currentPrice)
+        function [isValid, reason] = validate(~, expectedPath, upConf, dnConf, signal, tp, sl, currentPrice)
             isValid = true;
             reason = 'VALID';
             

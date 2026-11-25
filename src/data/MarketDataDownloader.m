@@ -104,7 +104,7 @@ classdef MarketDataDownloader
                 'VariableNames', {'Open', 'High', 'Low', 'Close', 'Volume'});
         end
         
-        function df = fetchFromCoinGecko(timeframe, startTime)
+        function df = fetchFromCoinGecko(~, startTime)
             % CoinGecko has different limits and formats
             % For simplicity in this failover, we fetch the max allowed days
             days = 'max';
@@ -164,7 +164,7 @@ classdef MarketDataDownloader
             % Check local parquet cache
             cachePath = fullfile(pwd, 'data', 'market', 'btc', timeframe, 'historical.parquet');
             if exist(cachePath, 'file')
-                info = parquetinfo(cachePath);
+                parquetinfo(cachePath); % existence/metadata probe; result unused
                 % A full read just to get the last time is expensive, so we might want to store metadata later.
                 % For now, read the tail
                 % In MATLAB R2022b+, parquetread supports partial reading, but we'll read it all for simplicity if small.
@@ -203,7 +203,7 @@ classdef MarketDataDownloader
             end
         end
         
-        function saveToDatabase(df, timeframe)
+        function saveToDatabase(df, ~)
             dbUser = ConfigManager.getValue('DB_USER');
             dbPass = ConfigManager.getValue('DB_PASSWORD');
             if isempty(dbUser) || isempty(dbPass)

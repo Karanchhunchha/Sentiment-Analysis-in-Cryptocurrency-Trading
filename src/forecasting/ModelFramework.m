@@ -14,7 +14,7 @@ classdef ModelFramework
         
         function versionId = generateVersionId(modelType)
             % e.g. CNNLSTM_20260714_120000
-            timeStr = datestr(now, 'yyyymmdd_HHMMSS');
+            timeStr = char(datetime('now', 'Format', 'yyyyMMdd_HHmmss'));
             versionId = sprintf('%s_%s', upper(modelType), timeStr);
         end
         
@@ -66,7 +66,7 @@ classdef ModelFramework
             % (Note: ARIMAX is a supported fallback, but ARIMA is actively trained)
             fallbacks = {'CNNLSTM', 'LSTM', 'ARIMAX', 'ARIMA'};
             
-            startIdx = find(strcmp(fallbacks, upper(modelType)));
+            startIdx = find(strcmpi(fallbacks, modelType));
             if isempty(startIdx)
                 startIdx = 1;
             end

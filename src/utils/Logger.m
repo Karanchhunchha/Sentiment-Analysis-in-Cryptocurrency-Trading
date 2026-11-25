@@ -22,14 +22,14 @@ classdef Logger
                 msg = message;
             end
             
-            timeStr = datestr(now, 'yyyy-mm-dd HH:MM:SS');
+            timeStr = char(datetime('now', 'Format', 'yyyy-MM-dd HH:mm:ss'));
             logLine = sprintf('[%s] [%s] %s', timeStr, upper(level), msg);
             
             % Print to console
             disp(logLine);
             
             % Write to file (daily rotating)
-            dateStr = datestr(now, 'yyyy-mm-dd');
+            dateStr = char(datetime('now', 'Format', 'yyyy-MM-dd'));
             logFile = fullfile(Logger.LogDir, sprintf('sentinel_%s.log', dateStr));
             
             fid = fopen(logFile, 'a');
@@ -43,12 +43,13 @@ classdef Logger
             Logger.log('INFO', message, varargin{:});
         end
         
-        function warn(message, varargin)
+        function warning(message, varargin)
             Logger.log('WARN', message, varargin{:});
         end
         
-        function warning(message, varargin)
-            Logger.warn(message, varargin{:});
+        function warn(message, varargin)
+            % Legacy short-name alias for Logger.warning (kept for existing callers)
+            Logger.warning(message, varargin{:});
         end
         
         function success(message, varargin)

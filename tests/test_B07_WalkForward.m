@@ -11,7 +11,7 @@ classdef test_B07_WalkForward < matlab.unittest.TestCase
 
     methods (TestClassSetup)
         function setupOnce(testCase)
-            [folder, ~, ~] = fileparts(mfilename('fullpath')); %#ok<NASGU>
+            [folder, ~, ~] = fileparts(mfilename('fullpath'));
             testCase.RootDir = fullfile(folder, '..');
             cd(testCase.RootDir);
             testCase.WFFile = fullfile(testCase.RootDir, 'tests', 'validation', 'WalkForwardValidator.m');

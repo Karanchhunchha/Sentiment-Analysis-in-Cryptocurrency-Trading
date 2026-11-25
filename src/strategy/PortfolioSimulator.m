@@ -151,7 +151,7 @@ classdef PortfolioSimulator
             metrics.FinalCashWeight = 1 - abs(finalPosition);
         end
         
-        function logToDatabase(obj, metrics, modelId, strategyName)
+        function logToDatabase(~, metrics, modelId, strategyName)
             conn = DataIngestion.getDbConnection();
             if ~isempty(conn) && isopen(conn)
                 try
@@ -164,7 +164,7 @@ classdef PortfolioSimulator
             end
         end
         
-        function [bestWeights, maxSharpe, htmlPath] = optimizePortfolio(obj)
+        function [bestWeights, maxSharpe, htmlPath] = optimizePortfolio(~)
             % Seed is now controlled by the caller or initialized once
             % at the start of the function, but removed from inside
             % the loop if it was there. wait - rng should be here.
@@ -177,7 +177,7 @@ classdef PortfolioSimulator
             
             % 1. Fetch live prices from Binance API
             symbols = {'BTCUSDT', 'ETHUSDT', 'BNBUSDT'};
-            pricesCell = {};
+            pricesCell = cell(1, length(symbols));
             
             for s = 1:length(symbols)
                 url = sprintf('https://api.binance.com/api/v3/klines?symbol=%s&interval=1d&limit=180', symbols{s});

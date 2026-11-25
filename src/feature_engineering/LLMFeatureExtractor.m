@@ -13,7 +13,7 @@ classdef LLMFeatureExtractor
             obj.IsAvailable = true;
         end
         
-        function features = extractFeaturesFromText(obj, textData)
+        function features = extractFeaturesFromText(~, textData)
             % Extracts sentiment/macro features from a batch of text using the LLM REST API.
             
             numSamples = numel(textData);
@@ -21,16 +21,34 @@ classdef LLMFeatureExtractor
             
             Logger.info('Extracting features using LLM/Sentiment REST API for %d samples...', numSamples);
             
-            % Check API Key configuration
-            apiKey = ConfigManager.getValue('ANTHROPIC_API_KEY');
-            if isempty(apiKey) || strcmp(apiKey, 'your_anthropic_api_key_here') || startsWith(apiKey, 'placeholder')
-                apiKey = getenv('ANTHROPIC_API_KEY');
+            % Check API Key configuration.
+            % The key is read ONLY from the process environment or the
+            % MATLAB secret store (setSecret/getSecret). It is deliberately
+            % NOT read from the plaintext configs/.env file: a real key must
+            % never sit in a plaintext file inside the repo tree.
+            apiKey = getenv('ANTHROPIC_API_KEY');
+            if isempty(apiKey)
+                try
+                    apiKey = getSecret('ANTHROPIC_API_KEY');
+                catch
+                    % getSecret unavailable (older MATLAB) or no secret
+                    % stored under that name — treated as "not configured".
+                    apiKey = '';
+                end
+                if ~ischar(apiKey) && ~isstring(apiKey)
+                    apiKey = '';
+                end
+                apiKey = char(apiKey);
             end
-            
+
             isKeyConfigured = ~isempty(apiKey) && ~strcmp(apiKey, 'your_anthropic_api_key_here') && ~startsWith(apiKey, 'placeholder');
-            
+
             if ~isKeyConfigured
-                warning('SentinelCrypto:LLM:NoKey', 'LLM API key not configured. Set ANTHROPIC_API_KEY in configs/.env to enable LLM feature extraction. Returning neutral score.');
+                error('SentinelCrypto:LLM:NoKey', ...
+                    ['LLM API key not configured. Set the ANTHROPIC_API_KEY environment ' ...
+                     'variable, or store the key in the MATLAB secret store with ' ...
+                     'setSecret(''ANTHROPIC_API_KEY'', <key>), to enable LLM feature extraction. ' ...
+                     'Plaintext configs/.env key loading was removed.']);
             end
             
             for i = 1:numSamples

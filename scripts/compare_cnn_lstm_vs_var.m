@@ -147,7 +147,7 @@ reportFile = fullfile(reportDir, 'CNN_LSTM_vs_VAR_comparison.md');
 
 fid = fopen(reportFile, 'w');
 fprintf(fid, '# CNN-LSTM vs VAR Model Comparison Report\n\n');
-fprintf(fid, 'Generated on: %s\n\n', datestr(now, 'yyyy-mm-dd HH:MM:SS'));
+fprintf(fid, 'Generated on: %s\n\n', char(datetime('now', 'Format', 'yyyy-MM-dd HH:mm:ss')));
 fprintf(fid, 'This report presents a direct mathematical performance comparison between the primary **Deep Learning CNN-LSTM model** and the newly introduced econometrics **Vector Autoregression (VAR) model** utilizing actual backtest execution parameters.\n\n');
 
 fprintf(fid, '## Model Metrics Leaderboard\n\n');

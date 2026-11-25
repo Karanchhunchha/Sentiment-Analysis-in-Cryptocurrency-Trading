@@ -40,7 +40,7 @@ try
     btResults = bt.run();
     
     % Monte Carlo to get Probability of Ruin (empirical bootstrap on real per-trade P&L)
-    mcs = MonteCarloSimulator(0, 0, 0, 10000);
+    mcs = MonteCarloSimulator(10000);
     if isempty(btResults.TradeLog) || height(btResults.TradeLog) == 0
         error('verify_results:EmpiricalMCEmpty','Cannot bootstrap Monte Carlo from empty TradeLog.');
     end

@@ -4,12 +4,18 @@ classdef test_SyntheticTargetExclusion < matlab.unittest.TestCase
             [folder, ~, ~] = fileparts(mfilename('fullpath'));
             root = fullfile(folder, '..');
             cd(root);
-            
+
+            % Fixture guard: the 15m market file is not committed in the
+            % repo (it exists only on the author's machine), so skip
+            % cleanly anywhere else instead of erroring inside prepareData.
+            marketFile = fullfile(root, 'data', 'market', 'btc_15m_data_2018_to_2025.csv');
+            testCase.assumeTrue(exist(marketFile, 'file') == 2, ...
+                'btc_15m_data_2018_to_2025.csv not found — 15m fixture is not committed in the repo, test skipped.');
+
             % Execute production preprocessing
             [fullData, X, Y] = PipelineDataProcessor.prepareData([], '15m');
-            
+
             % Verify independently that production PipelineDataProcessor successfully set Target to NaN
-            marketFile = fullfile(root, 'data', 'market', 'btc_15m_data_2018_to_2025.csv');
             rawMarket = readtable(marketFile, 'VariableNamingRule', 'preserve');
             if any(strcmp(rawMarket.Properties.VariableNames, 'Open_time'))
                rawMarket.Properties.VariableNames{'Open_time'} = 'Date';

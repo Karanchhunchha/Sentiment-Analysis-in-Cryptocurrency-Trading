@@ -47,6 +47,7 @@ codegen/
 !data/sentiment/Bitcoin_tweets.csv
 !data/sentiment/Bitcoin_tweets_dataset_2.csv
 !data/sentiment/historical_daily_sentiment.csv
+!data/sentiment/cryptolin.csv
 !tests/data/golden_data.csv
 logs/
 best_model/

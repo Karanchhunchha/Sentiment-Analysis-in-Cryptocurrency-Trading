@@ -1,10 +1,3 @@
-%#ok<*AGROW>
-%#ok<*INUSD>
-%#ok<*NASGU>
-%#ok<*STOUT>
-%#ok<*DATNM>
-%#ok<*DATST>
-%#ok<*MATCH>
 % Author: Karan Chhunchha (karanchhunchha@gmail.com)
 % MathWorks Challenge #239 - SentinelCrypto
 % run_pipeline.m (Event-Driven Live Prediction Loop)
@@ -292,8 +285,8 @@ function processLiveTick(newCandle, fullData, fusionEngine, macroEngine, models,
         'ExpectedHigh', currentPrice + volatility, 'ExpectedLow', currentPrice - volatility, ...
         'ProbabilityUp', 0.5, 'ProbabilityDown', 0.5, 'Support', support, 'Resistance', resistance, ...
         'SL', sl, 'TP1', tp, 'TP2', tp, 'TP3', tp, ...
-        'PredictionGenerated', datestr(genTime, 'HH:MM:SS'), ...
-        'PredictionValidUntil', datestr(genTime + minutes(5), 'HH:MM:SS'), ...
+        'PredictionGenerated', char(datetime(genTime, 'Format', 'HH:mm:ss')), ...
+        'PredictionValidUntil', char(datetime(genTime + minutes(5), 'Format', 'HH:mm:ss')), ...
         'LastModelVersion', 'v1.0.0', 'RiskReward', rr);
     
     dashboard.updateData(newData);
@@ -310,7 +303,7 @@ function processLiveTick(newCandle, fullData, fusionEngine, macroEngine, models,
     predictionVisualizer.update(visData, predStruct);
     
         Logger.info('[%s] Processed tick in %.1f ms | Price: $%.2f | Signal: %s', ...
-            datestr(genTime, 'HH:MM:SS'), elapsedMs, currentPrice, signal);
+            char(datetime(genTime, 'Format', 'HH:mm:ss')), elapsedMs, currentPrice, signal);
             
     catch ME
         Logger.error('Exception in processLiveTick: %s', ME.message);

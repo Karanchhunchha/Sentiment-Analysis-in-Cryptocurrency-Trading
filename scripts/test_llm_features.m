@@ -27,7 +27,7 @@ if fidLog == -1
 end
 
 fprintf(fidLog, '--- LLM FEATURE EXTRACTOR VERIFICATION LOG ---\n');
-fprintf(fidLog, 'Timestamp: %s\n', datestr(now, 'yyyy-mm-dd HH:MM:SS'));
+fprintf(fidLog, 'Timestamp: %s\n', char(datetime('now', 'Format', 'yyyy-MM-dd HH:mm:ss')));
 
 % Check and log the active model provider for transparency
 apiKey = ConfigManager.getValue('ANTHROPIC_API_KEY');

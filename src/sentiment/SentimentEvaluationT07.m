@@ -1,6 +1,21 @@
 classdef SentimentEvaluationT07 < handle
-    % SentimentEvaluationT07 Leave-One-Out comparison of sentiment methods
-    % on the CryptoLin human-annotated cryptocurrency NEWS/TEXT dataset.
+    % SentimentEvaluationT07 Stratified 10-fold cross-validation
+    % comparison of sentiment methods on the CryptoLin human-annotated
+    % cryptocurrency NEWS/TEXT dataset.
+    %
+    % Methodology note (changed during the MathWorks #239 repair,
+    % Nov 2026): this harness originally used leave-one-out CV, which
+    % had been designed around a 20-record demonstration fixture. On
+    % the full 1,741-record corpus, LOOCV with a per-fold SVM fit
+    % measured ~90 s per fold (~43 hours for one pass) — infeasible.
+    % Stratified 10-fold CV is the standard alternative and preserves
+    % the property under test: every record receives exactly one
+    % out-of-fold prediction from every method, and each fold's models
+    % are trained only on that fold's training records. The SVM is
+    % fitclinear (the linear SVM for high-dimensional sparse text;
+    % fitcsvm rejects sparse input outright and its dense fit alone
+    % measured ~48 s per fold), and its prediction is the classifier's
+    % own predicted label.
     %
     % This is a dedicated evaluation harness. It does NOT modify locked T06 components.
     
@@ -12,6 +27,7 @@ classdef SentimentEvaluationT07 < handle
         VaderAvailable    % boolean
         VaderAnalyzer     % Python VADER instance
         CryptoLinPath     % Instance property initialized in constructor
+        TokenizedDocs     % tokenizedDocument array, one entry per record
     end
     
     properties (Constant)
@@ -20,12 +36,24 @@ classdef SentimentEvaluationT07 < handle
     
     methods
         function obj = SentimentEvaluationT07()
-            % Hardcode absolute path relative to project for now to unblock
-            obj.CryptoLinPath = 'D:\Sentiment Analysis in Cryptocurrency Trading\data\sentiment\cryptolin.csv';
+            % Resolve the dataset repo-relatively from this class file's
+            % location (same pattern as SentimentEngine.trainMLClassifier):
+            % <root>/src/sentiment/SentimentEvaluationT07.m -> <root>.
+            rootDir = fileparts(fileparts(fileparts(which('SentimentEvaluationT07'))));
+            if isempty(rootDir)
+                rootDir = pwd;
+            end
+            obj.CryptoLinPath = fullfile(rootDir, 'data', 'sentiment', 'cryptolin.csv');
             
             obj.loadAndValidateData();
             obj.checkVaderAvailability();
             obj.identifyDuplicates();
+            % Tokenize ONCE here. Tokenization is a per-document
+            % operation with no cross-document statistics, so doing it
+            % once up front cannot leak held-out information into any
+            % fold; the original harness re-tokenized the whole corpus
+            % inside every fold.
+            obj.TokenizedDocs = tokenizedDocument(obj.Texts);
         end
         
         function loadAndValidateData(obj)
@@ -42,7 +70,7 @@ classdef SentimentEvaluationT07 < handle
             obj.Labels = categorical(string(obj.Data.label));
             
             uniqueLabels = unique(string(obj.Labels));
-            expectedLabels = sort(string({'Negative', 'Positive'}));
+            expectedLabels = sort(["Negative", "Positive"]);
             if ~isequal(uniqueLabels(:), expectedLabels(:))
                 error('CryptoLin labels must be exactly {Positive, Negative}. Found: %s', strjoin(uniqueLabels, ', '));
             end
@@ -75,7 +103,7 @@ classdef SentimentEvaluationT07 < handle
             end
         end
         
-        function results = runLOOCV(obj)
+        function results = runCrossValidation(obj)
             n = numel(obj.Texts);
             
             categories = ["Negative", "Positive", "Unavailable"];
@@ -86,27 +114,32 @@ classdef SentimentEvaluationT07 < handle
             nbPreds = categorical(repmat("Unavailable", n, 1), categories);
             svmPreds = categorical(repmat("Unavailable", n, 1), categories);
             
-            for i = 1:n
-                trainIdx = setdiff(1:n, i);
+            % Stratified 10-fold split with a fixed seed: the folds —
+            % and therefore every reported number — are deterministic
+            % across runs and machines.
+            rng(42);
+            cp = cvpartition(obj.Labels, 'KFold', 10);
+            for f = 1:cp.NumTestSets
+                trainIdx = find(training(cp, f));
+                testIdx = find(test(cp, f));
                 
-                % VADER (no training)
-                if obj.VaderAvailable
-                    vScore = obj.vaderScoreSingle(obj.Texts(i));
-                    vaderScores(i) = vScore;
-                    vaderPreds(i) = obj.binaryFromScore(vScore);
-                else
-                    vaderPreds(i) = categorical({'Unavailable'}, categories);
+                % VADER + Lexicon/Ratio (no training) on the held-out fold
+                for j = 1:numel(testIdx)
+                    i = testIdx(j);
+                    if obj.VaderAvailable
+                        vScore = obj.vaderScoreSingle(obj.Texts(i));
+                        vaderScores(i) = vScore;
+                        vaderPreds(i) = obj.binaryFromScore(vScore);
+                    end
+                    lScore = obj.lexiconScoreSingle(obj.Texts(i));
+                    lexiconScores(i) = lScore;
+                    lexiconPreds(i) = obj.binaryFromScore(lScore);
                 end
                 
-                % Lexicon/Ratio (no training)
-                lScore = obj.lexiconScoreSingle(obj.Texts(i));
-                lexiconScores(i) = lScore;
-                lexiconPreds(i) = obj.binaryFromScore(lScore);
-                
-                % NB/SVM (train on fold training set only)
-                [nbPred, svmPred] = obj.mlPredictSingle(obj.Texts(i), trainIdx);
-                nbPreds(i) = categorical({char(nbPred)}, categories);
-                svmPreds(i) = categorical({char(svmPred)}, categories);
+                % NB/SVM trained on this fold's training records only
+                [nbFold, svmFold] = obj.mlPredictFold(testIdx, trainIdx);
+                nbPreds(testIdx) = nbFold;
+                svmPreds(testIdx) = svmFold;
             end
             
             results.Labels = obj.Labels;
@@ -168,44 +201,56 @@ classdef SentimentEvaluationT07 < handle
             results.LexiconMax = max(lexiconScores);
         end
         
-        function [nbPred, svmPred] = mlPredictSingle(obj, testText, trainIdx)
-            trainTexts = obj.Texts(trainIdx);
+        function [nbPreds, svmPreds] = mlPredictFold(obj, testIdx, trainIdx)
+            % Trains both ML scorers on the fold's training records and
+            % predicts the fold's held-out records in batch.
             trainLabels = obj.Labels(trainIdx);
+            cats = {'Negative', 'Positive', 'Unavailable'};
+            m = numel(testIdx);
+            nbPreds = categorical(repmat({'Unavailable'}, m, 1), cats);
+            svmPreds = categorical(repmat({'Unavailable'}, m, 1), cats);
             
-            nbPred = categorical({'Unavailable'}, {'Negative', 'Positive', 'Unavailable'});
-            svmPred = categorical({'Unavailable'}, {'Negative', 'Positive', 'Unavailable'});
-            
+            % Vocabulary (bag) is built from the fold's TRAINING
+            % documents only — held-out documents never contribute to
+            % the vocabulary. Tokenization itself was done once in the
+            % constructor (per-document, no cross-document statistics,
+            % so no leakage).
+            docs = obj.TokenizedDocs(trainIdx);
+            bag = bagOfWords(docs);
+            X_train = encode(bag, docs);
+            X_test = encode(bag, obj.TokenizedDocs(testIdx));
+
+            % Each model is fitted in its OWN try/catch: the two
+            % previously shared one, so when the SVM fit failed, the
+            % Naive Bayes predictions were silently discarded along
+            % with it and every record came back "Unavailable".
+
+            % Naive Bayes (multinomial, sparse counts).
             try
-                docs = tokenizedDocument(trainTexts);
-                bag = bagOfWords(docs);
-                testDocs = tokenizedDocument(testText);
-                X_train = full(encode(bag, docs));
-                X_test = full(encode(bag, testDocs));
-                
                 rng(42);
                 nbModel = fitcnb(X_train, trainLabels, 'DistributionNames', 'mn', ...
                     'ClassNames', categorical({'Negative', 'Positive'}));
-                svmModelRaw = fitcsvm(X_train, trainLabels, 'KernelFunction', 'linear', ...
-                    'Standardize', true, 'ClassNames', categorical({'Negative', 'Positive'}));
-                svmModel = fitSVMPosterior(svmModelRaw);
-                
                 [~, nbPost] = predict(nbModel, X_test);
-                [~, svmPost] = predict(svmModel, X_test);
-                
-                if nbPost(1, 2) >= 0.5
-                    nbPred = categorical({'Positive'});
-                else
-                    nbPred = categorical({'Negative'});
-                end
-                
-                if svmPost(1, 2) >= 0.5
-                    svmPred = categorical({'Positive'});
-                else
-                    svmPred = categorical({'Negative'});
-                end
+                nbLabels = repmat("Negative", m, 1);
+                nbLabels(nbPost(:, 2) >= 0.5) = "Positive";
+                nbPreds = categorical(cellstr(nbLabels), cats);
             catch
-                nbPred = categorical({'Unavailable'}, {'Negative', 'Positive', 'Unavailable'});
-                svmPred = categorical({'Unavailable'}, {'Negative', 'Positive', 'Unavailable'});
+                % nbPreds stays "Unavailable" for this fold
+            end
+
+            % Linear SVM via fitclinear — the SVM implementation for
+            % high-dimensional sparse text. (fitcsvm rejects sparse
+            % input, and its dense fit + posterior calibration measured
+            % ~90 s per single record under leave-one-out.) The
+            % prediction is the classifier's own predicted label.
+            try
+                rng(42);
+                svmModel = fitclinear(X_train, trainLabels, 'Learner', 'svm', ...
+                    'ClassNames', categorical({'Negative', 'Positive'}));
+                svmLabels = predict(svmModel, X_test);
+                svmPreds = categorical(cellstr(string(svmLabels)), cats);
+            catch
+                % svmPreds stays "Unavailable" for this fold
             end
         end
         
@@ -221,7 +266,7 @@ classdef SentimentEvaluationT07 < handle
             end
         end
         
-        function score = lexiconScoreSingle(obj, text)
+        function score = lexiconScoreSingle(~, text)
             textLower = lower(char(text));
             tokens = split(textLower);
             posWords = ["up", "buy", "bullish", "moon", "pump", "gain", "profit", "breakout", "good"];
@@ -245,7 +290,6 @@ classdef SentimentEvaluationT07 < handle
         end
         
         function metrics = computeMetrics(obj, predictions, groundTruth)
-            unavailableCat = categorical({'Unavailable'});
             validIdx = ~ismember(string(predictions), "Unavailable");
             if sum(validIdx) == 0
                 metrics = obj.emptyMetrics();
@@ -279,7 +323,7 @@ classdef SentimentEvaluationT07 < handle
             metrics.ConfusionMatrix = confMat;
         end
         
-        function empty = emptyMetrics(obj)
+        function empty = emptyMetrics(~)
             empty.N = 0;
             empty.NPositive = 0;
             empty.NNegative = 0;

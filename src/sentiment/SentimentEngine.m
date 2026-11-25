@@ -195,7 +195,7 @@ classdef SentimentEngine
             % Import T07 evaluator
             try
                 obj.Evaluator = SentimentEvaluationT07();
-                results = obj.Evaluator.runLOOCV();
+                results = obj.Evaluator.runCrossValidation();
             catch ME
                 Logger.error('T07 evaluation failed: %s', ME.message);
                 return;
@@ -218,9 +218,9 @@ classdef SentimentEngine
                 ".metric { font-weight: bold; color: #2196F3; }"
                 "</style></head><body>"
                 "<h1>Sentiment Analysis Model Comparison Report (T07)</h1>"
-                "<p>Dataset: <strong>CryptoLin</strong> (20 human-annotated cryptocurrency NEWS/TEXT records)</p>"
-                "<p>Ground truth: Human annotations (10 Positive, 10 Negative). This is NOT Twitter data.</p>"
-                "<p>Evaluation method: Leave-One-Out Cross-Validation (LOO-CV) with out-of-fold predictions.</p>"
+                "<p>Dataset: <strong>CryptoLin</strong> (" + num2str(results.N) + " human-annotated cryptocurrency NEWS/TEXT records)</p>"
+                "<p>Ground truth: Human annotations (" + num2str(results.NPositive) + " Positive, " + num2str(results.NNegative) + " Negative). This is NOT Twitter data.</p>"
+                "<p>Evaluation method: Stratified 10-fold cross-validation with out-of-fold predictions.</p>"
                 "<p>VADER availability: " + vaderStatus + "</p>"
                 "<p>Binary mapping: score > 0 -> Positive, score <= 0 -> Negative (pre-specified midpoint decision rule)</p>"
                 "<h2>Model Performance Metrics (CryptoLin Out-of-Fold)</h2>"

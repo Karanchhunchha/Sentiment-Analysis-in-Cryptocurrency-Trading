@@ -25,7 +25,7 @@
 | 11 | Monte Carlo using hypothetical percentage gains | **FIXED** | `MonteCarloSimulator.m` bootstraps empirical trade outcomes from `TradeLog`. |
 | 12 | Synthetic market data fallbacks | **FIXED** | Eliminated from normal reporting paths; historical CSV preferred. |
 | 13 | SQL string interpolation | **FIXED** | `PortfolioSimulator.m` uses parameterized execution. |
-| 14 | Sentiment classifiers trained on tiny hardcoded fixtures | **PARTIAL** | `SentimentEvaluationT07.m` / LOOCV on `cryptolin.csv`; limited real corpus scale. |
+| 14 | Sentiment classifiers trained on tiny hardcoded fixtures | **FIXED** | `SentimentEvaluationT07.m` evaluates on the full binary CryptoLin corpus committed at `data/sentiment/cryptolin.csv` (1,741 human-annotated records; see CRYPTOLIN-SOURCE.md) by stratified 10-fold cross-validation. |
 | 15 | Unused LLM features and plaintext API keys | **FIXED** | LLM extractor documented as experimental/optional; zero plaintext keys committed. |
 
 ---

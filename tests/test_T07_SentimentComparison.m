@@ -4,6 +4,15 @@ classdef test_T07_SentimentComparison < matlab.unittest.TestCase
     end
     methods(TestMethodSetup)
         function setup(testCase)
+            % The CryptoLin dataset is external (human-annotated) and is
+            % not committed to the repo. Skip the whole suite gracefully
+            % when it is absent instead of erroring in setup — same
+            % pattern as test_T06_T07_SentimentAnalysis.
+            thisDir = fileparts(mfilename('fullpath'));
+            projectRoot = fileparts(thisDir);
+            datasetPath = fullfile(projectRoot, 'data', 'sentiment', 'cryptolin.csv');
+            testCase.assumeTrue(isfile(datasetPath), ...
+                sprintf('cryptolin.csv not found at: %s — dataset missing, test skipped.', datasetPath));
             testCase.Evaluator = SentimentEvaluationT07();
         end
     end
@@ -11,18 +20,27 @@ classdef test_T07_SentimentComparison < matlab.unittest.TestCase
         function testEvaluatorCreation(testCase)
             testCase.verifyNotEmpty(testCase.Evaluator.Texts);
             testCase.verifyNotEmpty(testCase.Evaluator.Labels);
-            testCase.verifyEqual(numel(testCase.Evaluator.Texts), 20);
+            % The evaluator must load EVERY row of the committed
+            % dataset. (This previously asserted a fixed count of 20 —
+            % the size of a small local sample file — which failed
+            % against the real 1,741-row CryptoLin corpus.)
+            thisDir = fileparts(mfilename('fullpath'));
+            projectRoot = fileparts(thisDir);
+            datasetPath = fullfile(projectRoot, 'data', 'sentiment', 'cryptolin.csv');
+            T = readtable(datasetPath);
+            testCase.verifyEqual(numel(testCase.Evaluator.Texts), height(T));
+            testCase.verifyEqual(numel(testCase.Evaluator.Labels), height(T));
         end
-        function testLOO_Deterministic(testCase)
-            results1 = testCase.Evaluator.runLOOCV();
-            results2 = testCase.Evaluator.runLOOCV();
+        function test_CrossValidationDeterministic(testCase)
+            results1 = testCase.Evaluator.runCrossValidation();
+            results2 = testCase.Evaluator.runCrossValidation();
             testCase.verifyEqual(results1.Labels, results2.Labels);
             testCase.verifyEqual(results1.LexiconPred, results2.LexiconPred);
             testCase.verifyEqual(results1.NBPred, results2.NBPred);
             testCase.verifyEqual(results1.SVMPred, results2.SVMPred);
         end
         function test_EveryRecordReceivesOutOfFoldPrediction(testCase)
-            results = testCase.Evaluator.runLOOCV();
+            results = testCase.Evaluator.runCrossValidation();
             n = numel(testCase.Evaluator.Texts);
             lexiconCount = sum(string(results.LexiconPred) ~= "Unavailable");
             nbCount = sum(string(results.NBPred) ~= "Unavailable");
@@ -39,7 +57,7 @@ classdef test_T07_SentimentComparison < matlab.unittest.TestCase
             end
         end
         function test_AllMethodsUseSameHeldOut(testCase)
-            results = testCase.Evaluator.runLOOCV();
+            results = testCase.Evaluator.runCrossValidation();
             n = numel(testCase.Evaluator.Texts);
             testCase.verifyEqual(numel(results.LexiconPred), n);
             testCase.verifyEqual(numel(results.NBPred), n);
@@ -47,8 +65,11 @@ classdef test_T07_SentimentComparison < matlab.unittest.TestCase
             testCase.verifyEqual(numel(results.VaderPred), n);
         end
         function test_CryptoLinLabelsExactDomain(testCase)
-            % Ensure dataset path is absolute
-            dataPath = 'D:/Sentiment Analysis in Cryptocurrency Trading/data/sentiment/cryptolin.csv';
+            % Ensure dataset path is absolute (resolved repo-relatively
+            % from this test file's location: <root>/tests -> <root>)
+            thisDir = fileparts(mfilename('fullpath'));
+            projectRoot = fileparts(thisDir);
+            dataPath = fullfile(projectRoot, 'data', 'sentiment', 'cryptolin.csv');
             
             % Read as table to get the raw content
             T = readtable(dataPath);
@@ -72,14 +93,14 @@ classdef test_T07_SentimentComparison < matlab.unittest.TestCase
             testCase.verifyEqual(sort(uniquePreds), sort(string({'Negative', 'Positive'})));
         end
         function test_NBSVMPredictionsValidLabels(testCase)
-            results = testCase.Evaluator.runLOOCV();
+            results = testCase.Evaluator.runCrossValidation();
             allNB = ismember(string(results.NBPred), ["Positive","Negative","Unavailable"]);
             allSVM = ismember(string(results.SVMPred), ["Positive","Negative","Unavailable"]);
             testCase.verifyTrue(all(allNB));
             testCase.verifyTrue(all(allSVM));
         end
         function test_ConfusionMatrixDimensions(testCase)
-            results = testCase.Evaluator.runLOOCV();
+            results = testCase.Evaluator.runCrossValidation();
             m = testCase.Evaluator.computeMetrics(results.LexiconPred, results.Labels);
             testCase.verifyEqual(size(m.ConfusionMatrix), [2, 2]);
             m = testCase.Evaluator.computeMetrics(results.NBPred, results.Labels);
@@ -88,10 +109,13 @@ classdef test_T07_SentimentComparison < matlab.unittest.TestCase
             testCase.verifyEqual(size(m.ConfusionMatrix), [2, 2]);
         end
         function test_MetricsFromOutOfFold(testCase)
-            results = testCase.Evaluator.runLOOCV();
+            results = testCase.Evaluator.runCrossValidation();
             m = testCase.Evaluator.computeMetrics(results.LexiconPred, results.Labels);
             testCase.verifyGreaterThanOrEqual(m.N, 0);
-            testCase.verifyLessThanOrEqual(m.N, 20);
+            % Metrics are computed over the out-of-fold predictions, so
+            % N can never exceed the number of records in the dataset
+            % (previously hard-coded to the 20-row local sample size).
+            testCase.verifyLessThanOrEqual(m.N, numel(testCase.Evaluator.Texts));
         end
         function test_SyntheticLabelsAbsent(testCase)
             s = string(fileread('src/sentiment/SentimentEngine.m'));
@@ -105,8 +129,8 @@ classdef test_T07_SentimentComparison < matlab.unittest.TestCase
             end
         end
         function test_RepeatedExecutionDeterministic(testCase)
-            results1 = testCase.Evaluator.runLOOCV();
-            results2 = testCase.Evaluator.runLOOCV();
+            results1 = testCase.Evaluator.runCrossValidation();
+            results2 = testCase.Evaluator.runCrossValidation();
             testCase.verifyEqual(results1.LexiconPred, results2.LexiconPred);
             testCase.verifyEqual(results1.NBPred, results2.NBPred);
             testCase.verifyEqual(results1.SVMPred, results2.SVMPred);

@@ -1,10 +1,3 @@
-%#ok<*AGROW>
-%#ok<*INUSD>
-%#ok<*NASGU>
-%#ok<*STOUT>
-%#ok<*DATNM>
-%#ok<*DATST>
-%#ok<*MATCH>
 function testResult = run_all_tests()
 % run_all_tests.m
 % Orchestrates all verification and validation tests for SentinelCrypto.
@@ -130,7 +123,7 @@ try
         
         % Monte Carlo (empirical bootstrap on real per-trade P&L)
         if ~isempty(btResults.TradeLog) && (height(btResults.TradeLog) > 0)
-            mcs = MonteCarloSimulator(0, 0, 0, 10000);
+            mcs = MonteCarloSimulator(10000);
             try
                 mcResults = mcs.runEmpirical(btResults.TradeLog, 10000, 42);
                 report.addMetric('Robustness', 'Probability_Of_Ruin', mcResults.ProbabilityOfRuin, mcResults.ProbabilityOfRuin < 5);

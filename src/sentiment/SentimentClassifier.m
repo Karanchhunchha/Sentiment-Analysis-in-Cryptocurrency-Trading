@@ -45,7 +45,12 @@ classdef SentimentClassifier
         end
 
         function [nbScore, svmScore] = predict(obj, text)
-            hasTextAnalytics = ~isempty(which('tokenizedDocument')) && ~(isstruct(obj.TrainingBag));
+            % Positive class check: only a trained bagOfWords selects the
+            % Text Analytics branch. An untrained classifier has
+            % TrainingBag == [] (isstruct([]) is false), which the old
+            % negative check misread as "trained with Text Analytics" and
+            % sent to encode([], docs) -> undefined-function crash.
+            hasTextAnalytics = ~isempty(which('tokenizedDocument')) && isa(obj.TrainingBag, 'bagOfWords');
 
             if hasTextAnalytics
                 docs = tokenizedDocument(text);
@@ -90,7 +95,10 @@ classdef SentimentClassifier
 
         function metrics = evaluate(obj, testPath)
             testData = readtable(testPath);
-            hasTextAnalytics = ~isempty(which('tokenizedDocument')) && ~(isstruct(obj.TrainingBag));
+            % Same positive class check as predict (see note there): the TA
+            % branch is taken only for a trained bagOfWords, never for the
+            % untrained [] default state.
+            hasTextAnalytics = ~isempty(which('tokenizedDocument')) && isa(obj.TrainingBag, 'bagOfWords');
 
             if hasTextAnalytics
                 X_test_raw = full(encode(obj.TrainingBag, tokenizedDocument(testData.text)));

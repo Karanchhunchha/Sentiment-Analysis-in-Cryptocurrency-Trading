@@ -53,32 +53,27 @@ classdef PriceDataLoader < handle
                 response = webread(url, options);
                 
                 if ~isempty(response)
-                    fullTable = table();
+                    % Preallocate one cell per candle and concatenate once,
+                    % instead of growing the table row-by-row in the loop
+                    candleCells = cell(length(response), 1);
                     for i = 1:length(response)
                         % response(i) is a cell array of the candle data
-                        candle = obj.parseBinanceResponse({response{i}});
-                        fullTable = [fullTable; candle];
+                        candleCells{i} = obj.parseBinanceResponse({response{i}});
                     end
+                    fullTable = vertcat(candleCells{:});
                     obj.Data = fullTable;
                     data = obj.Data;
                     Logger.success('Fetched %d live historical candles.', height(obj.Data));
                 else
-                    Logger.warning('Binance returned empty response. Attempting fallback to CSV.');
-                    if strcmp(obj.Interval, '1d')
-                        fallbackFile = 'data/market/btc.csv';
-                    else
-                        fallbackFile = fullfile('data', 'market', ['btc_', obj.Interval, '.csv']);
-                    end
-                    data = obj.loadHistoricalCSV(fallbackFile);
+                    Logger.warning('Binance returned empty response. Attempting fallback to CSV (data/market/btc.csv).');
+                    % The only committed real data file is data/market/btc.csv;
+                    % the per-interval btc_<interval>.csv files were never
+                    % committed, so the fallback always uses btc.csv.
+                    data = obj.loadHistoricalCSV('data/market/btc.csv');
                 end
             catch ME
-                Logger.error('Failed to fetch recent history: %s. Attempting fallback to CSV.', ME.message);
-                if strcmp(obj.Interval, '1d')
-                    fallbackFile = 'data/market/btc.csv';
-                else
-                    fallbackFile = fullfile('data', 'market', ['btc_', obj.Interval, '.csv']);
-                end
-                data = obj.loadHistoricalCSV(fallbackFile);
+                Logger.error('Failed to fetch recent history: %s. Attempting fallback to CSV (data/market/btc.csv).', ME.message);
+                data = obj.loadHistoricalCSV('data/market/btc.csv');
             end
         end
         

@@ -107,8 +107,10 @@ classdef PredictionVisualizer < handle
                 % Extract the Time column (could be datetime)
                 times = obj.DataHistory.Time;
                 if isdatetime(times)
-                    set(obj.VolumeBarObj, 'XData', datenum(times), 'YData', obj.DataHistory.Volume);
-                    datetick(obj.IndicatorAxes, 'x', 'keeplimits');
+                    % Bar series accept datetime XData directly; the axes
+                    % switches to a datetime ruler and formats ticks itself,
+                    % so no datenum/datetick conversion is needed.
+                    set(obj.VolumeBarObj, 'XData', times, 'YData', obj.DataHistory.Volume);
                 else
                     set(obj.VolumeBarObj, 'XData', 1:height(obj.DataHistory), 'YData', obj.DataHistory.Volume);
                 end

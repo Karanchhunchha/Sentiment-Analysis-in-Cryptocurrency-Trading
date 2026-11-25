@@ -5,7 +5,7 @@ classdef ForecastReportGenerator < handle
         function obj = ForecastReportGenerator()
         end
         
-        function report = evaluateHistory(obj, historyTable)
+        function report = evaluateHistory(~, historyTable)
             % Assumes historyTable has columns: Time, ActualClose, Prediction
             if isempty(historyTable) || size(historyTable, 1) < 2
                 report = struct('RMSE', NaN, 'MAE', NaN, 'HitRate', NaN);
@@ -57,7 +57,7 @@ classdef ForecastReportGenerator < handle
             report.ProjectionReliability = 85.5; % %
         end
         
-        function generateHTML(obj, report, outputFile)
+        function generateHTML(~, report, outputFile)
             if nargin < 3
                 outputFile = 'reports/ForecastReport.html';
             end
@@ -71,10 +71,12 @@ classdef ForecastReportGenerator < handle
             html = [html, sprintf('<table><tr><th>Metric</th><th>Value</th></tr>')];
             
             fields = fieldnames(report);
+            rows = cell(1, length(fields));
             for i = 1:length(fields)
                 val = report.(fields{i});
-                html = [html, sprintf('<tr><td>%s</td><td>%.2f</td></tr>', fields{i}, val)];
+                rows{i} = sprintf('<tr><td>%s</td><td>%.2f</td></tr>', fields{i}, val);
             end
+            html = [html, rows{:}];
             
             html = [html, '</table></body></html>'];
             
@@ -83,7 +85,7 @@ classdef ForecastReportGenerator < handle
             fclose(fid);
         end
         
-        function generateJSON(obj, report, outputFile)
+        function generateJSON(~, report, outputFile)
             if nargin < 3
                 outputFile = 'reports/ForecastReport.json';
             end

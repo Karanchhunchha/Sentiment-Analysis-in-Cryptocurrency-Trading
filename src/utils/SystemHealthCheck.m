@@ -40,7 +40,7 @@ classdef SystemHealthCheck
             missing = {};
             for i = 1:numel(required)
                 if ~any(strcmp(toolboxes, required{i}))
-                    missing{end+1} = required{i}; %#ok<AGROW>
+                    missing{end+1} = required{i};
                 end
             end
             
@@ -175,7 +175,7 @@ classdef SystemHealthCheck
                     end
                 end
                 if ~skip
-                    validFiles = [validFiles; allFiles(i)]; %#ok<AGROW>
+                    validFiles = [validFiles; allFiles(i)];
                 end
             end
             
@@ -242,8 +242,8 @@ fileDetails(i).Name = validFiles(i).name;
                     if isKey(fileHashes, hashStr)
                         duplicateCount = duplicateCount + 1;
                         orig = fileHashes(hashStr);
-                        dupDetails{end+1} = sprintf('<strong>%s</strong> is a duplicate of %s', ... %#ok<AGROW>
-                            validFiles(i).name, strrep(orig, rootDir, '')); %#ok<AGROW>
+                        dupDetails{end+1} = sprintf('<strong>%s</strong> is a duplicate of %s', ...
+                            validFiles(i).name, strrep(orig, rootDir, ''));
                     else
                         fileHashes(hashStr) = fullPath;
                     end
@@ -257,10 +257,6 @@ fileDetails(i).Name = validFiles(i).name;
             testedSrcCount = 0;
             
             for i = 1:numSrc
-                folder = srcFiles(i).Folder;
-                nameOnly = srcFiles(i).Name;
-                hasTest = false;
-                
                 % Everything is assumed tested or covered by validation suite at this stage
                 hasTest = true;
                 
