@@ -90,10 +90,10 @@ classdef PredictionVisualizer < handle
             obj.PriceChartObj = PriceChart(obj.PriceAxes);
             obj.PredictionChartObj = PredictionChart(obj.PriceAxes);
             
-            % Panel 2: Indicators (Volume / RSI) - placeholder for now
+            % Panel 2: Volume only (RSI is computed in the pipeline but not plotted here)
             obj.IndicatorAxes = nexttile(obj.GridLayout, 3, [1 1]);
             ChartTheme.applyToAxes(obj.IndicatorAxes);
-            title(obj.IndicatorAxes, 'Volume & Indicators', 'Color', ChartTheme.TextColor);
+            title(obj.IndicatorAxes, 'Volume', 'Color', ChartTheme.TextColor);
             
             % Initialize volume bar
             obj.VolumeBarObj = bar(obj.IndicatorAxes, NaN, NaN, 'FaceColor', [0.4 0.4 0.6], 'EdgeColor', 'none');

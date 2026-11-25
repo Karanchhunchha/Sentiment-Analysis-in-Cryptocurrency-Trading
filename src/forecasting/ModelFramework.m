@@ -96,7 +96,8 @@ classdef ModelFramework
                                 return;
                             end
                         end
-                    catch
+                    catch ME
+                        Logger.debug('Model lookup for %s failed: %s', currentType, ME.message);
                     end
                     close(conn);
                 end

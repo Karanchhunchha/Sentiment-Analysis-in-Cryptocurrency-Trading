@@ -25,6 +25,8 @@ This revision answers the September 2026 MathWorks review point by point — see
 
 ## <a name="empirical-benchmark-results"></a>Empirical Benchmark Results (June 2026 Holdout Evaluation)
 
+> **Provenance note (added November 2026):** the figures in this section are from the original June 2026 submission and were *not* re-run during the November 2026 verification. The verified November 2026 results are the status summary at the top of this README and the 44-fold walk-forward validation described under Known Limitations.
+
 Evaluated on a strict out-of-sample chronological holdout partition of BTC 15-minute data (June 11–15, 2026; $N=471$ observations):
 
 | Model Architecture | MAE ($) | RMSE ($) | Directional Accuracy (%) |
@@ -49,7 +51,7 @@ This repository was revised end-to-end in response to the MathWorks review of Pr
 | Centered-window look-ahead bias in indicators | All indicators use strictly trailing windows; regression test `test_B01_LookAheadBias` verifies causality at runtime. |
 | Fabricated RSI/EMA in FeatureFusionEngine | Real Wilder's RSI and EMA calculations; `test_B02_FabricatedFeatures` compares against independent recomputation. |
 | ARIMAX was a stub | Genuine `arima`/`estimate`/`forecast` implementation with sentiment as exogenous input; the ensemble prediction is a true weighted blend (previously it silently returned the CNN output only). |
-| Live-inference errors masked into a permanent "WAIT" | Errors surface loudly; no silent fallbacks anywhere in the pipeline. |
+| Live-inference errors masked into a permanent "WAIT" | Errors surface loudly in the inference path; the mock-model fallback in run_pipeline was removed, and the remaining silent catches elsewhere were replaced with logged ones (see Known Limitations). |
 | README claimed Financial Toolbox functions that were never called | Corrected — Financial Toolbox is **not** used or required. |
 | "Readiness Score: 100%" beside a model that loses to the baseline | The readiness gate now fails when the model loses (see results below). The honest negative result is published, per the reviewer's guidance. |
 | Fee-free in-sample backtester, fixed 1 BTC sizing | Backtester charges fees and slippage, sizes positions by ATR risk, and evaluates strictly out-of-sample. |
@@ -60,6 +62,8 @@ This repository was revised end-to-end in response to the MathWorks review of Pr
 **Sentiment evaluation rebuilt**: the CryptoLin evaluation previously depended on a 20-record demonstration file that existed on one machine. The committed dataset is now the full binary subset of the official CryptoLin corpus (1,741 human-annotated records; derivation in `data/sentiment/CRYPTOLIN-SOURCE.md`), evaluated by stratified 10-fold cross-validation (leave-one-out was measured at ~43 hours per pass at this scale and is documented as replaced inside `SentimentEvaluationT07.m`). Cross-validated accuracy: **Naive Bayes 85.9%**, **linear SVM 85.8%**; the project's scorers are also compared against the Text Analytics Toolbox's VADER and ratio scorers by `src/sentiment/compareWithTextAnalytics.m`.
 
 **Verified test results** (MATLAB R2026b, 25 Nov 2026): **105 of 117 tests pass; 11 fail and 1 is filtered** (the filtered test's 15-minute dataset is not committed; the runner's incomplete count overlaps the failures — the 10 errored failures are counted as incomplete too). All 11 failures share one environmental cause: the verification machine's license had no Econometrics Toolbox, so the saved `arima` artifact could not load there (B03 ×4, B04 ×1, B05 ×6). On an installation with the Econometrics Toolbox the artifact loads as a genuine `arima` object. Walk-forward verification: 44 folds, RMSE 8106.01, MAE 2418.90, directional accuracy 47.68% — the ensemble does not beat the naive baseline, and the suite's readiness gate reports exactly that.
+
+**Post-submission audit cleanup (25 Nov 2026):** an independent audit of the revised code found three residual honesty defects the review had not listed: a mock-model fallback in `run_pipeline` (removed — model-load failure now raises an error), three silent `catch` blocks (replaced with logged ones), and a database-save function that logged as if it persisted data it never wrote (now explicitly labelled not implemented; see Known Limitations). After these fixes the full verification was re-run end-to-end (Run 4) and produced results **identical** to the run above: 105 of 117 tests pass with the same 11 license-only failures, T07 16 of 16, Naive Bayes 85.9% / SVM 85.8%, walk-forward RMSE 8106.01 and directional accuracy 47.68%.
 
 ---
 
@@ -249,6 +253,7 @@ run_pipeline
 4. **Python VADER bridge**: `SentimentEngine`'s VADER score uses the Python `vaderSentiment` package when available and a built-in lexicon fallback otherwise; `SentimentEvaluationT07` marks VADER predictions "Unavailable" when the package is absent rather than substituting another scorer.
 5. **Legacy training API**: model training still calls `trainNetwork` (deprecated in favour of `trainnet`). The migration is deliberately *not* done silently: `trainnet` changes the loss scaling and the network object type, so it requires a full retrain and re-verification cycle rather than a find-and-replace.
 6. **Research prototype**: no live trading, no capital at risk, and Binance live polling depends on network/geo availability (with a committed-data fallback when the API is unreachable).
+7. **Database persistence is not implemented**: `MarketDataDownloader.saveToDatabase` performs no PostgreSQL write; it logs a warning and the data is not persisted. (PortfolioSimulator's parameterized database logging is a separate component.)
 
 ---
 

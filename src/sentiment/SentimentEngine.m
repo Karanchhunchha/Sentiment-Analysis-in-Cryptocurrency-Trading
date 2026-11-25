@@ -89,12 +89,14 @@ classdef SentimentEngine
                     try
                         dates = datetime(chunk.date, 'InputFormat', 'yyyy-MM-dd HH:mm:ss');
                     catch
-                        % Fallback parsing if format differs
+                        % Fallback parsing if the primary format differs;
+                        % if this parse also fails, the error surfaces.
                         dates = datetime(chunk.date);
                     end
                     
                     % Compute Sentiment
                     scores = zeros(height(chunk), 1);
+                    vaderWarned = false;
                     for i = 1:height(chunk)
                         txt = char(chunk.text(i));
                         
@@ -103,8 +105,14 @@ classdef SentimentEngine
                             try
                                 py_scores = vader.polarity_scores(txt);
                                 scores(i) = double(py_scores{'compound'});
-                            catch
+                            catch ME
+                                % Per-item VADER failure: score neutral (0),
+                                % but never silently - warn once per chunk.
                                 scores(i) = 0;
+                                if ~vaderWarned
+                                    Logger.warning('Python VADER failed on an item (%s); affected items in this chunk are scored 0 (neutral).', ME.message);
+                                    vaderWarned = true;
+                                end
                             end
                         else
                             % Simple naive fallback

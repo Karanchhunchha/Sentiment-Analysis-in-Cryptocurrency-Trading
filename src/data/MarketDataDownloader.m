@@ -174,8 +174,10 @@ classdef MarketDataDownloader
                         lastTime = max(temp.Time);
                         return;
                     end
-                catch
-                    % Ignore error if file is corrupted
+                catch ME
+                    % A corrupted cache must not fail silently: log it and
+                    % treat the cache as empty.
+                    Logger.warning('Cached parquet file unreadable (%s); treating cache as empty.', ME.message);
                 end
             end
             lastTime = [];
@@ -211,9 +213,11 @@ classdef MarketDataDownloader
                 return;
             end
             
-            % Placeholder for PostgreSQL INSERT logic
-            % We will wire up DataIngestion.m to handle the SQL connection
-            Logger.debug('Data ready for PostgreSQL ingestion (%d rows).', height(df));
+            % NOT IMPLEMENTED: this function performs no PostgreSQL INSERT
+            % and the data is NOT persisted. It logs a warning so the gap is
+            % explicit rather than silent. (A future DataIngestion.m is
+            % intended to own the SQL write.)
+            Logger.warning('saveToDatabase: database persistence is not implemented; %d rows were NOT saved.', height(df));
         end
     end
 end

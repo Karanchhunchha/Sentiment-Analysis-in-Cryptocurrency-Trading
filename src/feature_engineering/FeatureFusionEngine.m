@@ -19,8 +19,8 @@ classdef FeatureFusionEngine < handle
         function [fusedData, currentState] = initializeHistorical(obj, historicalPriceTable)
             Logger.info('Initializing Historical Feature State...');
             
-            % Full indicator calculation (e.g., using FeatureEngineer logic)
-            % Mocking the initial heavy calculation
+            % Full indicator calculation over the historical window:
+            % real EMA recursion and Wilder RSI, computed below (no placeholders)
             fusedData = historicalPriceTable;
             n = height(fusedData);
             

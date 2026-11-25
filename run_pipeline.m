@@ -20,9 +20,12 @@ disp('-> [1/4] Loading Production Models and Metadata...');
 modelManager = ModelManager();
 try
     [models, scaler, featureList] = modelManager.loadArtifacts();
-catch
-    Logger.warning('No trained models found! Run train_pipeline.m first. Mocking for UI test.');
-    models = struct('CNN', [], 'LSTM', [], 'ARIMA', [], 'EnsembleWeights', [0.33, 0.33, 0.34]);
+catch ME
+    % No mock fallback: without the real trained artifacts there is nothing
+    % honest to predict with, so fail loudly instead of masking the error.
+    Logger.error('Failed to load production models: %s', ME.message);
+    error('run_pipeline:ModelLoadFailed', ...
+        'Production model artifacts could not be loaded. Run train_pipeline.m first. (%s)', ME.message);
 end
 
 disp('-> [2/4] Initializing Feature Fusion & Macro Engines...');
