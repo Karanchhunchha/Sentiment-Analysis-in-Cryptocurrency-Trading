@@ -49,8 +49,14 @@ classdef IndicatorEngine
                       abs(lowP - [closeP(1); closeP(1:end-1)])], [], 2);
             data.ATR_14 = IndicatorEngine.calcEMA(tr, 14);
             
-            % Drop initial rows for warm-up: longest indicator is SMA_50 -> 50 bars
-            warmUp = 50;
+            % Drop initial rows for warm-up. The count is derived from the
+            % indicator periods used above so it always equals the longest
+            % window actually computed (currently SMA_50 / EMA_50 -> 50 bars).
+            indicatorPeriods = [20, 50, ...   % SMA_20, SMA_50
+                                20, 50, ...   % EMA_20, EMA_50
+                                26, 14, ...   % MACD slow EMA, RSI_14
+                                20, 20, 14];  % Bollinger, Volatility_20, ATR_14
+            warmUp = max(indicatorPeriods);
             data(1:warmUp, :) = [];
             
             Logger.success('Indicators calculated successfully. Added 14 features.');

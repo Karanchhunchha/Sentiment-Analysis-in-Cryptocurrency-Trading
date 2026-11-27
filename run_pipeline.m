@@ -319,5 +319,3 @@ function processLiveTick(newCandle, fullData, fusionEngine, macroEngine, models,
         predictionVisualizer.update(visData, predStruct);
     end
 end
-
-% logPrediction intentionally retained: CSV prediction audit trail (caller: live pipeline future integration point). Currently unused — no call in active code path.

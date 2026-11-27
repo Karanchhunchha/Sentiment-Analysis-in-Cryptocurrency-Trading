@@ -32,6 +32,8 @@ classdef test_B03_AlignmentAndModelIntegrity < matlab.unittest.TestCase
     
     methods (Test)
         function testModelArtifactIntegrity(testCase)
+            testCase.assumeTrue(license('test', 'Econometrics_Toolbox'), ...
+                'Econometrics Toolbox is not licensed in this environment; filtered instead of failed (requires the arima class).');
             % Test A: Verify persisted ARIMA artifact is genuine
             % Note: Pipeline should be run before this test to generate model
             try
@@ -134,6 +136,8 @@ classdef test_B03_AlignmentAndModelIntegrity < matlab.unittest.TestCase
         end
         
         function testInsufficientDataBehavior(testCase)
+            testCase.assumeTrue(license('test', 'Econometrics_Toolbox'), ...
+                'Econometrics Toolbox is not licensed in this environment; filtered instead of failed (requires the arima class).');
             % Test H: Verify insufficient data produces an explicit failure
             % Use a genuinely tiny dataset (5 obs) — far too few for ARIMA(1,1,1)
             yTiny = (1:5)';
@@ -195,6 +199,8 @@ classdef test_B03_AlignmentAndModelIntegrity < matlab.unittest.TestCase
         end
         
         function testOneStepForecast(testCase)
+            testCase.assumeTrue(license('test', 'Econometrics_Toolbox'), ...
+                'Econometrics Toolbox is not licensed in this environment; filtered instead of failed (requires the arima class).');
             % Test J: Verify the saved model can produce a real, finite one-step forecast
             modelPath = fullfile(pwd, 'models', 'arima.mat');
             testCase.verifyTrue(exist(modelPath, 'file') == 2, 'arima.mat must exist');
@@ -222,6 +228,8 @@ classdef test_B03_AlignmentAndModelIntegrity < matlab.unittest.TestCase
         end
         
         function testReproducibilityFromArtifact(testCase)
+            testCase.assumeTrue(license('test', 'Econometrics_Toolbox'), ...
+                'Econometrics Toolbox is not licensed in this environment; filtered instead of failed (requires the arima class).');
             % Test K: Verify saved artifact can be loaded and used consistently
             modelPath = fullfile(pwd, 'models', 'arima.mat');
             testCase.verifyTrue(exist(modelPath, 'file') == 2, 'arima.mat must exist');

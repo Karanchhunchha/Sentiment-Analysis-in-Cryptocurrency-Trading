@@ -128,6 +128,8 @@ classdef test_B04_LiveInferenceIntegration < matlab.unittest.TestCase
         end
 
         function liveInferenceProducesFiniteRawPrice(testCase)
+            testCase.assumeTrue(license('test', 'Econometrics_Toolbox'), ...
+                'Econometrics Toolbox is not licensed in this environment; filtered instead of failed (requires the arima class).');
             % Reproduces the live inference path exactly: load the production
             % artifacts through ModelManager (the same source run_pipeline.m
             % uses), take the trailing 30-row window, scale it, and call the

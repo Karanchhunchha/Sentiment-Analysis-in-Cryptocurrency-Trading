@@ -25,25 +25,6 @@ classdef LiveLogger < handle
             obj.PendingVerifications = [];
         end
         
-        function logPrediction(obj, time, currentPrice, prediction, confidence, sl, tp)
-            % Record a new prediction and add it to the pending queue
-            
-            entry = struct();
-            entry.Time = time;
-            entry.CurrentPrice = currentPrice;
-            entry.Prediction = prediction;
-            entry.Confidence = confidence;
-            entry.SL = sl;
-            entry.TP = tp;
-            entry.IsLong = prediction > currentPrice;
-            
-            if isempty(obj.PendingVerifications)
-                obj.PendingVerifications = entry;
-            else
-                obj.PendingVerifications(end+1) = entry;
-            end
-        end
-        
         function verifyPending(obj, currentTime, currentPrice)
             % Check if any pending predictions have reached their maturity (e.g. 5 minutes)
             

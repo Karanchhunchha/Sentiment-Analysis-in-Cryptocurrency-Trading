@@ -47,11 +47,6 @@ classdef Logger
             Logger.log('WARN', message, varargin{:});
         end
         
-        function warn(message, varargin)
-            % Legacy short-name alias for Logger.warning (kept for existing callers)
-            Logger.warning(message, varargin{:});
-        end
-        
         function success(message, varargin)
             Logger.log('SUCCESS', message, varargin{:});
         end

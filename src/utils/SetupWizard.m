@@ -23,7 +23,7 @@ classdef SetupWizard
             dbUser = ConfigManager.getValue('DB_USER');
             dbPass = ConfigManager.getValue('DB_PASSWORD');
             if isempty(dbUser) || isempty(dbPass)
-                Logger.warn('Database configuration missing in .env. Running in Offline Cache mode.');
+                Logger.warning('Database configuration missing in .env. Running in Offline Cache mode.');
             else
                 Logger.info('Database credentials found. Connect your database to run schema.sql.');
             end

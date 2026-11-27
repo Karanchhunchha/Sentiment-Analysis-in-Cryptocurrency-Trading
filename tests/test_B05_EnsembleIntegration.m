@@ -43,6 +43,8 @@ classdef test_B05_EnsembleIntegration < matlab.unittest.TestCase
     
     methods (Test)
         function testWeightsActuallyChangeOutput(testCase)
+            testCase.assumeTrue(license('test', 'Econometrics_Toolbox'), ...
+                'Econometrics Toolbox is not licensed in this environment; filtered instead of failed (requires the arima class).');
             [models, scaler, featureList, targetScaler, X_scaled] = loadProductionContext();
             
             models.EnsembleWeights = [1.0, 0.0];
@@ -61,6 +63,8 @@ classdef test_B05_EnsembleIntegration < matlab.unittest.TestCase
         end
         
         function testEnsembleOutputFinite(testCase)
+            testCase.assumeTrue(license('test', 'Econometrics_Toolbox'), ...
+                'Econometrics Toolbox is not licensed in this environment; filtered instead of failed (requires the arima class).');
             [models, scaler, featureList, targetScaler, X_scaled] = loadProductionContext();
             models.EnsembleWeights = [0.6, 0.4];
             
@@ -72,6 +76,8 @@ classdef test_B05_EnsembleIntegration < matlab.unittest.TestCase
         end
         
         function testCNNAndARIMAXSameScale(testCase)
+            testCase.assumeTrue(license('test', 'Econometrics_Toolbox'), ...
+                'Econometrics Toolbox is not licensed in this environment; filtered instead of failed (requires the arima class).');
             [models, scaler, featureList, targetScaler, X_scaled] = loadProductionContext();
             models.EnsembleWeights = [1.0, 0.0];
             
@@ -112,6 +118,8 @@ classdef test_B05_EnsembleIntegration < matlab.unittest.TestCase
         end
         
         function testCorrectY0SentToARIMAX(testCase)
+            testCase.assumeTrue(license('test', 'Econometrics_Toolbox'), ...
+                'Econometrics Toolbox is not licensed in this environment; filtered instead of failed (requires the arima class).');
             [models, scaler, featureList, targetScaler, X_scaled] = loadProductionContext();
             [fullData, ~, ~] = PipelineDataProcessor.prepareData(featureList);
             models.EnsembleWeights = [0.0, 1.0];
@@ -145,6 +153,8 @@ classdef test_B05_EnsembleIntegration < matlab.unittest.TestCase
         end
         
         function testXFNonZeroSentimentSentToARIMAX(testCase)
+            testCase.assumeTrue(license('test', 'Econometrics_Toolbox'), ...
+                'Econometrics Toolbox is not licensed in this environment; filtered instead of failed (requires the arima class).');
             [models, scaler, featureList, targetScaler, X_scaled] = loadProductionContext();
             models.EnsembleWeights = [0.0, 1.0];
             
@@ -163,6 +173,8 @@ classdef test_B05_EnsembleIntegration < matlab.unittest.TestCase
         end
         
         function testEnsembleAlignedWithValidRows(testCase)
+            testCase.assumeTrue(license('test', 'Econometrics_Toolbox'), ...
+                'Econometrics Toolbox is not licensed in this environment; filtered instead of failed (requires the arima class).');
             [models, scaler, featureList, targetScaler, X_scaled] = loadProductionContext();
             models.EnsembleWeights = [0.6, 0.4];
             

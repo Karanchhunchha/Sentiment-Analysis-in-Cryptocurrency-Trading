@@ -101,7 +101,7 @@ classdef ModelFramework
                     end
                     close(conn);
                 end
-                Logger.warn('%s unavailable. Trying fallback...', currentType);
+                Logger.warning('%s unavailable. Trying fallback...', currentType);
             end
             
             Logger.error('All model failovers exhausted.');

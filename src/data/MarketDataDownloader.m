@@ -32,7 +32,7 @@ classdef MarketDataDownloader
             try
                 df = MarketDataDownloader.fetchFromBinance(timeframe, startTime);
             catch e
-                Logger.warn('Binance API failed: %s. Falling back to CoinGecko.', e.message);
+                Logger.warning('Binance API failed: %s. Falling back to CoinGecko.', e.message);
                 try
                     df = MarketDataDownloader.fetchFromCoinGecko(timeframe, startTime);
                 catch e2
@@ -153,7 +153,7 @@ classdef MarketDataDownloader
             % Ensure High >= Low
             valid = (df.High >= df.Low) & (df.High >= df.Open) & (df.High >= df.Close) & (df.Low <= df.Open) & (df.Low <= df.Close);
             if any(~valid)
-                Logger.warn('Filtered %d invalid candles (e.g., High < Low).', sum(~valid));
+                Logger.warning('Filtered %d invalid candles (e.g., High < Low).', sum(~valid));
                 df = df(valid, :);
             end
             % Sort by time

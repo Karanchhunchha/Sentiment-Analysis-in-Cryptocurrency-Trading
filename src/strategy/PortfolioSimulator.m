@@ -165,14 +165,8 @@ classdef PortfolioSimulator
         end
         
         function [bestWeights, maxSharpe, htmlPath] = optimizePortfolio(~)
-            % Seed is now controlled by the caller or initialized once
-            % at the start of the function, but removed from inside
-            % the loop if it was there. wait - rng should be here.
-            % The test called this twice, each time rng was set. 
-            % fmincon is deterministic? sqp might depend on start point.
-            % Let me set a fixed RNG seed at top level or here if it
-            % must be. Let's make it deterministic.
-            rng(12345); 
+            % Fixed seed so repeated optimization runs are reproducible.
+            rng(12345);
             Logger.info('Initializing Mean-Variance Portfolio Optimizer (BTC/ETH/BNB/Cash)...');
             
             % 1. Fetch live prices from Binance API
