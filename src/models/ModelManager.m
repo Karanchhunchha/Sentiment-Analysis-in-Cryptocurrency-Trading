@@ -90,17 +90,7 @@ classdef ModelManager
                 models.LSTM = cnn_lstm.lstmModel;
                 
                 arima = load(fullfile(obj.ModelDir, 'arima.mat'));
-                if isa(arima.arimaModel, 'arima')
-                    models.ARIMA = arima.arimaModel;
-                else
-                    % Without the Econometrics Toolbox the saved arima
-                    % object cannot be instantiated and loads as raw
-                    % bytes. Degrade to "no ARIMAX" — callers already
-                    % handle an empty ARIMA — instead of crashing later
-                    % when a property is read from the raw bytes.
-                    Logger.warning('Saved ARIMAX artifact could not be instantiated (Econometrics Toolbox unavailable); continuing without ARIMAX.');
-                    models.ARIMA = [];
-                end
+                models.ARIMA = arima.arimaModel;
                 
                 ens = load(fullfile(obj.ModelDir, 'ensemble.mat'));
                 models.EnsembleWeights = ens.ensembleWeights;
