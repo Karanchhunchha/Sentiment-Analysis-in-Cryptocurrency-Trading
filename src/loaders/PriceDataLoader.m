@@ -65,15 +65,17 @@ classdef PriceDataLoader < handle
                     data = obj.Data;
                     Logger.success('Fetched %d live historical candles.', height(obj.Data));
                 else
-                    Logger.warning('Binance returned empty response. Attempting fallback to CSV (data/market/btc.csv).');
+                    csvPath = obj.fallbackCSVPath();
+                    Logger.warning('Binance returned empty response. Attempting fallback to CSV (%s).', csvPath);
                     % The only committed real data file is data/market/btc.csv;
                     % the per-interval btc_<interval>.csv files were never
                     % committed, so the fallback always uses btc.csv.
-                    data = obj.loadHistoricalCSV('data/market/btc.csv');
+                    data = obj.loadHistoricalCSV(csvPath);
                 end
             catch ME
-                Logger.error('Failed to fetch recent history: %s. Attempting fallback to CSV (data/market/btc.csv).', ME.message);
-                data = obj.loadHistoricalCSV('data/market/btc.csv');
+                csvPath = obj.fallbackCSVPath();
+                Logger.error('Failed to fetch recent history: %s. Attempting fallback to CSV (%s).', ME.message, csvPath);
+                data = obj.loadHistoricalCSV(csvPath);
             end
         end
         
@@ -147,6 +149,18 @@ classdef PriceDataLoader < handle
             end
         end
         
+        function csvPath = fallbackCSVPath(~)
+            % Resolve the committed fallback CSV from this class's own
+            % location (<root>/src/loaders/PriceDataLoader.m), never from
+            % the caller's working folder, so the CSV fallback works no
+            % matter which folder MATLAB is currently pointing at.
+            rootDir = fileparts(fileparts(fileparts(which('PriceDataLoader'))));
+            if isempty(rootDir)
+                rootDir = pwd;
+            end
+            csvPath = fullfile(rootDir, 'data', 'market', 'btc.csv');
+        end
+
         function candleTable = parseBinanceResponse(~, rawJson)
             % Parses standard Binance kline JSON array into a MATLAB table
             row = rawJson{1};
